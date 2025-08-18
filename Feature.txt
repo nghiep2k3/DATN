@@ -1,0 +1,12 @@
+User
+- Đăng ký, đăng nhập
+- Thêm, sửa, xóa giỏ hàng của họ
+- Chỉnh sửa thông tin cá nhân
+- thêm sửa xóa địa chỉ
+- thanh toán vnpay
+
+Admin
+- Thêm sửa xóa cate
+- Chỉnh sửa user
+- Đăng ký member admin
+- xem sản phẩm người dùng đã mua và đang thêm vào giỏ hàng
