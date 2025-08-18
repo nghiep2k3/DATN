@@ -1,0 +1,9 @@
+RewriteEngine On
+# ĐÚNG base theo URL thực tế bạn đang gọi:
+# http://localhost:8081/datn/be/public/...
+RewriteBase /datn/be/public/
+
+# Nếu không phải file/thư mục thật thì đẩy về index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

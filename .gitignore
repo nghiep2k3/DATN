@@ -11,6 +11,9 @@ Thumbs.db
 /be/storage/
 /be/.idea/
 /be/.vscode/
+/be/config/.env
+/be/config/.env.*
+
 
 # ==== Frontend (React / Node) ====
 /fe/node_modules/

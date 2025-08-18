@@ -1,5 +1,5 @@
 <?php
-namespace App\Core;
+namespace Config;
 
 use PDO;
 use PDOException;
@@ -20,7 +20,7 @@ class db
         $this->port     = $_ENV['DB_PORT'] ?? '3306';
         $this->username = $_ENV['DB_USER'] ?? 'root';
         $this->password = $_ENV['DB_PASS'] ?? '';
-        $this->dbname   = $_ENV['DB_NAME'] ?? 'rest_api';
+        $this->dbname   = $_ENV['DB_NAME'] ?? '';
     }
 
     public function connect(): PDO
