@@ -1,0 +1,32 @@
+# ==== Common ====
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+
+# ==== Backend (PHP / Composer) ====
+/be/vendor/
+/be/node_modules/
+/be/storage/
+/be/.idea/
+/be/.vscode/
+/be/config/.env
+/be/config/.env.*
+
+
+# ==== Frontend (React / Node) ====
+/fe/node_modules/
+/fe/build/
+/fe/dist/
+/fe/.pnp
+/fe/.pnp.js
+
+# ==== Archives ====
+*.zip
+*.rar
+*.7z
+
+# ==== OS ====
+ehthumbs.db
+Icon?
