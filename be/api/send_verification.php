@@ -1,8 +1,7 @@
 <?php
-// File: be/api/login.php
 require __DIR__ . '/../vendor/autoload.php';
 
-use Config\Db; 
+use Config\Db;
 use App\Controllers\AuthController;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../config');
@@ -13,32 +12,20 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => true, 'message' => 'Không hỗ trợ phương thức này.']);
-    exit;
-}
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); echo json_encode(['error'=>true,'message'=>'Chỉ cho phép POST']); exit; }
 
 try {
     $pdo = (new Db())->connect();
-
-    // Chấp nhận JSON hoặc form-encoded
     $raw = file_get_contents('php://input');
     $input = json_decode($raw, true);
-    if (!is_array($input)) {
-        $input = $_POST; // fallback nếu gửi form
-    }
+    if (!is_array($input)) { $input = $_POST; }
 
-    [$code, $payload] = (new AuthController($pdo))->login($input);
+    [$code, $payload] = (new AuthController($pdo))->sendVerification($input);
     http_response_code($code);
     echo json_encode($payload);
 
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo json_encode(['error' => true, 'message' => 'Server error', 'detail' => $e->getMessage()]);
+    echo json_encode(['error'=>true,'message'=>'Server error','detail'=>$e->getMessage()]);
 }

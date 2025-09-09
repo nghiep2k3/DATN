@@ -1,18 +1,49 @@
 <?php
 // File: be/app/Models/User.php
+// chỉ là mô hình dữ liệu, không thao tác DB trực tiếp
 namespace App\Models;
 
-use PDO;
+class User
+{
+    public int $id;
+    public ?string $name;
+    public string $email;
+    public string $password;
+    public ?string $phone;
+    public ?string $role;
+    public ?int $veryfied_account;              // <- giữ đúng tên cột bạn tạo
+    public ?string $verification_code;
+    public ?string $verification_expires_at;
+    public ?string $created_at;
 
-class User {
-    private PDO $pdo;
-    public function __construct(PDO $pdo) { $this->pdo = $pdo; }
+    public function __construct(array $row)
+    {
+        $this->id = (int) ($row['id'] ?? 0);
+        $this->name = $row['name'] ?? null;
+        $this->email = $row['email'] ?? '';
+        $this->password = $row['password'] ?? '';
+        $this->phone = $row['phone'] ?? null;
+        $this->role = $row['role'] ?? null;
+        $this->veryfied_account = isset($row['veryfied_account']) ? (int) $row['veryfied_account'] : null;
+        $this->verification_code = $row['verification_code'] ?? null;
+        $this->verification_expires_at = $row['verification_expires_at'] ?? null;
+        $this->created_at = $row['created_at'] ?? null;
+    }
 
-    public function findByEmail(string $email): ?array {
-        $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
-        $stm = $this->pdo->prepare($sql);
-        $stm->execute(['email' => $email]);
-        $row = $stm->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+    public static function fromArray(array $row): self
+    {
+        return new self($row);
+    }
+
+    public function toPublicArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'role' => $this->role,
+            'veryfied_account' => $this->veryfied_account
+        ];
     }
 }
