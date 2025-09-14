@@ -1,5 +1,5 @@
 User
-- Đăng ký, đăng nhập
+- Đăng ký, đăng nhập (done)
 - Thêm, sửa, xóa giỏ hàng của họ
 - Chỉnh sửa thông tin cá nhân
 - thêm sửa xóa địa chỉ
@@ -7,6 +7,18 @@ User
 
 Admin
 - Thêm sửa xóa cate
+- Thêm sửa xóa brands   
 - Chỉnh sửa user
 - Đăng ký member admin
 - xem sản phẩm người dùng đã mua và đang thêm vào giỏ hàng
+
+
+Chức năng cần làm 
+
+- Đăng ký, đăng nhập
+-Lấy ra tất cả sản phẩm, lấy ra 1 sản phẩm, thêm sửa xóa
+-Lấy ra cate, thêm sửa xóa
+-Lấy ra brands, thêm sửa xóa
+-Lấy ra tags, thêm sửa xóa
+-Lấy ra cartitem, thêm sửa xóa
+-Lấy ra orders, thêm sửa xóa

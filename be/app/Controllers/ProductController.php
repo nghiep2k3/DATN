@@ -8,91 +8,102 @@ class ProductController
 {
     public function __construct(private PDO $pdo) {}
 
-    // GET /api/products
-    public function getData(): void
-    {
-        $page     = max(1, (int)($_GET['page'] ?? 1));
-        $perPage  = min(100, max(1, (int)($_GET['per_page'] ?? 12)));
-        $q        = trim((string)($_GET['q'] ?? ''));
-        $catId    = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
-        $brandId  = isset($_GET['brand_id'])    ? (int)$_GET['brand_id']    : null;
+    /** Lấy chi tiết 1 sản phẩm theo id */
+    public function show(int $id): array {
+        $sql = "
+            SELECT p.*, b.name AS brand_name, c.name AS category_name
+            FROM Products p
+            LEFT JOIN Brands b ON b.id = p.brand_id
+            LEFT JOIN Categories c ON c.id = p.category_id
+            WHERE p.id = :id
+            LIMIT 1
+        ";
+        $stm = $this->pdo->prepare($sql);
+        $stm->execute(['id' => $id]);
+        $row = $stm->fetch(PDO::FETCH_ASSOC);
+        if (!$row) return [404, ['error'=>true,'message'=>'Product not found']];
 
-        $sortBy   = strtolower($_GET['sort_by'] ?? 'created_at');
-        $order    = strtolower($_GET['order']   ?? 'desc');
-        $allowed  = ['created_at','price','name'];
-        if (!in_array($sortBy, $allowed, true)) $sortBy = 'created_at';
-        $order = $order === 'asc' ? 'ASC' : 'DESC';
+        $product = Product::fromArray($row)->toArray();
+        // gắn thêm tên brand/category nếu cần
+        $product['brand_name'] = $row['brand_name'] ?? null;
+        $product['category_name'] = $row['category_name'] ?? null;
 
-        $offset = ($page-1)*$perPage;
+        return [200, ['error'=>false, 'data'=>$product]];
+    }
 
-        $where = []; $p = [];
-        if ($q !== '')         { $where[] = 'p.name LIKE :q';     $p[':q']   = "%{$q}%"; }
-        if (!is_null($catId))  { $where[] = 'p.category_id=:cid'; $p[':cid'] = $catId; }
-        if (!is_null($brandId)){ $where[] = 'p.brand_id=:bid';    $p[':bid'] = $brandId; }
+    /** Danh sách + lọc + phân trang */
+    public function list(array $query): array {
+        $page  = max(1, (int)($query['page'] ?? 1));
+        $limit = min(100, max(1, (int)($query['limit'] ?? 20)));
+        $offset = ($page - 1) * $limit;
 
+        $where = [];
+        $params = [];
+
+        if (!empty($query['search'])) {
+            $where[] = '(p.name LIKE :kw OR p.sku LIKE :kw)';
+            $params['kw'] = '%'.$query['search'].'%';
+        }
+        if (!empty($query['category_id'])) {
+            $where[] = 'p.category_id = :cid';
+            $params['cid'] = (int)$query['category_id'];
+        }
+        if (!empty($query['brand_id'])) {
+            $where[] = 'p.brand_id = :bid';
+            $params['bid'] = (int)$query['brand_id'];
+        }
         $whereSql = $where ? 'WHERE '.implode(' AND ', $where) : '';
 
+        $sortMap = ['name'=>'p.name','price'=>'p.price','created_at'=>'p.created_at'];
+        $sort  = strtolower($query['sort'] ?? 'created_at');
+        $order = strtolower($query['order'] ?? 'desc');
+        $order = $order === 'asc' ? 'ASC' : 'DESC';
+        $sortCol = $sortMap[$sort] ?? 'p.created_at';
+
         // total
-        $cst = $this->pdo->prepare("SELECT COUNT(*) FROM Products p {$whereSql}");
-        foreach ($p as $k=>$v) $cst->bindValue($k, $v, is_int($v)?\PDO::PARAM_INT:\PDO::PARAM_STR);
-        $cst->execute();
-        $total = (int)$cst->fetchColumn();
+        $countSql = "SELECT COUNT(*) FROM Products p $whereSql";
+        $stm = $this->pdo->prepare($countSql);
+        $stm->execute($params);
+        $total = (int)$stm->fetchColumn();
 
         // data
-        $sql = "SELECT p.id, p.name, p.sku, p.price, p.stock_quantity, p.image_url,
-                       b.name AS brand_name, c.name AS category_name, p.created_at
-                FROM Products p
-                LEFT JOIN Brands b ON p.brand_id=b.id
-                LEFT JOIN Categories c ON p.category_id=c.id
-                {$whereSql}
-                ORDER BY p.{$sortBy} {$order}
-                LIMIT :limit OFFSET :offset";
-        $st = $this->pdo->prepare($sql);
-        foreach ($p as $k=>$v) $st->bindValue($k, $v, is_int($v)?\PDO::PARAM_INT:\PDO::PARAM_STR);
-        $st->bindValue(':limit',  $perPage, \PDO::PARAM_INT);
-        $st->bindValue(':offset', $offset,  \PDO::PARAM_INT);
-        $st->execute();
+        $sql = "
+            SELECT
+                p.*, b.name AS brand_name, c.name AS category_name
+            FROM Products p
+            LEFT JOIN Brands b ON b.id = p.brand_id
+            LEFT JOIN Categories c ON c.id = p.category_id
+            $whereSql
+            ORDER BY $sortCol $order
+            LIMIT :limit OFFSET :offset
+        ";
+        $stm = $this->pdo->prepare($sql);
+        foreach ($params as $k=>$v) $stm->bindValue(':'.$k, $v);
+        $stm->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stm->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stm->execute();
 
-        $rows = array_map(fn($r)=> (new Product($r))->toArray(), $st->fetchAll());
+        $rows = $stm->fetchAll(PDO::FETCH_ASSOC);
+        // hydrate -> array
+        $items = [];
+        foreach ($rows as $r) {
+            $p = Product::fromArray($r)->toArray();
+            $p['brand_name'] = $r['brand_name'] ?? null;
+            $p['category_name'] = $r['category_name'] ?? null;
+            $items[] = $p;
+        }
 
-        $this->json([
-            'data' => $rows,
-            'pagination' => [
-                'page'=>$page,'per_page'=>$perPage,'total'=>$total,
-                'total_pages'=> max(1,(int)ceil($total/$perPage))
-            ],
-            'filters' => [
-                'q'=>$q,'category_id'=>$catId,'brand_id'=>$brandId,
-                'sort_by'=>$sortBy,'order'=>strtolower($order)
+        return [200, [
+            'error'=>false,
+            'data'=>$items,
+            'pagination'=>[
+                'total'=>$total,
+                'page'=>$page,
+                'limit'=>$limit,
+                'pages'=>(int)ceil($total/$limit),
+                'sort'=>$sort,
+                'order'=>strtolower($order)
             ]
-        ]);
-    }
-
-    // GET /api/products/{id}
-    public function show(int $id): void
-    {
-        $st = $this->pdo->prepare(
-            "SELECT p.*, b.name AS brand_name, c.name AS category_name
-             FROM Products p
-             LEFT JOIN Brands b ON p.brand_id=b.id
-             LEFT JOIN Categories c ON p.category_id=c.id
-             WHERE p.id=:id LIMIT 1"
-        );
-        $st->bindValue(':id', $id, \PDO::PARAM_INT);
-        $st->execute();
-        $row = $st->fetch();
-        if (!$row) $this->json(['error'=>true,'message'=>'Not found'], 404);
-
-        $this->json(['data'=>(new Product($row))->toArray()]);
-    }
-
-    private function json($data, int $code=200): void
-    {
-        http_response_code($code);
-        header('Content-Type: application/json; charset=utf-8');
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, OPTIONS');
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-        exit;
+        ]];
     }
 }
