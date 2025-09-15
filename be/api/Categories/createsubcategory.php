@@ -18,29 +18,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['error' => true, 'message' => 'Chỉ cho phép POST']);
+    echo json_encode(['data' => ['error' => true, 'message' => 'Chỉ cho phép POST']]);
     exit;
 }
 
 try {
     $pdo = (new Db())->connect();
+    $ctl = new CategoriesController($pdo);
 
-    // Nhận JSON hoặc form
     $raw = file_get_contents('php://input');
     $input = json_decode($raw, true);
     if (!is_array($input)) {
         $input = $_POST;
     }
 
-    [$code, $payload] = (new CategoriesController($pdo))->create($input);
+    [$code, $payload] = $ctl->createSub($input);
     http_response_code($code);
-    echo json_encode($payload);
-
+    echo json_encode(['data' => $payload]);
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo json_encode([
-        'error' => true,
-        'message' => 'Server error',
-        'detail' => $e->getMessage()
-    ]);
+    echo json_encode(['data' => ['error' => true, 'message' => 'Server error', 'detail' => $e->getMessage()]]);
 }
