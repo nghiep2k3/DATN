@@ -22,3 +22,7 @@ Chức năng cần làm
 -Lấy ra tags, thêm sửa xóa
 -Lấy ra cartitem, thêm sửa xóa
 -Lấy ra orders, thêm sửa xóa
+
+
+Hôm nay
+thêm url_image, created_at
