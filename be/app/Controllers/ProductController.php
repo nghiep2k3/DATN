@@ -3,107 +3,234 @@ namespace App\Controllers;
 
 use App\Models\Product;
 use PDO;
+use PDOException;
 
 class ProductController
 {
-    public function __construct(private PDO $pdo) {}
+    private PDO $db;
 
-    /** Lấy chi tiết 1 sản phẩm theo id */
-    public function show(int $id): array {
-        $sql = "
-            SELECT p.*, b.name AS brand_name, c.name AS category_name
-            FROM Products p
-            LEFT JOIN Brands b ON b.id = p.brand_id
-            LEFT JOIN Categories c ON c.id = p.category_id
-            WHERE p.id = :id
-            LIMIT 1
-        ";
-        $stm = $this->pdo->prepare($sql);
-        $stm->execute(['id' => $id]);
-        $row = $stm->fetch(PDO::FETCH_ASSOC);
-        if (!$row) return [404, ['error'=>true,'message'=>'Product not found']];
-
-        $product = Product::fromArray($row)->toArray();
-        // gắn thêm tên brand/category nếu cần
-        $product['brand_name'] = $row['brand_name'] ?? null;
-        $product['category_name'] = $row['category_name'] ?? null;
-
-        return [200, ['error'=>false, 'data'=>$product]];
+    public function __construct(PDO $db)
+    {
+        $this->db = $db;
     }
 
-    /** Danh sách + lọc + phân trang */
-    public function list(array $query): array {
-        $page  = max(1, (int)($query['page'] ?? 1));
-        $limit = min(100, max(1, (int)($query['limit'] ?? 20)));
-        $offset = ($page - 1) * $limit;
+    /**
+     * Thêm sản phẩm mới
+     * @param array $data
+     * @return array
+     */
+    public function create(array $data): array
+    {
+        try {
+            $stmt = $this->db->prepare("
+    INSERT INTO products (name, sku, description, price, stock_quantity, brand_id, category_id, image_url, created_at)
+    VALUES (:name, :sku, :description, :price, :stock_quantity, :brand_id, :category_id, :image_url, NOW())
+");
 
-        $where = [];
-        $params = [];
+            $stmt->execute([
+                'name' => $data['name'],
+                'sku' => $data['sku'] ?? null,
+                'description' => $data['description'] ?? null,
+                'price' => $data['price'],
+                'stock_quantity' => $data['stock_quantity'] ?? 0,
+                'brand_id' => $data['brand_id'] ?? null,
+                'category_id' => $data['category_id'] ?? null,
+                'image_url' => $data['image_url']
+            ]);
 
-        if (!empty($query['search'])) {
-            $where[] = '(p.name LIKE :kw OR p.sku LIKE :kw)';
-            $params['kw'] = '%'.$query['search'].'%';
+
+            $productId = $this->db->lastInsertId();
+
+            // Nếu có ảnh -> insert vào bảng product_images
+            if (!empty($data['images']) && is_array($data['images'])) {
+                $imgStmt = $this->db->prepare("
+                INSERT INTO product_images (product_id, image_url) 
+                VALUES (:product_id, :image_url)
+            ");
+                foreach ($data['images'] as $url) {
+                    $imgStmt->execute([
+                        'product_id' => $productId,
+                        'image_url' => $url
+                    ]);
+                }
+            }
+
+            return [
+                "error" => false,
+                "message" => "Thêm sản phẩm thành công",
+                "product_id" => $productId
+            ];
+        } catch (PDOException $e) {
+            return [
+                "error" => true,
+                "message" => "Lỗi khi thêm sản phẩm",
+                "detail" => $e->getMessage()
+            ];
         }
-        if (!empty($query['category_id'])) {
-            $where[] = 'p.category_id = :cid';
-            $params['cid'] = (int)$query['category_id'];
-        }
-        if (!empty($query['brand_id'])) {
-            $where[] = 'p.brand_id = :bid';
-            $params['bid'] = (int)$query['brand_id'];
-        }
-        $whereSql = $where ? 'WHERE '.implode(' AND ', $where) : '';
-
-        $sortMap = ['name'=>'p.name','price'=>'p.price','created_at'=>'p.created_at'];
-        $sort  = strtolower($query['sort'] ?? 'created_at');
-        $order = strtolower($query['order'] ?? 'desc');
-        $order = $order === 'asc' ? 'ASC' : 'DESC';
-        $sortCol = $sortMap[$sort] ?? 'p.created_at';
-
-        // total
-        $countSql = "SELECT COUNT(*) FROM Products p $whereSql";
-        $stm = $this->pdo->prepare($countSql);
-        $stm->execute($params);
-        $total = (int)$stm->fetchColumn();
-
-        // data
-        $sql = "
-            SELECT
-                p.*, b.name AS brand_name, c.name AS category_name
-            FROM Products p
-            LEFT JOIN Brands b ON b.id = p.brand_id
-            LEFT JOIN Categories c ON c.id = p.category_id
-            $whereSql
-            ORDER BY $sortCol $order
-            LIMIT :limit OFFSET :offset
-        ";
-        $stm = $this->pdo->prepare($sql);
-        foreach ($params as $k=>$v) $stm->bindValue(':'.$k, $v);
-        $stm->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stm->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stm->execute();
-
-        $rows = $stm->fetchAll(PDO::FETCH_ASSOC);
-        // hydrate -> array
-        $items = [];
-        foreach ($rows as $r) {
-            $p = Product::fromArray($r)->toArray();
-            $p['brand_name'] = $r['brand_name'] ?? null;
-            $p['category_name'] = $r['category_name'] ?? null;
-            $items[] = $p;
-        }
-
-        return [200, [
-            'error'=>false,
-            'data'=>$items,
-            'pagination'=>[
-                'total'=>$total,
-                'page'=>$page,
-                'limit'=>$limit,
-                'pages'=>(int)ceil($total/$limit),
-                'sort'=>$sort,
-                'order'=>strtolower($order)
-            ]
-        ]];
     }
+
+    public function getAll(): array
+    {
+        try {
+            $stmt = $this->db->query("SELECT * FROM products ORDER BY created_at DESC");
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($products as &$prod) {
+                $imgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
+                $imgStmt->execute(['id' => $prod['id']]);
+                $prod['images'] = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+            }
+
+            return [
+                "error" => false,
+                "products" => $products
+            ];
+        } catch (PDOException $e) {
+            return [
+                "error" => true,
+                "message" => $e->getMessage()
+            ];
+        }
+    }
+
+    public function getById(int $id): array
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM products WHERE id = :id");
+            $stmt->execute(['id' => $id]);
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$product) {
+                return [
+                    "error" => true,
+                    "message" => "Sản phẩm không tồn tại"
+                ];
+            }
+
+            $imgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
+            $imgStmt->execute(['id' => $id]);
+            $product['images'] = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            return [
+                "error" => false,
+                "product" => $product
+            ];
+        } catch (PDOException $e) {
+            return [
+                "error" => true,
+                "message" => $e->getMessage()
+            ];
+        }
+    }
+
+    public function update(int $id, array $data): array
+    {
+        try {
+            // kiểm tra sản phẩm có tồn tại không
+            $stmt = $this->db->prepare("SELECT * FROM products WHERE id = :id");
+            $stmt->execute(['id' => $id]);
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$product) {
+                return ["error" => true, "message" => "Sản phẩm không tồn tại"];
+            }
+
+            // update sản phẩm
+            $stmt = $this->db->prepare("
+            UPDATE products 
+            SET name = :name, sku = :sku, description = :description, price = :price, 
+                stock_quantity = :stock_quantity, brand_id = :brand_id, 
+                category_id = :category_id, image_url = :image_url
+            WHERE id = :id
+        ");
+            $stmt->execute([
+                'name' => $data['name'],
+                'sku' => $data['sku'] ?? null,
+                'description' => $data['description'] ?? null,
+                'price' => $data['price'],
+                'stock_quantity' => $data['stock_quantity'] ?? 0,
+                'brand_id' => $data['brand_id'] ?? null,
+                'category_id' => $data['category_id'] ?? null,
+                'image_url' => $data['image_url'] ?? $product['image_url'],
+                'id' => $id
+            ]);
+
+            // Xử lý ảnh: xóa ảnh cũ, insert ảnh mới
+            if (!empty($data['images']) && is_array($data['images'])) {
+                // Lấy ảnh cũ
+                $oldImgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
+                $oldImgStmt->execute(['id' => $id]);
+                $oldImages = $oldImgStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                // Xóa file cũ trong thư mục upload
+                foreach ($oldImages as $img) {
+                    $filePath = dirname(__DIR__, 2) . $img;
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
+
+                // Xóa record cũ trong DB
+                $this->db->prepare("DELETE FROM product_images WHERE product_id = :id")->execute(['id' => $id]);
+
+                // Insert ảnh mới
+                $imgStmt = $this->db->prepare("
+                INSERT INTO product_images (product_id, image_url) 
+                VALUES (:product_id, :image_url)
+            ");
+                foreach ($data['images'] as $url) {
+                    $imgStmt->execute([
+                        'product_id' => $id,
+                        'image_url' => $url
+                    ]);
+                }
+            }
+
+            return ["error" => false, "message" => "Cập nhật sản phẩm thành công"];
+        } catch (PDOException $e) {
+            return ["error" => true, "message" => $e->getMessage()];
+        }
+    }
+
+    public function delete(int $id): array
+    {
+        try {
+            // lấy ảnh từ product_images
+            $imgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
+            $imgStmt->execute(['id' => $id]);
+            $images = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            // lấy ảnh đại diện từ products
+            $mainStmt = $this->db->prepare("SELECT image_url FROM products WHERE id = :id");
+            $mainStmt->execute(['id' => $id]);
+            $mainImage = $mainStmt->fetchColumn();
+
+            // gom tất cả ảnh
+            if ($mainImage) {
+                $images[] = $mainImage;
+            }
+
+            // xoá file vật lý
+            foreach ($images as $img) {
+                $filePath = dirname(__DIR__, 2) . $img;
+                if ($img && file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            // xoá record ảnh
+            $this->db->prepare("DELETE FROM product_images WHERE product_id = :id")->execute(['id' => $id]);
+
+            // xoá sản phẩm
+            $del = $this->db->prepare("DELETE FROM products WHERE id = :id");
+            $del->execute(['id' => $id]);
+
+            return ["error" => false, "message" => "Xóa sản phẩm thành công"];
+        } catch (PDOException $e) {
+            return ["error" => true, "message" => $e->getMessage()];
+        }
+    }
+
+
+
 }

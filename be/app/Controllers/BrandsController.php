@@ -117,13 +117,13 @@ class BrandsController
         // 2) Nếu có file upload -> xử lý lưu vào be/upload
         $newImageRelPath = null;
         if ($file && isset($file['tmp_name']) && $file['error'] === UPLOAD_ERR_OK) {
-            $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+            $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
             if (!in_array($ext, $allowed, true)) {
                 throw new \RuntimeException('Định dạng ảnh không hợp lệ (jpg, jpeg, png, webp, gif).');
             }
-            if ($file['size'] > 5 * 1024 * 1024) {
-                throw new \RuntimeException('Ảnh vượt quá 5MB.');
+            if ($file['size'] > 12 * 1024 * 1024) {
+                throw new \RuntimeException('Ảnh vượt quá 12MB.');
             }
 
             // Thư mục vật lý: be/upload
