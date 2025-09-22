@@ -24,5 +24,4 @@ Chức năng cần làm
 -Lấy ra orders, thêm sửa xóa
 
 
-Hôm nay
-thêm url_image, created_at
+Nếu người dùng không đăng nhập thì trước lúc thêm vào giỏ hàng thì bắt họ nhập số điện thoại
