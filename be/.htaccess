@@ -1,0 +1,23 @@
+<!-- # be/upload/.htaccess
+
+# Ngăn list thư mục
+Options -Indexes
+
+# Mặc định chặn tất cả
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>
+
+# Cho phép load file ảnh
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Allow from all
+    </IfModule>
+</FilesMatch> -->

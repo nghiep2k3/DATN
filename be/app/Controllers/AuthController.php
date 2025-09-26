@@ -18,7 +18,7 @@ class AuthController
     /** Kiểm tra email đã tồn tại */
     private function emailExists(string $email): bool
     {
-        $stm = $this->pdo->prepare("SELECT 1 FROM Users WHERE email = :email LIMIT 1");
+        $stm = $this->pdo->prepare("SELECT 1 FROM users WHERE email = :email LIMIT 1");
         $stm->execute(['email' => $email]);
         return (bool) $stm->fetchColumn();
     }
@@ -26,10 +26,10 @@ class AuthController
     /** Tìm user theo email (SQL ở Controller) */
     private function findUserByEmail(string $email): ?User
     {
-        // Dùng đúng tên bảng Users theo schema (MySQL trên Windows không phân biệt hoa thường, nhưng nên khớp) 
+        // Dùng đúng tên bảng users theo schema (MySQL trên Windows không phân biệt hoa thường, nhưng nên khớp) 
         $sql = "SELECT id, name, email, password, phone, role,
                    veryfied_account, verification_code, verification_expires_at, created_at
-            FROM Users
+            FROM users
             WHERE email = :email
             LIMIT 1";
         $stm = $this->pdo->prepare($sql);
@@ -41,7 +41,7 @@ class AuthController
     /** Tìm user theo email (SQL ở Model) */
     private function findByEmail(string $email): ?User
     {
-        $sql = "SELECT * FROM Users WHERE email = :email LIMIT 1";
+        $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
         $stm = $this->pdo->prepare($sql);
         $stm->execute(['email' => $email]);
         $row = $stm->fetch(PDO::FETCH_ASSOC);
@@ -73,7 +73,7 @@ class AuthController
 
         // Lưu DB
         $upd = $this->pdo->prepare(
-            "UPDATE Users SET verification_code = :code, verification_expires_at = :exp WHERE id = :id"
+            "UPDATE users SET verification_code = :code, verification_expires_at = :exp WHERE id = :id"
         );
         $upd->execute(['code' => $hash, 'exp' => $expiresAt, 'id' => $user->id]);
 
@@ -125,7 +125,7 @@ class AuthController
 
         // Đánh dấu đã xác thực + xoá mã
         $done = $this->pdo->prepare(
-            "UPDATE Users 
+            "UPDATE users 
              SET veryfied_account = 1, verification_code = NULL, verification_expires_at = NULL 
              WHERE id = :id"
         );
@@ -196,14 +196,14 @@ class AuthController
         }
 
         // Check trùng email (ở app-level). Có thể bỏ đoạn này nếu bạn đã UNIQUE(email) và dùng try/catch ở dưới.
-        $exists = $this->pdo->prepare("SELECT 1 FROM Users WHERE email = :email LIMIT 1");
+        $exists = $this->pdo->prepare("SELECT 1 FROM users WHERE email = :email LIMIT 1");
         $exists->execute(['email' => $email]);
         if ($exists->fetchColumn()) {
             return [409, ['error' => true, 'message' => 'Email đã tồn tại.']];
         }
 
         // Insert trực tiếp + hash mật khẩu
-        $sql = "INSERT INTO Users (name, email, password, phone, role, created_at)
+        $sql = "INSERT INTO users (name, email, password, phone, role, created_at)
                 VALUES (:name, :email, :password, :phone, :role, NOW())";
         $stm = $this->pdo->prepare($sql);
         $stm->execute([
@@ -216,7 +216,7 @@ class AuthController
 
         // Lấy lại user vừa tạo (hoặc bạn có thể trả ngay id + dữ liệu input)
         $id = (int) $this->pdo->lastInsertId();
-        $stm = $this->pdo->prepare("SELECT * FROM Users WHERE id = :id");
+        $stm = $this->pdo->prepare("SELECT * FROM users WHERE id = :id");
         $stm->execute(['id' => $id]);
         $row = $stm->fetch(PDO::FETCH_ASSOC);
         $user = User::fromArray($row);

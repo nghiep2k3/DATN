@@ -1,0 +1,112 @@
+/* Toàn màn hình */
+.register-container {
+    min-height: 95vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background: #f2f2f2; */
+    background-image: url('https://hoctuxa.com.vn/wp-content/uploads/2023/08/hoc-van-bang-2-xay-dung-dan-dung-va-cong-nghiep.jpeg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding: 20px;
+}
+
+/* Hộp chia đôi */
+.register-box {
+    display: flex;
+    width: 900px;
+    min-height: 500px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Bên trái */
+.register-left {
+    flex: 1;
+    background-color: #00796B;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.left-actions {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 200px;
+}
+
+.left-btn {
+    width: 100%;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.left-btn.ant-btn-primary {
+    background-color: #ff6600;
+    border-color: #ff6600;
+}
+
+.left-btn.ant-btn-primary:hover {
+    background-color: #e65c00 !important;
+    border-color: #e65c00 !important;
+}
+
+.register-logo {
+    width: 150px;
+    margin-bottom: 20px;
+}
+
+.slogan {
+    text-transform: uppercase;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+/* Bên phải */
+.register-right {
+    flex: 1;
+    background: #fff;
+    padding: 40px;
+}
+
+.register-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #00796B;
+}
+
+/* Input focus */
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+    border-color: #00BCD4 !important;
+    box-shadow: 0 0 6px rgba(0, 188, 212, 0.5);
+}
+
+/* Nút đăng ký */
+.register-btn {
+    background: #00796B;
+    border-color: #ff6600;
+    height: 45px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.register-btn:hover {
+    background: #e65c00 !important;
+    border-color: #e65c00 !important;
+}
