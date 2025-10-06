@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1:4306
--- Thời gian đã tạo: Th9 18, 2025 lúc 11:00 AM
+-- Thời gian đã tạo: Th10 01, 2025 lúc 03:30 PM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.2.4
 
@@ -42,7 +42,8 @@ CREATE TABLE `brands` (
 INSERT INTO `brands` (`id`, `name`, `description`, `url_image`, `created_at`) VALUES
 (30, 'Rion', 'Rion', '/upload/logo-hang-rion-_68ca70e7068ba8.06134944.svg', '2025-09-17 15:27:19'),
 (31, 'Mahr', 'Mahr', '/upload/logo-hang-mahr_68ca722ceb22f5.85611947.svg', '2025-09-17 15:32:44'),
-(32, 'Insize', 'Insize', '/upload/logo-hang-insize_68ca72745f6752.07953023.svg', '2025-09-17 15:33:56');
+(32, 'Insize', 'Insize', '/upload/logo-hang-insize_68ca72745f6752.07953023.svg', '2025-09-17 15:33:56'),
+(34, 'Trimos', 'Trimos', '/upload/logo-hang-trimos_68ce20e38966d6.65676864.svg', '2025-09-20 10:29:48');
 
 -- --------------------------------------------------------
 
@@ -78,10 +79,7 @@ CREATE TABLE `categories` (
 
 INSERT INTO `categories` (`id`, `name`, `description`, `parent_id`, `url_image`, `created_at`) VALUES
 (20, 'Điện - Điện tử', 'Danh mục cha về thiết bị điện tử', NULL, 'upload/20250918_093156_fb3d0d3bc863.png', '2025-09-18 11:41:45'),
-(21, 'Thiết bị đo điện A', 'Thiết bị đo điện A', NULL, 'upload/20250918_103216_2ab886494838.webp', '2025-09-18 15:32:16'),
-(26, 'Test A', 'Test A', NULL, 'upload/20250918_091312_be46c6eb19c1.png', '2025-09-18 14:13:12'),
-(27, 'Test A_B', 'Test A_B', 26, 'upload/20250918_093156_fb3d0d3bc863.png', '2025-09-18 14:31:56'),
-(28, 'Test A_B_C', 'Test A_B_C', 26, 'upload/20250918_093602_0dd470b2e144.png', '2025-09-18 14:36:02');
+(21, 'Thước kẹp', 'Thước kẹp', NULL, 'upload/20250918_103216_2ab886494838.webp', '2025-09-20 10:42:56');
 
 -- --------------------------------------------------------
 
@@ -151,16 +149,8 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `sku`, `description`, `price`, `stock_quantity`, `brand_id`, `category_id`, `image_url`, `created_at`) VALUES
-(11, 'iPhone 15 128GB', 'APL-IP15-128', 'iPhone 15 bản 128GB', 22990000.00, 20, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/42/291099/iphone-15-1-600x600.jpg', '2025-08-18 23:57:26'),
-(12, 'iPhone 15 Pro Max 256GB', 'APL-IP15PM-256', 'iPhone 15 Pro Max 256GB', 30990000.00, 15, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/42/307691/iphone-15-pro-max-600x600.jpg', '2025-08-18 23:57:26'),
-(13, 'Galaxy S24 256GB', 'SAM-S24-256', 'Samsung Galaxy S24 256GB', 22990000.00, 25, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/42/325056/samsung-galaxy-s24-5g-256gb-600x600.jpg', '2025-08-18 23:57:26'),
-(14, 'Galaxy S24 Ultra 256GB', 'SAM-S24U-256', 'Samsung Galaxy S24 Ultra 256GB', 32990000.00, 10, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/42/325057/samsung-galaxy-s24-ultra-5g-256gb-600x600.jpg', '2025-08-18 23:57:26'),
-(15, 'Redmi Note 13 8/128', 'XIA-RN13-128', 'Xiaomi Redmi Note 13 8/128', 5490000.00, 50, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/42/314471/xiaomi-redmi-note-13-600x600.jpg', '2025-08-18 23:57:26'),
-(16, 'OPPO A79 5G', 'OPP-A79-5G', 'OPPO A79 5G', 6490000.00, 35, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/42/316296/oppo-a79-5g-600x600.jpg', '2025-08-18 23:57:26'),
-(17, 'vivo Y36', 'VIV-Y36', 'vivo Y36', 4990000.00, 30, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/42/308889/vivo-y36-600x600.jpg', '2025-08-18 23:57:26'),
-(18, 'realme C67', 'RLM-C67', 'realme C67', 4690000.00, 40, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/42/316308/realme-c67-600x600.jpg', '2025-08-18 23:57:26'),
-(19, 'Sony WH-1000XM5', 'SNY-WH1000XM5', 'Tai nghe chống ồn cao cấp', 8990000.00, 30, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/54/299043/tai-nghe-chup-tai-bluetooth-sony-wh-1000xm5-600x600.jpg', '2025-08-18 23:57:26'),
-(20, 'Apple Watch Series 9 41mm', 'APL-AWS9-41', 'Apple Watch Series 9 41mm GPS', 10990000.00, 15, NULL, NULL, 'https://cdn.tgdd.vn/Products/Images/7077/316367/apple-watch-series-9-41mm-600x600.jpg', '2025-08-18 23:57:26');
+(24, 'Máy đo Mahr', 'MAHR-001', 'Thiết bị đo chính xác', 25000000.00, 12, 31, 21, '/upload/1758514139_68d0cbdba46ab.jpg', '2025-09-22 11:08:59'),
+(25, 'Máy đo Mahr', 'MAHR-001', 'Thiết bị đo chính xác', 25000000.00, 12, 31, 21, '/upload/1758514153_68d0cbe9a55cd.jpg', '2025-09-22 11:09:13');
 
 -- --------------------------------------------------------
 
@@ -173,6 +163,31 @@ CREATE TABLE `producttags` (
   `product_id` int(11) DEFAULT NULL,
   `tag_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `product_images`
+--
+
+CREATE TABLE `product_images` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `image_url` text NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `product_images`
+--
+
+INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `created_at`) VALUES
+(4, 24, '/upload/1758514139_68d0cbdba46ab.jpg', '2025-09-22 11:08:59'),
+(5, 24, '/upload/1758514139_68d0cbdba4912.webp', '2025-09-22 11:08:59'),
+(6, 24, '/upload/1758514139_68d0cbdba4ad1.jpg', '2025-09-22 11:08:59'),
+(7, 25, '/upload/1758514153_68d0cbe9a55cd.jpg', '2025-09-22 11:09:13'),
+(8, 25, '/upload/1758514153_68d0cbe9a5890.webp', '2025-09-22 11:09:13'),
+(9, 25, '/upload/1758514153_68d0cbe9a5b1a.jpg', '2025-09-22 11:09:13');
 
 -- --------------------------------------------------------
 
@@ -237,6 +252,9 @@ CREATE TABLE `users` (
   `password` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `role` varchar(100) DEFAULT NULL,
+  `verified_account` tinyint(1) DEFAULT 0,
+  `verification_code` varchar(255) DEFAULT NULL,
+  `verification_expires_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -319,6 +337,13 @@ ALTER TABLE `producttags`
   ADD KEY `tag_id` (`tag_id`);
 
 --
+-- Chỉ mục cho bảng `product_images`
+--
+ALTER TABLE `product_images`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
 -- Chỉ mục cho bảng `reviews`
 --
 ALTER TABLE `reviews`
@@ -360,7 +385,7 @@ ALTER TABLE `usertokens`
 -- AUTO_INCREMENT cho bảng `brands`
 --
 ALTER TABLE `brands`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT cho bảng `cartitems`
@@ -396,13 +421,19 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT cho bảng `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT cho bảng `producttags`
 --
 ALTER TABLE `producttags`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT cho bảng `product_images`
+--
+ALTER TABLE `product_images`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT cho bảng `reviews`
@@ -484,6 +515,12 @@ ALTER TABLE `products`
 ALTER TABLE `producttags`
   ADD CONSTRAINT `producttags_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
   ADD CONSTRAINT `producttags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`);
+
+--
+-- Các ràng buộc cho bảng `product_images`
+--
+ALTER TABLE `product_images`
+  ADD CONSTRAINT `product_images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `reviews`

@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Models\User;
 use Config\Mailer;
 use PDO;
+use PDOException;
 
 class AuthController
 {
@@ -53,86 +54,91 @@ class AuthController
     {
         $email = trim($input['email'] ?? '');
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return [422, ['error' => true, 'message' => 'Email không hợp lệ.']];
+            return [422, ['error' => true, 'message' => 'Email không hợp lệ']];
         }
 
-        $user = $this->findByEmail($email);
-        if (!$user) {
-            return [404, ['error' => true, 'message' => 'Không tìm thấy người dùng.']];
+        // tìm user
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return [404, ['error' => true, 'message' => 'Không tìm thấy người dùng']];
         }
+
+        $user = new User($row);
 
         if ((int) $user->veryfied_account === 1) {
-            return [200, ['error' => false, 'message' => 'Tài khoản đã xác thực trước đó.']];
+            return [200, ['error' => false, 'message' => 'Tài khoản đã xác thực trước đó']];
         }
 
-        // Tạo mã 6 số + hash + hạn
+        // Tạo mã 6 số
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $hash = password_hash($code, PASSWORD_BCRYPT);
+
+        // TTL phút
         $ttlMinutes = (int) ($_ENV['VERIFY_CODE_TTL'] ?? 10);
         $expiresAt = date('Y-m-d H:i:s', time() + $ttlMinutes * 60);
 
-        // Lưu DB
-        $upd = $this->pdo->prepare(
-            "UPDATE users SET verification_code = :code, verification_expires_at = :exp WHERE id = :id"
-        );
-        $upd->execute(['code' => $hash, 'exp' => $expiresAt, 'id' => $user->id]);
+        // cập nhật DB
+        $upd = $this->pdo->prepare("
+        UPDATE users 
+        SET verification_code = :code, verification_expires_at = :exp 
+        WHERE id = :id
+    ");
+        $upd->execute([
+            'code' => $hash,
+            'exp' => $expiresAt,
+            'id' => $user->id
+        ]);
 
-        // Gửi mail
+        // gửi mail
         $subject = 'Mã xác minh tài khoản';
-        $html = "<p>Xin chào {$user->name}!</p>
-                 <p>Mã xác minh của bạn là: <b style='font-size:18px'>{$code}</b></p>
-                 <p>Mã có hiệu lực trong {$ttlMinutes} phút.</p>";
-        // $ok = Mailer::send($user->email, $user->name ?? '', $subject, $html);
-        list($ok, $errorInfo) = Mailer::send($user->email, $user->name ?? '', $subject, $html);
+        $html = "
+        <p>Xin chào {$user->name}!</p>
+        <p>Mã xác minh của bạn là: <b style='font-size:18px'>{$code}</b></p>
+        <p>Mã có hiệu lực trong {$ttlMinutes} phút.</p>
+    ";
+        [$ok, $errorInfo] = Mailer::send($user->email, $user->name ?? '', $subject, $html);
 
         if (!$ok) {
             return [500, ['error' => true, 'message' => 'Gửi email thất bại', 'detail' => $errorInfo]];
         }
-        return [200, ['error' => false, 'message' => 'Đã gửi mã xác minh tới email.']];
+
+        return [200, ['error' => false, 'message' => 'Đã gửi mã xác minh tới email']];
     }
 
-    /** Xác minh tài khoản từ mã 6 số */
-    public function verifyAccount(array $input): array
+
+
+    /** Xác minh account */
+    public function verifyAccount(string $email, string $code): array
     {
-        $email = trim($input['email'] ?? '');
-        $code = trim($input['code'] ?? '');
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($email === '' || $code === '') {
-            return [422, ['error' => true, 'message' => 'Thiếu email hoặc mã xác minh.']];
-        }
-
-        $user = $this->findByEmail($email);
         if (!$user) {
-            return [404, ['error' => true, 'message' => 'Không tìm thấy người dùng.']];
+            return ["error" => true, "message" => "Không tìm thấy user"];
         }
 
-        if ((int) $user->veryfied_account === 1) {
-            return [200, ['error' => false, 'message' => 'Tài khoản đã xác thực.']];
+        if ((int) $user['veryfied_account'] === 1) {
+            return ["error" => false, "message" => "Tài khoản đã được xác minh"];
         }
 
-        if (empty($user->verification_code) || empty($user->verification_expires_at)) {
-            return [400, ['error' => true, 'message' => 'Chưa yêu cầu gửi mã hoặc mã không hợp lệ.']];
+        if ($user['verification_code'] !== $code) {
+            return ["error" => true, "message" => "Mã xác minh không đúng"];
         }
 
-        if (strtotime($user->verification_expires_at) < time()) {
-            return [410, ['error' => true, 'message' => 'Mã đã hết hạn. Hãy yêu cầu gửi lại.']];
+        if (strtotime($user['verification_expires_at']) < time()) {
+            return ["error" => true, "message" => "Mã xác minh đã hết hạn"];
         }
 
-        // So sánh mã
-        if (!password_verify($code, $user->verification_code)) {
-            return [401, ['error' => true, 'message' => 'Mã xác minh không đúng.']];
-        }
+        $this->pdo->prepare("UPDATE users SET veryfied_account = 1, verification_code = NULL, verification_expires_at = NULL WHERE id = :id")
+            ->execute(['id' => $user['id']]);
 
-        // Đánh dấu đã xác thực + xoá mã
-        $done = $this->pdo->prepare(
-            "UPDATE users 
-             SET veryfied_account = 1, verification_code = NULL, verification_expires_at = NULL 
-             WHERE id = :id"
-        );
-        $done->execute(['id' => $user->id]);
-
-        return [200, ['error' => false, 'message' => 'Xác thực tài khoản thành công.']];
+        return ["error" => false, "message" => "Xác minh tài khoản thành công"];
     }
+
 
     /** Hỗ trợ kiểm mật khẩu (ưu tiên hash; fallback plaintext cho dữ liệu cũ) */
     private function verifyPassword(string $plain, string $stored): bool
@@ -147,87 +153,66 @@ class AuthController
     }
 
     /** Xử lý đăng nhập */
-    public function login(array $input): array
+    /** Đăng nhập */
+    public function login(string $email, string $password): array
     {
-        $email = trim($input['email'] ?? '');
-        $password = (string) ($input['password'] ?? '');
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($email === '' || $password === '') {
-            return [422, ['error' => true, 'message' => 'Email và mật khẩu là bắt buộc.']];
+        if (!$row) {
+            return ["error" => true, "message" => "Sai email hoặc mật khẩu"];
         }
 
-        $user = $this->findUserByEmail($email);
-        if (!$user || !$this->verifyPassword($password, $user->password)) {
-            return [401, ['error' => true, 'message' => 'Sai email hoặc mật khẩu.']];
+        if (!password_verify($password, $row['password'])) {
+            return ["error" => true, "message" => "Sai email hoặc mật khẩu"];
         }
 
-        return [
-            200,
-            [
-                'error' => false,
-                'message' => 'Đăng nhập thành công.',
-                'user' => $user->toPublicArray(),
-            ]
-        ];
+        if ((int) $row['veryfied_account'] === 0) {
+            return ["error" => true, "message" => "Tài khoản chưa được xác minh"];
+        }
+
+        $user = User::fromArray($row);
+        return ["error" => false, "message" => "Đăng nhập thành công", "user" => $user->toPublicArray()];
     }
 
     /* ---------- REGISTER (đã gộp) ---------- */
-    public function register(array $input): array
+    /** Đăng ký user mới (chưa kích hoạt) */
+    public function register(string $name, string $email, string $password, ?string $phone = null): array
     {
-        $name = trim($input['name'] ?? '');
-        $email = trim($input['email'] ?? '');
-        $password = (string) ($input['password'] ?? '');
-        $confirm = (string) ($input['confirm_password'] ?? $password);
-        $phone = trim($input['phone'] ?? '');
-        $role = $input['role'] ?? 'user';
+        try {
+            // check email tồn tại chưa
+            $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :email");
+            $stmt->execute(['email' => $email]);
+            if ($stmt->fetch()) {
+                return ["error" => true, "message" => "Email đã tồn tại"];
+            }
 
-        // Validate cơ bản
-        if ($name === '' || $email === '' || $password === '') {
-            return [422, ['error' => true, 'message' => 'Tên, email và mật khẩu là bắt buộc.']];
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return [422, ['error' => true, 'message' => 'Email không hợp lệ.']];
-        }
-        if (strlen($password) < 6) {
-            return [422, ['error' => true, 'message' => 'Mật khẩu tối thiểu 6 ký tự.']];
-        }
-        if ($password !== $confirm) {
-            return [422, ['error' => true, 'message' => 'Xác nhận mật khẩu không khớp.']];
-        }
+            $hash = password_hash($password, PASSWORD_BCRYPT);
+            $code = bin2hex(random_bytes(3)); // 6 ký tự ngẫu nhiên
+            $expiresAt = date("Y-m-d H:i:s", strtotime("+15 minutes"));
 
-        // Check trùng email (ở app-level). Có thể bỏ đoạn này nếu bạn đã UNIQUE(email) và dùng try/catch ở dưới.
-        $exists = $this->pdo->prepare("SELECT 1 FROM users WHERE email = :email LIMIT 1");
-        $exists->execute(['email' => $email]);
-        if ($exists->fetchColumn()) {
-            return [409, ['error' => true, 'message' => 'Email đã tồn tại.']];
+            $stmt = $this->pdo->prepare("
+                INSERT INTO users (name, email, password, phone, role, veryfied_account, verification_code, verification_expires_at, created_at) 
+                VALUES (:name, :email, :password, :phone, 'user', 0, :code, :expires, NOW())
+            ");
+            $stmt->execute([
+                'name' => $name,
+                'email' => $email,
+                'password' => $hash,
+                'phone' => $phone,
+                'code' => $code,
+                'expires' => $expiresAt
+            ]);
+
+            // có thể gửi mail ở đây qua Mailer::send(...)
+            return [
+                "error" => false,
+                "message" => "Đăng ký thành công. Vui lòng kiểm tra email để xác minh.",
+                "verification_code" => $code
+            ];
+        } catch (PDOException $e) {
+            return ["error" => true, "message" => $e->getMessage()];
         }
-
-        // Insert trực tiếp + hash mật khẩu
-        $sql = "INSERT INTO users (name, email, password, phone, role, created_at)
-                VALUES (:name, :email, :password, :phone, :role, NOW())";
-        $stm = $this->pdo->prepare($sql);
-        $stm->execute([
-            'name' => $name,
-            'email' => $email,
-            'password' => password_hash($password, PASSWORD_BCRYPT),
-            'phone' => $phone ?: null,
-            'role' => $role ?: 'user',
-        ]);
-
-        // Lấy lại user vừa tạo (hoặc bạn có thể trả ngay id + dữ liệu input)
-        $id = (int) $this->pdo->lastInsertId();
-        $stm = $this->pdo->prepare("SELECT * FROM users WHERE id = :id");
-        $stm->execute(['id' => $id]);
-        $row = $stm->fetch(PDO::FETCH_ASSOC);
-        $user = User::fromArray($row);
-
-        return [
-            201,
-            [
-                'error' => false,
-                'message' => 'Đăng ký thành công.',
-                'user' => $user->toPublicArray(),
-            ]
-        ];
     }
 }

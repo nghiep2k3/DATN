@@ -1,8 +1,10 @@
 <?php
 namespace Config;
 
+use Exception as GlobalException;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
 
 class Mailer {
     public static function send(string $toEmail, string $toName, string $subject, string $html): array {
@@ -13,7 +15,8 @@ class Mailer {
             $mail->SMTPAuth   = true;
             $mail->Username   = $_ENV['SMTP_USER'];
             $mail->Password   = $_ENV['SMTP_PASS'];
-            $mail->SMTPSecure = $_ENV['SMTP_SECURE'] ?? PHPMailer::ENCRYPTION_SMTPS;
+            $mail->SMTPSecure = $_ENV['SMTP_SECURE'] ?? 'tls';
+
             $mail->Port       = (int)($_ENV['SMTP_PORT'] ?? 465);
 
             $mail->setFrom($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME'] ?? 'App');
@@ -26,8 +29,8 @@ class Mailer {
 
             $mail->send();
             return [true, null];
-        } catch (Exception $e) {
-            return [false, $mail->ErrorInfo];  // 👈 trả về lỗi chi tiết
+        } catch (GlobalException $e) {
+            return [false, $mail->ErrorInfo]; 
         }
     }
 }
