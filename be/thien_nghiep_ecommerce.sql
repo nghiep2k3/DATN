@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1:4306
--- Thời gian đã tạo: Th10 01, 2025 lúc 03:30 PM
+-- Thời gian đã tạo: Th10 07, 2025 lúc 05:58 AM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.2.4
 
@@ -258,6 +258,14 @@ CREATE TABLE `users` (
   `created_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `users`
+--
+
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `verified_account`, `verification_code`, `verification_expires_at`, `created_at`) VALUES
+(2, 'Nguyen Van A', 'nguyennghiep1320@gmail.com', '$2y$10$WIUAhv0LezCP9fvQoVuJNuQLo75/LOJ6f84JaRNuUvzZZ/Nvo8X8a', '0912345678', 'user', 0, '76d85f', '2025-10-07 05:17:44', '2025-10-07 10:02:44'),
+(5, 'Nguyen Van A', 'nguyennghiep2411@gmail.com', '$2y$10$X.ENVCWKYYMJY4AenXccT.7rWwgs.vYPyl3XVfNHoMIb325oZOBXO', '0912345678', 'user', 1, NULL, NULL, '2025-10-07 10:26:12');
+
 -- --------------------------------------------------------
 
 --
@@ -457,7 +465,7 @@ ALTER TABLE `tags`
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `usertokens`

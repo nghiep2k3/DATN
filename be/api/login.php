@@ -2,7 +2,7 @@
 // File: be/api/login.php
 require __DIR__ . '/../vendor/autoload.php';
 
-use Config\Db; 
+use Config\Db;
 use App\Controllers\AuthController;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../config');
@@ -27,18 +27,34 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 try {
     $pdo = (new Db())->connect();
 
-    // Chấp nhận JSON hoặc form-encoded
+    // Nhận dữ liệu JSON hoặc form
     $raw = file_get_contents('php://input');
     $input = json_decode($raw, true);
     if (!is_array($input)) {
         $input = $_POST; // fallback nếu gửi form
     }
 
-    [$code, $payload] = (new AuthController($pdo))->login($input);
-    http_response_code($code);
-    echo json_encode($payload);
+    $email = $input['email'] ?? '';
+    $password = $input['password'] ?? '';
+
+    if (empty($email) || empty($password)) {
+        http_response_code(400);
+        echo json_encode(['error' => true, 'message' => 'Vui lòng nhập email và mật khẩu.']);
+        exit;
+    }
+
+    $auth = new AuthController($pdo);
+    $result = $auth->login($email, $password);
+
+    http_response_code($result['error'] ? 400 : 200);
+    echo json_encode($result, JSON_UNESCAPED_UNICODE);
+
 
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo json_encode(['error' => true, 'message' => 'Server error', 'detail' => $e->getMessage()]);
+    echo json_encode([
+        'error' => true,
+        'message' => 'Server error',
+        'detail' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
 }

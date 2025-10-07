@@ -17,7 +17,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
@@ -43,13 +42,18 @@ try {
     $password = $input['password'] ?? null;
     $phone = $input['phone'] ?? null;
 
+    if (!$name || !$email || !$password || !$phone) {
+    http_response_code(400);
+    echo json_encode(['error' => true, 'message' => 'Vui lòng nhập đầy đủ thông tin.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+
     $result = $auth->register($name, $email, $password, $phone);
 
     if (!$result['error']) {
-        // gọi sendVerification luôn
-        // [$code, $payload] = $auth->sendVerification(['email' => $email]);
-        http_response_code($code);
-        echo json_encode(array_merge($result, $payload), JSON_UNESCAPED_UNICODE);
+        http_response_code(200);
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
     } else {
         http_response_code(400);
         echo json_encode($result, JSON_UNESCAPED_UNICODE);

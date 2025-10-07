@@ -29,7 +29,7 @@ class AuthController
     {
         // Dùng đúng tên bảng users theo schema (MySQL trên Windows không phân biệt hoa thường, nhưng nên khớp) 
         $sql = "SELECT id, name, email, password, phone, role,
-                   veryfied_account, verification_code, verification_expires_at, created_at
+                   verified_account, verification_code, verification_expires_at, created_at
             FROM users
             WHERE email = :email
             LIMIT 1";
@@ -66,9 +66,10 @@ class AuthController
             return [404, ['error' => true, 'message' => 'Không tìm thấy người dùng']];
         }
 
-        $user = new User($row);
+        $user = User::fromArray($row);
 
-        if ((int) $user->veryfied_account === 1) {
+
+        if ((int) $user->verified_account === 1) {
             return [200, ['error' => false, 'message' => 'Tài khoản đã xác thực trước đó']];
         }
 
@@ -121,7 +122,7 @@ class AuthController
             return ["error" => true, "message" => "Không tìm thấy user"];
         }
 
-        if ((int) $user['veryfied_account'] === 1) {
+        if ((int) $user['verified_account'] === 1) {
             return ["error" => false, "message" => "Tài khoản đã được xác minh"];
         }
 
@@ -133,7 +134,7 @@ class AuthController
             return ["error" => true, "message" => "Mã xác minh đã hết hạn"];
         }
 
-        $this->pdo->prepare("UPDATE users SET veryfied_account = 1, verification_code = NULL, verification_expires_at = NULL WHERE id = :id")
+        $this->pdo->prepare("UPDATE users SET verified_account = 1, verification_code = NULL, verification_expires_at = NULL WHERE id = :id")
             ->execute(['id' => $user['id']]);
 
         return ["error" => false, "message" => "Xác minh tài khoản thành công"];
@@ -168,7 +169,7 @@ class AuthController
             return ["error" => true, "message" => "Sai email hoặc mật khẩu"];
         }
 
-        if ((int) $row['veryfied_account'] === 0) {
+        if ((int) $row['verified_account'] === 0) {
             return ["error" => true, "message" => "Tài khoản chưa được xác minh"];
         }
 
@@ -181,38 +182,47 @@ class AuthController
     public function register(string $name, string $email, string $password, ?string $phone = null): array
     {
         try {
-            // check email tồn tại chưa
+            // Kiểm tra email tồn tại
             $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :email");
             $stmt->execute(['email' => $email]);
             if ($stmt->fetch()) {
                 return ["error" => true, "message" => "Email đã tồn tại"];
             }
 
+            // Mã hoá mật khẩu
             $hash = password_hash($password, PASSWORD_BCRYPT);
-            $code = bin2hex(random_bytes(3)); // 6 ký tự ngẫu nhiên
-            $expiresAt = date("Y-m-d H:i:s", strtotime("+15 minutes"));
 
+            // Tạo user mới (chưa xác minh)
             $stmt = $this->pdo->prepare("
-                INSERT INTO users (name, email, password, phone, role, veryfied_account, verification_code, verification_expires_at, created_at) 
-                VALUES (:name, :email, :password, :phone, 'user', 0, :code, :expires, NOW())
-            ");
+            INSERT INTO users (name, email, password, phone, role, verified_account, created_at)
+            VALUES (:name, :email, :password, :phone, 'user', 0, NOW())
+        ");
             $stmt->execute([
                 'name' => $name,
                 'email' => $email,
                 'password' => $hash,
                 'phone' => $phone,
-                'code' => $code,
-                'expires' => $expiresAt
             ]);
 
-            // có thể gửi mail ở đây qua Mailer::send(...)
+            // Sau khi insert, gọi sendVerification để gửi mã xác minh
+            [$code, $payload] = $this->sendVerification(['email' => $email]);
+
+            // Nếu gửi mail lỗi
+            if ($code !== 200) {
+                return ["error" => true, "message" => "Tạo tài khoản thành công nhưng gửi email thất bại", "detail" => $payload];
+            }
+
+            // Thành công
             return [
                 "error" => false,
-                "message" => "Đăng ký thành công. Vui lòng kiểm tra email để xác minh.",
-                "verification_code" => $code
+                "message" => "Đăng ký thành công. Vui lòng kiểm tra email để xác minh tài khoản.",
+                "email" => $email
             ];
+
         } catch (PDOException $e) {
             return ["error" => true, "message" => $e->getMessage()];
         }
     }
+
+
 }

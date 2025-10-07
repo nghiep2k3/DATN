@@ -49,7 +49,7 @@ try {
         exit;
     }
 
-    if ((int)$user['veryfied_account'] === 1) {
+    if ((int)$user['verified_account'] === 1) {
         echo json_encode(['error' => false, 'message' => 'Tài khoản đã xác thực trước đó']);
         exit;
     }
@@ -66,7 +66,7 @@ try {
         exit;
     }
 
-    $upd = $pdo->prepare("UPDATE users SET veryfied_account = 1, verification_code = NULL, verification_expires_at = NULL WHERE id = :id");
+    $upd = $pdo->prepare("UPDATE users SET verified_account = 1, verification_code = NULL, verification_expires_at = NULL WHERE id = :id");
     $upd->execute(['id' => $user['id']]);
 
     echo json_encode(['error' => false, 'message' => 'Xác minh tài khoản thành công']);

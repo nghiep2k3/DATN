@@ -11,7 +11,7 @@ class User
     public string $password;
     public ?string $phone;
     public ?string $role;
-    public ?int $veryfied_account;              // <- giữ đúng tên cột bạn tạo
+    public ?int $verified_account;              // <- giữ đúng tên cột bạn tạo
     public ?string $verification_code;
     public ?string $verification_expires_at;
     public ?string $created_at;
@@ -24,7 +24,7 @@ class User
         $this->password = $row['password'] ?? '';
         $this->phone = $row['phone'] ?? null;
         $this->role = $row['role'] ?? null;
-        $this->veryfied_account = isset($row['veryfied_account']) ? (int) $row['veryfied_account'] : null;
+        $this->verified_account = isset($row['verified_account']) ? (int) $row['verified_account'] : null;
         $this->verification_code = $row['verification_code'] ?? null;
         $this->verification_expires_at = $row['verification_expires_at'] ?? null;
         $this->created_at = $row['created_at'] ?? null;
@@ -43,7 +43,7 @@ class User
             'email' => $this->email,
             'phone' => $this->phone,
             'role' => $this->role,
-            'veryfied_account' => $this->veryfied_account
+            'verified_account' => $this->verified_account
         ];
     }
 }

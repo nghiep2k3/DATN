@@ -1,9 +1,8 @@
 <?php
 namespace Config;
 
-use Exception as GlobalException;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 
 class Mailer {
@@ -29,7 +28,7 @@ class Mailer {
 
             $mail->send();
             return [true, null];
-        } catch (GlobalException $e) {
+        } catch (Exception $e) {
             return [false, $mail->ErrorInfo]; 
         }
     }
