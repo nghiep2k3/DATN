@@ -7,7 +7,7 @@ import {
     PhoneOutlined,
 } from "@ant-design/icons";
 import "./RegisterForm.css";
-import url from "../../config";
+import { url, url_api } from '../../config';
 import { Link } from "react-router-dom";
 
 const { Option } = Select;

@@ -16,7 +16,9 @@ import "slick-carousel/slick/slick-theme.css";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-
+import CategoryPage from './Page/CategoryPage/CategoryPage';
+import ListProductWithCategory from './Page/ListProductWithCategory/ListProductWithCategory';
+import Brand from './Page/Brand/Brand';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -26,6 +28,9 @@ root.render(
       <Route path="/" element={<App />}>
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
+        <Route path="/category/:id" element={<CategoryPage />} />
+        <Route path="/category-child/:id" element={<ListProductWithCategory />} />
+        <Route path="brand" element={<Brand />} />
       </Route>
 
       <Route path="post" element={<Post />} />

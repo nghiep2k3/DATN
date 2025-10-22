@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Row, Col, Input, Button, Flex } from "antd";
 import styles from "./Header.module.css";
-import url from "../../config";
+import { url, url_api } from '../../config';
 import {
     AudioOutlined,
     LoginOutlined,

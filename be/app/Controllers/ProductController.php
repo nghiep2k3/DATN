@@ -19,6 +19,13 @@ class ProductController
      * @param array $data
      * @return array
      */
+
+    /**
+     * Lấy danh sách sản phẩm theo category_id
+     * @param int $category_id
+     * @return array
+     */
+
     public function create(array $data): array
     {
         try {
@@ -230,7 +237,53 @@ class ProductController
             return ["error" => true, "message" => $e->getMessage()];
         }
     }
+    public function getByCategoryId(int $category_id): array
+    {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT 
+                    p.*,
+                    b.name AS brand_name,
+                    c.name AS category_name
+                FROM products p
+                LEFT JOIN brands b ON p.brand_id = b.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                WHERE p.category_id = :category_id
+                ORDER BY p.created_at DESC
+            ");
+            $stmt->execute(['category_id' => $category_id]);
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // Nếu không có sản phẩm nào
+            if (!$products) {
+                return [
+                    "error" => false,
+                    "total" => 0,
+                    "products" => []
+                ];
+            }
 
+            // Lấy ảnh phụ cho từng sản phẩm
+            $imgStmt = $this->db->prepare("
+                SELECT image_url FROM product_images WHERE product_id = :id
+            ");
+            foreach ($products as &$prod) {
+                $imgStmt->execute(['id' => $prod['id']]);
+                $prod['images'] = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+            }
+
+            return [
+                "error" => false,
+                "total" => count($products),
+                "products" => $products
+            ];
+
+        } catch (PDOException $e) {
+            return [
+                "error" => true,
+                "message" => $e->getMessage()
+            ];
+        }
+    }
 
 }

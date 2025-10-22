@@ -3,7 +3,7 @@ import { Form, Input, Button } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import "./Login.css";
-import url from "../../config";
+import { url, url_api } from '../../config';
 
 export default function Login() {
   const [forgotMode, setForgotMode] = useState(false);
