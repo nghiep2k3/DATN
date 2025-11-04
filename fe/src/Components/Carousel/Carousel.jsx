@@ -2,6 +2,7 @@ import React from "react";
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
 import "./carousel.css";
+import { url_api } from "../../config"; // để ghép đường dẫn ảnh đúng
 
 const Carousel = ({ title, data }) => {
     const settings = {
@@ -39,18 +40,20 @@ const Carousel = ({ title, data }) => {
                                 }}
                             >
                                 <img
-                                    src={item.image}
-                                    alt={item.name}
+                                    src={`${url_api}/${item.url_image}`} // ✅ đúng trường
+                                    alt={item.category} // ✅ đúng trường
                                     className="rounded-3 mb-3"
                                     style={{
                                         width: "100%",
                                         height: "140px",
-                                        objectFit: "cover",
+                                        objectFit: "contain",
                                     }}
                                 />
-                                <h6 className="fw-bold">{item.name}</h6>
+                                <h6 className="fw-bold">{item.category}</h6>
+
+                                {/* ✅ Số lượng danh mục con (nếu có) */}
                                 <p className="text-primary mb-0">
-                                    ({item.count.toLocaleString()} Sản phẩm)
+                                    ({item.sub_category?.length || 0} Sản phẩm)
                                 </p>
                             </div>
                         </Link>

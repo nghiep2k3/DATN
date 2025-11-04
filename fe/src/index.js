@@ -19,6 +19,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import CategoryPage from './Page/CategoryPage/CategoryPage';
 import ListProductWithCategory from './Page/ListProductWithCategory/ListProductWithCategory';
 import Brand from './Page/Brand/Brand';
+import Profile from './Page/Profile/Profile';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -31,6 +32,7 @@ root.render(
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/category-child/:id" element={<ListProductWithCategory />} />
         <Route path="brand" element={<Brand />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
 
       <Route path="post" element={<Post />} />

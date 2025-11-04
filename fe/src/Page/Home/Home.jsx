@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import {
     ToolOutlined,
     CarOutlined,
@@ -7,55 +7,67 @@ import {
 } from "@ant-design/icons";
 import CarouselCategory from '../../Components/Carousel/Carousel';
 import CarouselProduct from '../../Components/CarouselProduct/CarouselProduct';
-import { Carousel } from 'antd';
+import { url, url_api } from "../../config";
+import { Carousel, message, Spin } from 'antd';
+import axios from "axios";
 const contentStyle = {
     margin: 0,
-    height: '160px',
+    height: '280px',
     color: '#fff',
     lineHeight: '160px',
     textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     background: '#364d79',
 };
 
+
 const Home = () => {
-    const categories = [
-        {
-            id: 1,
-            name: "Thiết bị quan trắc môi trường",
-            count: 766,
-            image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-        },
-        {
-            id: 2,
-            name: "Thiết bị kiểm tra không phá hủy - NDT",
-            count: 863,
-            image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-        },
-        {
-            id: 3,
-            name: "Thiết bị đo tần số, vô tuyến điện tử",
-            count: 293,
-            image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-        },
-        {
-            id: 4,
-            name: "Thiết bị đo điện",
-            count: 847,
-            image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-        },
-        {
-            id: 5,
-            name: "Thiết bị đo cơ khí chính xác",
-            count: 9299,
-            image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-        },
-        {
-            id: 6,
-            name: "Thiết bị đo cơ khí chính xác",
-            count: 9299,
-            image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-        },
-    ];
+    const [categories, setCategories] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // const categories = [
+    //     {
+    //         id: 1,
+    //         name: "Thiết bị quan trắc môi trường",
+    //         count: 766,
+    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Thiết bị kiểm tra không phá hủy - NDT",
+    //         count: 863,
+    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
+    //     },
+    //     {
+    //         id: 3,
+    //         name: "Thiết bị đo tần số, vô tuyến điện tử",
+    //         count: 293,
+    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
+    //     },
+    //     {
+    //         id: 4,
+    //         name: "Thiết bị đo điện",
+    //         count: 847,
+    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
+    //     },
+    //     {
+    //         id: 5,
+    //         name: "Thiết bị đo cơ khí chính xác",
+    //         count: 9299,
+    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
+    //     },
+    //     {
+    //         id: 6,
+    //         name: "Thiết bị đo cơ khí chính xác",
+    //         count: 9299,
+    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
+    //     },
+    // ];
+
+
+
 
     const products = [
         {
@@ -112,6 +124,28 @@ const Home = () => {
         },
     ];
 
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await axios.get(`${url_api}/api/categories/getcategories.php?with_children=all`);
+                if (res.data?.data) {
+                    setCategories(res.data.data);
+                    console.log("Danh mục tải về:", res.data);
+                } else {
+                    message.warning("Không có dữ liệu danh mục");
+                }
+            } catch (error) {
+                console.error("Lỗi tải danh mục:", error);
+                message.error("Không thể tải danh mục sản phẩm");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCategories();
+    }, []); 
+
+    if (loading) return <Spin tip="Đang tải danh mục..." />;
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 0' }}>
             <div className="row g-4">
@@ -199,9 +233,9 @@ const Home = () => {
 
             {/* Carousel Component */}
             <CarouselCategory title="Danh mục sản phẩm" data={categories} />
-            <CarouselProduct title="Thiết bị đo cơ khí chính xác" products={products} linkMore="#" />
-            <CarouselProduct title="Thiết bị đo tần số vô tuyến" products={products} linkMore="#" />
-            <CarouselProduct title="Thiết bị kiểm tra không phá hủy" products={products} linkMore="#" />
+            {/* <CarouselProduct title="Thiết bị đo cơ khí chính xác" products={products} linkMore="#" /> */}
+            {/* <CarouselProduct title="Thiết bị đo tần số vô tuyến" products={products} linkMore="#" /> */}
+            {/* <CarouselProduct title="Thiết bị kiểm tra không phá hủy" products={products} linkMore="#" /> */}
             <Carousel autoplay style={{ padding: '0 20px', marginTop: '40px', marginBottom: '40px' }}>
                 <div>
                     <h3 style={contentStyle}>1</h3>

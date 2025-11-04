@@ -1,19 +1,47 @@
 import React, { useState } from "react";
-import { Form, Input, Button } from "antd";
+import { Form, Input, Button, message } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Cookies from "js-cookie";
 import "./Login.css";
-import { url, url_api } from '../../config';
+import { url, url_api } from "../../config";
 
 export default function Login() {
   const [forgotMode, setForgotMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = (values) => {
-    console.log("Login Data:", values);
+  const handleLogin = async (values) => {
+    try {
+      setLoading(true);
+      const res = await axios.post(`${url_api}/api/login.php`, values, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.data.error) {
+        message.success(res.data.message || "Đăng nhập thành công");
+
+        // Lưu trạng thái đăng nhập (hoặc thông tin user) vào cookie
+        Cookies.set("loggedIn", true, { expires: 7 }); // lưu 7 ngày
+        Cookies.set("user", JSON.stringify(res.data.user), { expires: 7 });
+        Cookies.set("name", res.data.user.name, { expires: 7 });
+
+        navigate("/");
+      } else {
+        message.error(res.data.message || "Sai email hoặc mật khẩu");
+      }
+    } catch (error) {
+      console.error("Lỗi đăng nhập:", error);
+      message.error("Không thể kết nối đến máy chủ");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleForgot = (values) => {
+  const handleForgot = async (values) => {
     console.log("Forgot Password Email:", values);
+    message.info("Chức năng quên mật khẩu đang được phát triển.");
   };
 
   return (
@@ -67,7 +95,13 @@ export default function Login() {
                 </Form.Item>
 
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" block className="login-btn">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    block
+                    loading={loading}
+                    className="login-btn"
+                  >
                     Đăng nhập
                   </Button>
                 </Form.Item>
