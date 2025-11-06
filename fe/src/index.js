@@ -20,6 +20,7 @@ import CategoryPage from './Page/CategoryPage/CategoryPage';
 import ListProductWithCategory from './Page/ListProductWithCategory/ListProductWithCategory';
 import Brand from './Page/Brand/Brand';
 import Profile from './Page/Profile/Profile';
+import FAQ from './Page/FAQ/FAQ';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -33,6 +34,7 @@ root.render(
         <Route path="/category-child/:id" element={<ListProductWithCategory />} />
         <Route path="brand" element={<Brand />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="faq" element={<FAQ />} />
       </Route>
 
       <Route path="post" element={<Post />} />
