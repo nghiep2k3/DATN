@@ -17,7 +17,7 @@ const { Search } = Input;
 export default function Header() {
     const [isSticky, setIsSticky] = useState(false);
     const [userName, setUserName] = useState(null);
-    const [showDropdown, setShowDropdown] = useState(true);
+    const [showDropdown, setShowDropdown] = useState(false);
     const categories = [
         {
             id: 20,
@@ -149,13 +149,127 @@ export default function Header() {
             id: 33,
             category: "Thiết bị quan trắc môi trường",
             url_image: "upload/20251104_174059_072a9f1f456e.webp",
-            sub_category: [],
+            sub_category: [
+                {
+                    id: 29,
+                    name: "Thước kẹp",
+                    description: "Thước kẹp",
+                    url_image: "upload/20251013_095137_e588d591906d.webp",
+                    created_at: "2025-10-13 14:51:37",
+                },
+                {
+                    id: 30,
+                    name: "Thước panme",
+                    description: "Thước panme",
+                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
+                    created_at: "2025-10-13 14:52:25",
+                },
+                {
+                    id: 31,
+                    name: "Thước đo lỗ",
+                    description: "Thước đo lỗ",
+                    url_image: "upload/20251013_095333_80328e57b383.webp",
+                    created_at: "2025-10-13 14:53:33",
+                },
+                {
+                    id: 32,
+                    name: "Đồng hồ so",
+                    description: "Đồng hồ so",
+                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
+                    created_at: "2025-10-13 14:53:45",
+                },
+                {
+                    id: 29,
+                    name: "Thước kẹp",
+                    description: "Thước kẹp",
+                    url_image: "upload/20251013_095137_e588d591906d.webp",
+                    created_at: "2025-10-13 14:51:37",
+                },
+                {
+                    id: 30,
+                    name: "Thước panme",
+                    description: "Thước panme",
+                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
+                    created_at: "2025-10-13 14:52:25",
+                },
+                {
+                    id: 31,
+                    name: "Thước đo lỗ",
+                    description: "Thước đo lỗ",
+                    url_image: "upload/20251013_095333_80328e57b383.webp",
+                    created_at: "2025-10-13 14:53:33",
+                },
+                {
+                    id: 32,
+                    name: "Đồng hồ so",
+                    description: "Đồng hồ so",
+                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
+                    created_at: "2025-10-13 14:53:45",
+                },
+            ],
         },
         {
             id: 34,
             category: "Thiết bị kiểm tra không phá hủy - NDT",
             url_image: "upload/20251104_174223_a1edde3f1788.webp",
-            sub_category: [],
+            sub_category: [
+                {
+                    id: 29,
+                    name: "Thước kẹp",
+                    description: "Thước kẹp",
+                    url_image: "upload/20251013_095137_e588d591906d.webp",
+                    created_at: "2025-10-13 14:51:37",
+                },
+                {
+                    id: 30,
+                    name: "Thước panme",
+                    description: "Thước panme",
+                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
+                    created_at: "2025-10-13 14:52:25",
+                },
+                {
+                    id: 31,
+                    name: "Thước đo lỗ",
+                    description: "Thước đo lỗ",
+                    url_image: "upload/20251013_095333_80328e57b383.webp",
+                    created_at: "2025-10-13 14:53:33",
+                },
+                {
+                    id: 32,
+                    name: "Đồng hồ so",
+                    description: "Đồng hồ so",
+                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
+                    created_at: "2025-10-13 14:53:45",
+                },
+                {
+                    id: 29,
+                    name: "Thước kẹp",
+                    description: "Thước kẹp",
+                    url_image: "upload/20251013_095137_e588d591906d.webp",
+                    created_at: "2025-10-13 14:51:37",
+                },
+                {
+                    id: 30,
+                    name: "Thước panme",
+                    description: "Thước panme",
+                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
+                    created_at: "2025-10-13 14:52:25",
+                },
+                {
+                    id: 31,
+                    name: "Thước đo lỗ",
+                    description: "Thước đo lỗ",
+                    url_image: "upload/20251013_095333_80328e57b383.webp",
+                    created_at: "2025-10-13 14:53:33",
+                },
+                {
+                    id: 32,
+                    name: "Đồng hồ so",
+                    description: "Đồng hồ so",
+                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
+                    created_at: "2025-10-13 14:53:45",
+                },
+            ],
         },
         {
             id: 35,

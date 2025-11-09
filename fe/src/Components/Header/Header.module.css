@@ -17,6 +17,7 @@
 
 
 .nav {
+    position: relative;
     background: #f9f9f9;
 }
 
@@ -86,7 +87,7 @@
 }
 
 
-/* Dropdown cha */
+/* Dropdown con */
 .dropdownMenu {
     position: absolute;
     top: 100%;
@@ -102,11 +103,7 @@
     animation: fadeIn 0.2s ease-in-out;
 }
 
-/* Mỗi mục cha */
-.dropdownItem {
-    position: relative;
-    width: 100%;
-}
+
 
 .dropdownItem>span {
     display: flex;
@@ -136,26 +133,26 @@
 }
 
 .subMenu {
-    position: absolute;
-    top: 0;
-    left: 100%;
-    background: #fff;
-    border-radius: 0 4px 4px 0;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    width: 940px;
-    padding: 10px 20px;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    column-gap: 20px;
-    row-gap: 6px;
-    height: 300px;
-    overflow-y: auto;
-    z-index: 2000;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(40px);
-    transition: all 0.2s linear;
+  position: absolute;
+  top: 0;
+  left: 260px; 
+  background: #fff;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  width: 940px;
+  padding: 10px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  column-gap: 20px;
+  row-gap: 6px;
+  height: 300px;
+  overflow-y: auto;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0);
+  transition: all 0.2s ease;
 }
 
 .dropdownItem:hover .subMenu {

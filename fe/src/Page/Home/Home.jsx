@@ -10,6 +10,8 @@ import CarouselProduct from '../../Components/CarouselProduct/CarouselProduct';
 import { url, url_api } from "../../config";
 import { Carousel, message, Spin } from 'antd';
 import axios from "axios";
+import Category_List from "./Category_List";
+import Product_List from "./Product_List";
 const contentStyle = {
     margin: 0,
     height: '280px',
@@ -24,216 +26,95 @@ const contentStyle = {
 
 
 const Home = () => {
-    const [categories, setCategories] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    // const categories = [
-    //     {
-    //         id: 1,
-    //         name: "Thiết bị quan trắc môi trường",
-    //         count: 766,
-    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-    //     },
-    //     {
-    //         id: 2,
-    //         name: "Thiết bị kiểm tra không phá hủy - NDT",
-    //         count: 863,
-    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-    //     },
-    //     {
-    //         id: 3,
-    //         name: "Thiết bị đo tần số, vô tuyến điện tử",
-    //         count: 293,
-    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-    //     },
-    //     {
-    //         id: 4,
-    //         name: "Thiết bị đo điện",
-    //         count: 847,
-    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-    //     },
-    //     {
-    //         id: 5,
-    //         name: "Thiết bị đo cơ khí chính xác",
-    //         count: 9299,
-    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-    //     },
-    //     {
-    //         id: 6,
-    //         name: "Thiết bị đo cơ khí chính xác",
-    //         count: 9299,
-    //         image: "https://tecotec.store/wp-content/uploads/2025/08/thiet-bi-quan-trac-moi-truong.webp",
-    //     },
-    // ];
-
-
-
-
-    const products = [
-        {
-            id: 1,
-            name: "Thước kẹp cơ khí vạch dấu 7203-300A",
-            model: "7203-300A",
-            oldPrice: 955000,
-            price: 679000,
-            discount: 29,
-            image:
-                "https://tecotec.store/wp-content/uploads/2025/05/1109-13.jpg",
-        },
-        {
-            id: 2,
-            name: "Thước kẹp điện tử vạch dấu Insize 1166-150A",
-            model: "1166-150A",
-            oldPrice: null,
-            price: null,
-            discount: null,
-            image:
-                "https://tecotec.store/wp-content/uploads/2025/05/7203_300A-1.jpg",
-        },
-        {
-            id: 3,
-            name: "Thước kẹp cơ khí vạch dấu Insize 7202-200A",
-            model: "7202-200A",
-            price: null,
-            image:
-                "https://tecotec.store/wp-content/uploads/2025/05/7203_300A-1.jpg",
-        },
-        {
-            id: 4,
-            name: "Thước đo cao điện tử Insize 1151-600A",
-            model: "1151-600A",
-            price: null,
-            image:
-                "https://tecotec.store/wp-content/uploads/2025/05/7203_300A-1.jpg",
-        },
-        {
-            id: 5,
-            name: "Thước kẹp điện tử hệ mét Insize 1109-150",
-            model: "1109-150",
-            price: null,
-            image:
-                "https://tecotec.store/wp-content/uploads/2025/05/7203_300A-1.jpg",
-        },
-        {
-            id: 6,
-            name: "Thước kẹp điện tử hệ mét Insize 1109-150",
-            model: "1109-150",
-            price: null,
-            image:
-                "https://tecotec.store/wp-content/uploads/2025/05/7203_300A-1.jpg",
-        },
-    ];
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const res = await axios.get(`${url_api}/api/categories/getcategories.php?with_children=all`);
-                if (res.data?.data) {
-                    setCategories(res.data.data);
-                    console.log("Danh mục tải về:", res.data);
-                } else {
-                    message.warning("Không có dữ liệu danh mục");
-                }
-            } catch (error) {
-                console.error("Lỗi tải danh mục:", error);
-                message.error("Không thể tải danh mục sản phẩm");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCategories();
-    }, []); 
+    const [loading, setLoading] = useState(false);
 
     if (loading) return <Spin tip="Đang tải danh mục..." />;
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 0' }}>
-            <div className="row g-4">
-
-                {/* Cột trái - Sony Headphone */}
-                <div className="col-md-6">
-                    <div
-                        className="position-relative rounded-4 overflow-hidden text-white"
-                        style={{
-                            height: '100%',
-                            backgroundColor: '#000',
-                        }}
-                    >
-                        <img
-                            src="https://tecotec.store/wp-content/uploads/2025/05/slide01.webp"
-                            alt="Sony Headphone"
-                            className="position-absolute top-0 start-0 w-100 h-100 object-fit-cover opacity-75"
-                        />
-                        <div className="position-relative p-5 d-flex flex-column justify-content-center h-100 align-items-start">
-                            <h2 className="fw-bold mb-3" style={{ color: '#ff9800' }}>
-                                Sony 5G Headphone
-                            </h2>
-                            <p className="fw-semibold mb-4">Only Music. Nothing Else.</p>
-                            <button className="btn btn-success px-4 py-2 fw-semibold">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Cột phải */}
-                <div className="col-md-6 d-flex flex-column gap-4">
-
-                    {/* Air Mavic 3 */}
-                    <div
-                        className="rounded-4 text-white p-5 position-relative overflow-hidden"
-                        style={{ backgroundColor: '#00796B' }}
-                    >
-                        <div className="position-relative z-2">
-                            <h3 className="fw-bold display-6">Air Mavic 3</h3>
-                            <p className="fw-semibold">As powerful as it is portable</p>
-                            <button className="btn btn-light text-success fw-semibold mt-3">
-                                Xem ngay
-                            </button>
+        <div style={{ padding: '20px 0' }}>
+            <div className="container-box ">
+                <div className="box-1200px row">
+                    <div className="col-md-6">
+                        <div
+                            className="position-relative rounded-4 overflow-hidden text-white"
+                            style={{
+                                height: '100%',
+                                backgroundColor: '#000',
+                            }}
+                        >
+                            <img
+                                src="https://tecotec.store/wp-content/uploads/2025/05/slide01.webp"
+                                alt="Sony Headphone"
+                                className="position-absolute top-0 start-0 w-100 h-100 object-fit-cover opacity-75"
+                            />
+                            <div className="position-relative p-5 d-flex flex-column justify-content-center h-100 align-items-start">
+                                <h2 className="fw-bold mb-3" style={{ color: '#ff9800' }}>
+                                    Sony 5G Headphone
+                                </h2>
+                                <p className="fw-semibold mb-4">Only Music. Nothing Else.</p>
+                                <button className="btn btn-success px-4 py-2 fw-semibold">
+                                    View Details
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Hai ô nhỏ dưới */}
-                    <div className="row g-4">
+                    <div className="col-md-6 d-flex flex-column gap-4">
 
-                        {/* Thiết bị đo rung */}
-                        <div className="col-md-6">
-                            <div className="rounded-4 bg-light p-4 h-100 position-relative">
-                                <div className="position-relative">
-                                    <h5 className="fw-bold">
-                                        Thiết bị đo rung - ồn RION
-                                    </h5>
-                                    <p className="text-muted mb-2">Cảm biến độ nhạy cao</p>
-                                    <a href="#" className="fw-semibold text-dark text-decoration-none">
-                                        Xem ngay →
-                                    </a>
-                                </div>
+                        {/* Air Mavic 3 */}
+                        <div
+                            className="rounded-4 text-white p-5 position-relative overflow-hidden"
+                            style={{ backgroundColor: '#00796B' }}
+                        >
+                            <div className="position-relative z-2">
+                                <h3 className="fw-bold display-6">Air Mavic 3</h3>
+                                <p className="fw-semibold">As powerful as it is portable</p>
+                                <button className="btn btn-light text-success fw-semibold mt-3">
+                                    Xem ngay
+                                </button>
                             </div>
                         </div>
 
-                        {/* Thiết bị kiểm soát bụi */}
-                        <div className="col-md-6">
-                            <div className="rounded-4 bg-light p-4 h-100 position-relative">
-                                <div className="position-relative">
-                                    <h5 className="fw-bold">
-                                        Thiết bị kiểm soát bụi trong phòng sạch Kanomax
-                                    </h5>
-                                    <p className="fw-semibold text-primary mb-2">Giảm tới 30%</p>
-                                    <a href="#" className="fw-semibold text-dark text-decoration-none">
-                                        Xem ngay →
-                                    </a>
+                        {/* Hai ô nhỏ dưới */}
+                        <div className="row g-4">
+
+                            {/* Thiết bị đo rung */}
+                            <div className="col-md-6">
+                                <div className="rounded-4 bg-light p-4 h-100 position-relative">
+                                    <div className="position-relative">
+                                        <h5 className="fw-bold">
+                                            Thiết bị đo rung - ồn RION
+                                        </h5>
+                                        <p className="text-muted mb-2">Cảm biến độ nhạy cao</p>
+                                        <a href="#" className="fw-semibold text-dark text-decoration-none">
+                                            Xem ngay →
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
+                            {/* Thiết bị kiểm soát bụi */}
+                            <div className="col-md-6">
+                                <div className="rounded-4 bg-light p-4 h-100 position-relative">
+                                    <div className="position-relative">
+                                        <h5 className="fw-bold">
+                                            Thiết bị kiểm soát bụi trong phòng sạch Kanomax
+                                        </h5>
+                                        <p className="fw-semibold text-primary mb-2">Giảm tới 30%</p>
+                                        <a href="#" className="fw-semibold text-dark text-decoration-none">
+                                            Xem ngay →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
-
             </div>
 
             {/* Carousel Component */}
-            <CarouselCategory title="Danh mục sản phẩm" data={categories} />
-            {/* <CarouselProduct title="Thiết bị đo cơ khí chính xác" products={products} linkMore="#" /> */}
+            <Category_List />
+            <Product_List />
             {/* <CarouselProduct title="Thiết bị đo tần số vô tuyến" products={products} linkMore="#" /> */}
             {/* <CarouselProduct title="Thiết bị kiểm tra không phá hủy" products={products} linkMore="#" /> */}
             <Carousel autoplay style={{ padding: '0 20px', marginTop: '40px', marginBottom: '40px' }}>

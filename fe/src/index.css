@@ -26,6 +26,10 @@ code {
   justify-content: center;
 }
 
+.bg-xam_nhat {
+  background-color: #f9fafb;
+}
+
 .box-1200px {
   width: 1200px;
   margin: 0 auto;

@@ -21,7 +21,7 @@ const Carousel = ({ title, data }) => {
     };
 
     return (
-        <div className="container py-5">
+        <div className="box-1200px my-5">
             <h3 className="fw-bold mb-4 text-primary">{title}</h3>
 
             <Slider {...settings}>

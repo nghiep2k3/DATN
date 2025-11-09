@@ -21,7 +21,7 @@ export default function CarouselProduct({ title, linkMore, products }) {
     };
 
     return (
-        <div className="container py-5">
+        <div className="box-1200px py-5">
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="fw-bold text-dark">{title}</h3>
@@ -35,7 +35,7 @@ export default function CarouselProduct({ title, linkMore, products }) {
             <Slider {...settings}>
                 {products.map((item) => (
                     <div key={item.id} className="px-2">
-                        <div className="product-card border rounded-4 bg-white shadow-sm p-3 h-100 position-relative">
+                        <div className="card-product border rounded-4 bg-white shadow-sm p-3 h-100 ">
                             {/* Label giảm giá */}
                             {item.discount && (
                                 <span className="badge bg-danger position-absolute top-0 end-0 m-2 px-3 py-2">
@@ -44,7 +44,7 @@ export default function CarouselProduct({ title, linkMore, products }) {
                             )}
 
                             {/* Ảnh sản phẩm */}
-                            <div className="text-center mb-3">
+                            <div className="mb-1">
                                 <img
                                     src={item.image}
                                     alt={item.name}
@@ -59,9 +59,9 @@ export default function CarouselProduct({ title, linkMore, products }) {
 
                             {/* Thông tin sản phẩm */}
                             <h6 className="fw-bold text-dark">{item.name}</h6>
-                            <p className="mb-1">
+                            <span className="mb-1">
                                 <strong>Model:</strong> {item.model}
-                            </p>
+                            </span>
 
                             {/* Giá */}
                             {item.oldPrice ? (
