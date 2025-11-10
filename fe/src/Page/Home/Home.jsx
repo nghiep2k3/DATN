@@ -12,6 +12,7 @@ import { Carousel, message, Spin } from 'antd';
 import axios from "axios";
 import Category_List from "./Category_List";
 import Product_List from "./Product_List";
+import ProductCard from "../../Components/ProductCard/ProductCard";
 const contentStyle = {
     margin: 0,
     height: '280px',
@@ -31,6 +32,15 @@ const Home = () => {
     if (loading) return <Spin tip="Đang tải danh mục..." />;
     return (
         <div style={{ padding: '20px 0' }}>
+            <Carousel autoplay style={{marginBottom: '40px', }}>
+                <div>
+                    <h3 style={contentStyle}>1</h3>
+                </div>
+                <div>
+                    <h3 style={contentStyle}>2</h3>
+                </div>
+            </Carousel>
+
             <div className="container-box ">
                 <div className="box-1200px row">
                     <div className="col-md-6">
@@ -117,7 +127,7 @@ const Home = () => {
             <Product_List />
             {/* <CarouselProduct title="Thiết bị đo tần số vô tuyến" products={products} linkMore="#" /> */}
             {/* <CarouselProduct title="Thiết bị kiểm tra không phá hủy" products={products} linkMore="#" /> */}
-            <Carousel autoplay style={{ padding: '0 20px', marginTop: '40px', marginBottom: '40px' }}>
+            <Carousel autoplay style={{ marginTop: '40px', marginBottom: '40px' }}>
                 <div>
                     <h3 style={contentStyle}>1</h3>
                 </div>
@@ -125,6 +135,7 @@ const Home = () => {
                     <h3 style={contentStyle}>2</h3>
                 </div>
             </Carousel>
+            <ProductCard className="" />
 
             <section
                 className="py-5"

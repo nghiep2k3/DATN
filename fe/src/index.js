@@ -21,27 +21,33 @@ import ListProductWithCategory from './Page/ListProductWithCategory/ListProductW
 import Brand from './Page/Brand/Brand';
 import Profile from './Page/Profile/Profile';
 import FAQ from './Page/FAQ/FAQ';
+import { CartProvider } from './Context/CartContext';
+import Contact from './Page/Contact/Contact';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <BrowserRouter>
-    <Routes>
-      {/* Layout chung đưa vào App.js */}
-      <Route path="/" element={<App />}>
-        <Route index element={<Home />} />
-        <Route path="about" element={<About />} />
-        <Route path="/category/:id" element={<CategoryPage />} />
-        <Route path="/category-child/:id" element={<ListProductWithCategory />} />
-        <Route path="brand" element={<Brand />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="faq" element={<FAQ />} />
-      </Route>
+  <CartProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* Layout chung đưa vào App.js */}
+        <Route path="/" element={<App />}>
+          <Route index element={<Home />} />
+          <Route path="about" element={<About />} />
+          <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/category-child/:id" element={<ListProductWithCategory />} />
+          <Route path="brand" element={<Brand />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="faq" element={<FAQ />} />
+          <Route path="contact" element={<Contact />} />
+        </Route>
 
-      <Route path="post" element={<Post />} />
-      <Route path="register" element={<RegisterForm />} />
-      <Route path="login" element={<Login />} />
-    </Routes>
-  </BrowserRouter>
+        <Route path="post" element={<Post />} />
+        <Route path="register" element={<RegisterForm />} />
+        <Route path="login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
+
+  </CartProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

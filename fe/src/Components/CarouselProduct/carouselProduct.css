@@ -1,23 +1,55 @@
-/* Mũi tên */
-.slick-prev:before,
-.slick-next:before {
-  color: #007bff;
-  font-size: 26px;
-  opacity: 0.9;
-}
-
-.slick-prev {
-  left: -35px;
-}
-
-.slick-next {
-  right: -35px;
-}
-
-/* Equal height card */
+/* Hiệu ứng card */
 .card-product {
+  height: 100%; /* đảm bảo flex chia đều */
+  transition: all 0.3s ease;
+  height: 290px;
+  min-height: 270px; /* giảm chiều cao tổng thể card */
+}
+.card-product:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Giữ tiêu đề và model luôn thẳng hàng */
+.info-block {
+  min-height: 60px;
+}
+
+/* Giữ phần giá ở cuối card */
+
+
+/* Giỏ hàng */
+.cart-icon-wrapper {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 300px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background-color: rgba(255, 153, 0, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.cart-icon {
+  color: #ff9900;
+  font-size: 18px;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Hover */
+.card-product:hover .cart-icon-wrapper {
+  background-color: #ff9900;
+}
+
+.card-product:hover .cart-icon {
+  color: #fff;
+  transform: rotate(-10deg) scale(1.1);
+}
+
+/* Cắt text sau 2 dòng */
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

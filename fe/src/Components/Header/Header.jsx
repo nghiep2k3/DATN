@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Col, Input, Button, Flex, Dropdown, Menu } from "antd";
+import { Col, Input, Button, Flex, Dropdown, Menu, Drawer, Badge, List, Avatar } from "antd";
 import Cookies from "js-cookie";
 import styles from "./Header.module.css";
 import { url } from "../../config";
@@ -12,12 +12,21 @@ import {
     LogoutOutlined,
 } from "@ant-design/icons";
 
+import { useCart } from "../../Context/CartContext";
+import { useNavigate } from "react-router-dom";
+
 const { Search } = Input;
 
 export default function Header() {
+    const navigate = useNavigate();
     const [isSticky, setIsSticky] = useState(false);
     const [userName, setUserName] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [open, setOpen] = useState(false);
+    const { cartItems, totalQuantity, removeFromCart } = useCart();
+    const showDrawer = () => setOpen(true);
+    const onClose = () => setOpen(false);
+
     const categories = [
         {
             id: 20,
@@ -453,13 +462,105 @@ export default function Header() {
                     </div>
 
                     <div className={styles.cartBtn}>
-                        <Button
-                            type="primary"
-                            size="large"
-                            style={{ backgroundColor: "#ff6600", borderColor: "#ff6600" }}
+                        <Badge count={totalQuantity} size="large" offset={[2, 8]}>
+                            <Button
+                                type="primary"
+                                size="large"
+                                style={{ backgroundColor: "#ff6600", borderColor: "#ff6600" }}
+                                onClick={showDrawer}
+                            >
+                                GIỎ HÀNG 🛒
+                            </Button>
+                        </Badge>
+
+                        <Drawer
+                            title="Giỏ hàng của bạn"
+                            onClose={onClose}
+                            open={open}
+                            footer={
+                                <div
+                                    style={{
+                                        borderTop: "1px solid #f0f0f0",
+                                        padding: "12px 16px",
+                                        background: "#fff",
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            marginBottom: "10px",
+                                        }}
+                                    >
+                                        <strong>Tổng tiền:</strong>
+                                        <span
+                                            style={{
+                                                fontWeight: "bold",
+                                                color: "#ff6600",
+                                                fontSize: "16px",
+                                            }}
+                                        >
+                                            {cartItems.length > 0
+                                                ? `${cartItems
+                                                    .reduce(
+                                                        (sum, item) => sum + (item.price ? item.price * item.quantity : 0),
+                                                        0
+                                                    )
+                                                    .toLocaleString()}₫`
+                                                : "0₫"}
+                                        </span>
+                                    </div>
+
+                                    <Button
+                                        type="primary"
+                                        block
+                                        size="large"
+                                        style={{
+                                            backgroundColor: "#ff6600",
+                                            borderColor: "#ff6600",
+                                            fontWeight: 600,
+                                        }}
+                                        onClick={() => navigate("/checkout")}
+                                        disabled={cartItems.length === 0}
+                                    >
+                                        🧾 Thanh toán ngay
+                                    </Button>
+                                </div>
+                            }
                         >
-                            GIỎ HÀNG / 0 ₫ 🛒
-                        </Button>
+                            <List
+                                dataSource={cartItems}
+                                locale={{ emptyText: "Chưa có sản phẩm nào trong giỏ hàng" }}
+                                renderItem={(item) => (
+                                    <List.Item
+                                        actions={[
+                                            <a key="remove" onClick={() => removeFromCart(item.id)}>
+                                                Xóa
+                                            </a>,
+                                        ]}
+                                    >
+                                        <List.Item.Meta
+                                            avatar={<Avatar src={item.image} shape="square" />}
+                                            title={<span style={{ fontWeight: 500 }}>{item.name}</span>}
+                                            description={
+                                                <>
+                                                    <div>Số lượng: {item.quantity}</div>
+                                                    <div>
+                                                        Giá:{" "}
+                                                        {item.price
+                                                            ? `${item.price.toLocaleString()}₫`
+                                                            : "Liên hệ"}
+                                                    </div>
+                                                </>
+                                            }
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        </Drawer>
+
+
                     </div>
                 </div>
             </nav>

@@ -2,11 +2,14 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import "./carouselProduct.css"; // file css riêng để tùy chỉnh
+import "./carouselProduct.css";
+import { ShoppingCartOutlined } from "@ant-design/icons";
+import { useCart } from "../../Context/CartContext";
 
 export default function CarouselProduct({ title, linkMore, products }) {
+    const { addToCart } = useCart();
     const settings = {
-        dots: false, // có thể bật true nếu muốn dot dưới
+        dots: false,
         infinite: true,
         speed: 500,
         slidesToShow: 5,
@@ -34,8 +37,8 @@ export default function CarouselProduct({ title, linkMore, products }) {
 
             <Slider {...settings}>
                 {products.map((item) => (
-                    <div key={item.id} className="px-2">
-                        <div className="card-product border rounded-4 bg-white shadow-sm p-3 h-100 ">
+                    <div key={item.id} className="px-2 my-4">
+                        <div className="card-product border rounded-4 bg-white shadow-sm p-3 position-relative d-flex flex-column">
                             {/* Label giảm giá */}
                             {item.discount && (
                                 <span className="badge bg-danger position-absolute top-0 end-0 m-2 px-3 py-2">
@@ -43,39 +46,55 @@ export default function CarouselProduct({ title, linkMore, products }) {
                                 </span>
                             )}
 
-                            {/* Ảnh sản phẩm */}
-                            <div className="mb-1">
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="rounded-3"
-                                    style={{
-                                        width: "100%",
-                                        minHeight: "120px",
-                                        objectFit: "contain",
-                                    }}
-                                />
+                            {/* Khối thông tin (title + model) */}
+                            <div className="info-block mb-2 flex-grow-1">
+                                <div className="text-center mb-2">
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="rounded-3"
+                                        style={{
+                                            width: "100%",
+                                            minHeight: "100px",
+                                            objectFit: "contain",
+                                        }}
+                                    />
+                                </div>
+                                <h6 className="fw-bold text-dark text-truncate-2 mb-1">{item.name}</h6>
+                                <p className="text-secondary mb-0">
+                                    <strong>Model:</strong> {item.model}
+                                </p>
                             </div>
 
-                            {/* Thông tin sản phẩm */}
-                            <h6 className="fw-bold text-dark">{item.name}</h6>
-                            <span className="mb-1">
-                                <strong>Model:</strong> {item.model}
-                            </span>
-
-                            {/* Giá */}
-                            {item.oldPrice ? (
-                                <div>
-                                    <p className="text-muted text-decoration-line-through mb-0">
+                            {/* Giá hoặc Liên hệ */}
+                            <div className="price-block">
+                                {item.oldPrice && (
+                                    <p className="text-muted text-decoration-line-through mb-0 small">
                                         {item.oldPrice.toLocaleString()}₫
                                     </p>
-                                    <p className="text-primary fw-bold mb-0">
-                                        {item.price.toLocaleString()}₫
+                                )}
+
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <p
+                                        className={`fw-semibold mb-0 ${item.price
+                                            ? "text-primary"
+                                            : "text-primary fw-semibold"
+                                            }`}
+                                    >
+                                        {item.price
+                                            ? `${item.price.toLocaleString()}₫`
+                                            : "Liên hệ"}
                                     </p>
+                                    <span
+                                        className="cart-icon-wrapper"
+                                        onClick={() => addToCart(item)}
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        <ShoppingCartOutlined className="cart-icon" />
+                                    </span>
+
                                 </div>
-                            ) : (
-                                <p className="text-primary fw-semibold mb-0">Liên hệ</p>
-                            )}
+                            </div>
                         </div>
                     </div>
                 ))}
