@@ -1,0 +1,62 @@
+{
+    "error": false,
+    "count": 3,
+    "products": [
+        {
+            "id": 26,
+            "name": "Máy đo Mahr",
+            "sku": "MAHR-001",
+            "description": "Thiết bị đo chính xác",
+            "price": "25000000.00",
+            "stock_quantity": 12,
+            "brand_id": 31,
+            "category_id": 31,
+            "image_url": "/upload/1760978634_68f666cab5c63.jpg",
+            "created_at": "2025-10-20 23:43:54",
+            "brand_name": "Mahr",
+            "category_name": "Thước đo lỗ",
+            "images": [
+                "/upload/1760978634_68f666cab5c63.jpg",
+                "/upload/1760978634_68f666cab6743.jpg"
+            ]
+        },
+        {
+            "id": 25,
+            "name": "Máy đo Mahr",
+            "sku": "MAHR-001",
+            "description": "Thiết bị đo chính xác",
+            "price": "25000000.00",
+            "stock_quantity": 12,
+            "brand_id": 30,
+            "category_id": 21,
+            "image_url": "/upload/1758514153_68d0cbe9a55cd.jpg",
+            "created_at": "2025-09-22 11:09:13",
+            "brand_name": "Rion",
+            "category_name": "Thiết bị đo điện",
+            "images": [
+                "/upload/1758514153_68d0cbe9a55cd.jpg",
+                "/upload/1758514153_68d0cbe9a5890.webp",
+                "/upload/1758514153_68d0cbe9a5b1a.jpg"
+            ]
+        },
+        {
+            "id": 24,
+            "name": "Máy đo Mahr",
+            "sku": "MAHR-001",
+            "description": "Thiết bị đo chính xác",
+            "price": "5000000.00",
+            "stock_quantity": 12,
+            "brand_id": 31,
+            "category_id": 21,
+            "image_url": "/upload/1758514139_68d0cbdba46ab.jpg",
+            "created_at": "2025-09-22 11:08:59",
+            "brand_name": "Mahr",
+            "category_name": "Thiết bị đo điện",
+            "images": [
+                "/upload/1758514139_68d0cbdba46ab.jpg",
+                "/upload/1758514139_68d0cbdba4912.webp",
+                "/upload/1758514139_68d0cbdba4ad1.jpg"
+            ]
+        }
+    ]
+}

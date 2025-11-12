@@ -23,6 +23,8 @@ import Profile from './Page/Profile/Profile';
 import FAQ from './Page/FAQ/FAQ';
 import { CartProvider } from './Context/CartContext';
 import Contact from './Page/Contact/Contact';
+import DownloadProduct from './Components/DownloadProduct/DownloadProduct.jsx';
+import SearchPage from './Page/SearchPage/SearchPage.jsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -39,6 +41,8 @@ root.render(
           <Route path="profile" element={<Profile />} />
           <Route path="faq" element={<FAQ />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/dev" element={<DownloadProduct />} />
         </Route>
 
         <Route path="post" element={<Post />} />

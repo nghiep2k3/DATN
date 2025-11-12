@@ -224,5 +224,105 @@ class AuthController
         }
     }
 
+    /* =======================================================
+   ========== QUÊN MẬT KHẨU / ĐẶT LẠI MẬT KHẨU ===========
+   ======================================================= */
+
+    /** 1️⃣ Gửi mã khôi phục mật khẩu tới email */
+    public function requestPasswordReset(string $email): array
+    {
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ["error" => true, "message" => "Email không hợp lệ"];
+        }
+
+        // Tìm user theo email
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->execute(['email' => $email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return ["error" => true, "message" => "Không tìm thấy tài khoản với email này"];
+        }
+
+        // Tạo mã 6 số
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $hash = password_hash($code, PASSWORD_BCRYPT);
+        $ttlMinutes = 10;
+        $expiresAt = date('Y-m-d H:i:s', time() + $ttlMinutes * 60);
+
+        // Cập nhật DB
+        $upd = $this->pdo->prepare("
+            UPDATE users 
+            SET verification_code = :code, verification_expires_at = :exp 
+            WHERE id = :id
+        ");
+        $upd->execute([
+            'code' => $hash,
+            'exp' => $expiresAt,
+            'id' => $user['id']
+        ]);
+
+        // Gửi email
+        $subject = "Khôi phục mật khẩu - Tecotec Store";
+        $html = "
+            <p>Xin chào <b>{$user['name']}</b>,</p>
+            <p>Bạn vừa yêu cầu khôi phục mật khẩu.</p>
+            <p>Mã khôi phục của bạn là: <b style='font-size:18px;color:#ff6600'>{$code}</b></p>
+            <p>Mã có hiệu lực trong {$ttlMinutes} phút.</p>
+            <p>Nếu bạn không yêu cầu, vui lòng bỏ qua email này.</p>
+        ";
+
+        [$ok, $errorInfo] = Mailer::send($user['email'], $user['name'], $subject, $html);
+        if (!$ok) {
+            return ["error" => true, "message" => "Gửi email thất bại", "detail" => $errorInfo];
+        }
+
+        return ["error" => false, "message" => "Đã gửi mã khôi phục mật khẩu tới email"];
+    }
+
+    /** 2️⃣ Đặt lại mật khẩu bằng mã đã gửi */
+    public function resetPassword(string $email, string $code, string $newPassword): array
+    {
+        if ($email === '' || $code === '' || $newPassword === '') {
+            return ["error" => true, "message" => "Thiếu thông tin email, mã hoặc mật khẩu mới"];
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->execute(['email' => $email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return ["error" => true, "message" => "Không tìm thấy tài khoản"];
+        }
+
+        if (empty($user['verification_code']) || strtotime($user['verification_expires_at']) < time()) {
+            return ["error" => true, "message" => "Mã xác minh đã hết hạn, vui lòng yêu cầu mã mới"];
+        }
+
+        if (!password_verify($code, $user['verification_code'])) {
+            return ["error" => true, "message" => "Mã xác minh không chính xác"];
+        }
+
+        // Hash mật khẩu mới
+        $hashed = password_hash($newPassword, PASSWORD_BCRYPT);
+
+        // Cập nhật lại mật khẩu và xoá mã
+        $upd = $this->pdo->prepare("
+            UPDATE users 
+            SET password = :pass, 
+                verification_code = NULL, 
+                verification_expires_at = NULL,
+                verified_account = 1
+            WHERE id = :id
+        ");
+        $upd->execute([
+            'pass' => $hashed,
+            'id' => $user['id']
+        ]);
+
+        return ["error" => false, "message" => "Đặt lại mật khẩu thành công"];
+    }
+
+
 
 }

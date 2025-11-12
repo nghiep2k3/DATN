@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Col, Input, Button, Flex, Dropdown, Menu, Drawer, Badge, List, Avatar } from "antd";
+import { Col, Input, Button, Flex, Dropdown, Menu, Drawer, Badge, List, Avatar, message } from "antd";
 import Cookies from "js-cookie";
 import styles from "./Header.module.css";
-import { url } from "../../config";
+import { url,url_api } from "../../config";
 import {
     RightOutlined,
     LoginOutlined,
@@ -14,6 +14,7 @@ import {
 
 import { useCart } from "../../Context/CartContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const { Search } = Input;
 
@@ -60,35 +61,7 @@ export default function Header() {
                     description: "Đồng hồ so",
                     url_image: "upload/20251013_095345_7b87e86654ac.webp",
                     created_at: "2025-10-13 14:53:45",
-                },
-                {
-                    id: 29,
-                    name: "Thước kẹp",
-                    description: "Thước kẹp",
-                    url_image: "upload/20251013_095137_e588d591906d.webp",
-                    created_at: "2025-10-13 14:51:37",
-                },
-                {
-                    id: 30,
-                    name: "Thước panme",
-                    description: "Thước panme",
-                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
-                    created_at: "2025-10-13 14:52:25",
-                },
-                {
-                    id: 31,
-                    name: "Thước đo lỗ",
-                    description: "Thước đo lỗ",
-                    url_image: "upload/20251013_095333_80328e57b383.webp",
-                    created_at: "2025-10-13 14:53:33",
-                },
-                {
-                    id: 32,
-                    name: "Đồng hồ so",
-                    description: "Đồng hồ so",
-                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
-                    created_at: "2025-10-13 14:53:45",
-                },
+                }
             ],
         },
         {
@@ -123,162 +96,20 @@ export default function Header() {
                     description: "Đồng hồ so",
                     url_image: "upload/20251013_095345_7b87e86654ac.webp",
                     created_at: "2025-10-13 14:53:45",
-                },
-                {
-                    id: 29,
-                    name: "Thước kẹp",
-                    description: "Thước kẹp",
-                    url_image: "upload/20251013_095137_e588d591906d.webp",
-                    created_at: "2025-10-13 14:51:37",
-                },
-                {
-                    id: 30,
-                    name: "Thước panme",
-                    description: "Thước panme",
-                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
-                    created_at: "2025-10-13 14:52:25",
-                },
-                {
-                    id: 31,
-                    name: "Thước đo lỗ",
-                    description: "Thước đo lỗ",
-                    url_image: "upload/20251013_095333_80328e57b383.webp",
-                    created_at: "2025-10-13 14:53:33",
-                },
-                {
-                    id: 32,
-                    name: "Đồng hồ so",
-                    description: "Đồng hồ so",
-                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
-                    created_at: "2025-10-13 14:53:45",
-                },
+                }
             ],
         },
         {
             id: 33,
             category: "Thiết bị quan trắc môi trường",
             url_image: "upload/20251104_174059_072a9f1f456e.webp",
-            sub_category: [
-                {
-                    id: 29,
-                    name: "Thước kẹp",
-                    description: "Thước kẹp",
-                    url_image: "upload/20251013_095137_e588d591906d.webp",
-                    created_at: "2025-10-13 14:51:37",
-                },
-                {
-                    id: 30,
-                    name: "Thước panme",
-                    description: "Thước panme",
-                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
-                    created_at: "2025-10-13 14:52:25",
-                },
-                {
-                    id: 31,
-                    name: "Thước đo lỗ",
-                    description: "Thước đo lỗ",
-                    url_image: "upload/20251013_095333_80328e57b383.webp",
-                    created_at: "2025-10-13 14:53:33",
-                },
-                {
-                    id: 32,
-                    name: "Đồng hồ so",
-                    description: "Đồng hồ so",
-                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
-                    created_at: "2025-10-13 14:53:45",
-                },
-                {
-                    id: 29,
-                    name: "Thước kẹp",
-                    description: "Thước kẹp",
-                    url_image: "upload/20251013_095137_e588d591906d.webp",
-                    created_at: "2025-10-13 14:51:37",
-                },
-                {
-                    id: 30,
-                    name: "Thước panme",
-                    description: "Thước panme",
-                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
-                    created_at: "2025-10-13 14:52:25",
-                },
-                {
-                    id: 31,
-                    name: "Thước đo lỗ",
-                    description: "Thước đo lỗ",
-                    url_image: "upload/20251013_095333_80328e57b383.webp",
-                    created_at: "2025-10-13 14:53:33",
-                },
-                {
-                    id: 32,
-                    name: "Đồng hồ so",
-                    description: "Đồng hồ so",
-                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
-                    created_at: "2025-10-13 14:53:45",
-                },
-            ],
+            sub_category: [],
         },
         {
             id: 34,
             category: "Thiết bị kiểm tra không phá hủy - NDT",
             url_image: "upload/20251104_174223_a1edde3f1788.webp",
-            sub_category: [
-                {
-                    id: 29,
-                    name: "Thước kẹp",
-                    description: "Thước kẹp",
-                    url_image: "upload/20251013_095137_e588d591906d.webp",
-                    created_at: "2025-10-13 14:51:37",
-                },
-                {
-                    id: 30,
-                    name: "Thước panme",
-                    description: "Thước panme",
-                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
-                    created_at: "2025-10-13 14:52:25",
-                },
-                {
-                    id: 31,
-                    name: "Thước đo lỗ",
-                    description: "Thước đo lỗ",
-                    url_image: "upload/20251013_095333_80328e57b383.webp",
-                    created_at: "2025-10-13 14:53:33",
-                },
-                {
-                    id: 32,
-                    name: "Đồng hồ so",
-                    description: "Đồng hồ so",
-                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
-                    created_at: "2025-10-13 14:53:45",
-                },
-                {
-                    id: 29,
-                    name: "Thước kẹp",
-                    description: "Thước kẹp",
-                    url_image: "upload/20251013_095137_e588d591906d.webp",
-                    created_at: "2025-10-13 14:51:37",
-                },
-                {
-                    id: 30,
-                    name: "Thước panme",
-                    description: "Thước panme",
-                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
-                    created_at: "2025-10-13 14:52:25",
-                },
-                {
-                    id: 31,
-                    name: "Thước đo lỗ",
-                    description: "Thước đo lỗ",
-                    url_image: "upload/20251013_095333_80328e57b383.webp",
-                    created_at: "2025-10-13 14:53:33",
-                },
-                {
-                    id: 32,
-                    name: "Đồng hồ so",
-                    description: "Đồng hồ so",
-                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
-                    created_at: "2025-10-13 14:53:45",
-                },
-            ],
+            sub_category: [],
         },
         {
             id: 35,
@@ -305,9 +136,36 @@ export default function Header() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    const onSearch = (value) => {
-        console.log("Search:", value);
+    // Xử lý tìm kiếm
+    const onSearch = async (value) => {
+        const keyword = value.trim().toLowerCase();
+        if (!keyword) return message.warning("Vui lòng nhập từ khóa tìm kiếm!");
+
+        try {
+            const res = await axios.get(`${url_api}/search/product.json`, {
+                headers: { "Cache-Control": "no-cache" },
+            });
+
+            const products = res.data.products || [];
+            const results = products.filter((p) =>
+                p.name.toLowerCase().includes(keyword)
+            );
+
+            if (results.length > 0) {
+                console.log("🔍 Kết quả tìm thấy:", results);
+
+                localStorage.setItem("searchResults", JSON.stringify(results));
+
+                navigate(`/search?q=${encodeURIComponent(value)}`);
+            } else {
+                message.info("Không tìm thấy sản phẩm nào phù hợp.");
+            }
+        } catch (err) {
+            console.error("Lỗi khi đọc file JSON:", err);
+            message.error("Không thể đọc dữ liệu sản phẩm (product.json).");
+        }
     };
+
 
     // Xử lý đăng xuất
     const handleLogout = () => {
@@ -342,7 +200,7 @@ export default function Header() {
                             </div>
                         </Col>
 
-                        <Col style={{ width: 400 }}>
+                        <Col style={{ width: 500 }}>
                             <div className={styles.searchBox}>
                                 <Search
                                     className="custom_search"
@@ -458,6 +316,7 @@ export default function Header() {
                         <div><Link to="/brand" className={`${styles.categoryLink}`}>HÃNG SẢN XUẤT ▾</Link></div>
                         <div><Link to="/about" className={`${styles.categoryLink}`}>GIỚI THIỆU</Link></div>
                         <div><Link to="/faq" className={`${styles.categoryLink}`}>CÂU HỎI THƯỜNG GẶP</Link></div>
+                        <div><Link to="/faq" className={`${styles.categoryLink}`}>TIN TỨC</Link></div>
                         <div><Link to="/contact" className={`${styles.categoryLink}`}>LIÊN HỆ</Link></div>
                     </div>
 

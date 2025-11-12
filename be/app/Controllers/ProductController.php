@@ -286,4 +286,46 @@ class ProductController
         }
     }
 
+    /**
+     * Lấy toàn bộ danh sách sản phẩm (bao gồm brand, category, images)
+     * @return array
+     */
+    public function getAllProducts(): array
+    {
+        try {
+            $stmt = $this->db->query("
+                SELECT 
+                    p.*,
+                    b.name AS brand_name,
+                    c.name AS category_name
+                FROM products p
+                LEFT JOIN brands b ON p.brand_id = b.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                ORDER BY p.created_at DESC
+            ");
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Lấy ảnh phụ cho từng sản phẩm
+            $imgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
+            foreach ($products as &$prod) {
+                $imgStmt->execute(['id' => $prod['id']]);
+                $prod['images'] = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+            }
+
+            return [
+                "error" => false,
+                "count" => count($products),
+                "products" => $products
+            ];
+
+        } catch (PDOException $e) {
+            return [
+                "error" => true,
+                "message" => "Lỗi khi lấy danh sách sản phẩm",
+                "detail" => $e->getMessage()
+            ];
+        }
+    }
+
+
 }

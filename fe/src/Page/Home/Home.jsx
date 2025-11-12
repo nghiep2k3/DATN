@@ -135,7 +135,6 @@ const Home = () => {
                     <h3 style={contentStyle}>2</h3>
                 </div>
             </Carousel>
-            <ProductCard className="" />
 
             <section
                 className="py-5"
