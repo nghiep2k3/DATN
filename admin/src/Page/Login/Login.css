@@ -1,0 +1,91 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background: url("/bg.jpg") no-repeat center center/cover; */
+  padding: 20px;
+}
+
+.auth-box {
+  display: flex;
+  width: 900px;
+  min-height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  background: #fff;
+}
+
+/* Bên trái */
+.auth-left {
+  flex: 1;
+  background-color: #00796B;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.auth-logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+.auth-slogan {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.4;
+  margin-bottom: 30px;
+}
+
+.auth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 200px;
+}
+
+.auth-btn {
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.orange {
+  background-color: #ff6600 !important;
+  border-color: #ff6600 !important;
+  color: #fff !important;
+}
+
+/* Bên phải */
+.auth-right {
+  flex: 1;
+  background: #fff;
+  padding: 40px;
+}
+
+.auth-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #00796B;
+}
+
+.login-btn {
+  background: #00796B;
+  border-color: #00796B;
+}
+
+.login-btn:hover {
+  background: #005f4f !important;
+  border-color: #005f4f !important;
+}
+
+.forgot-link {
+  text-align: center;
+  margin-top: 10px;
+}

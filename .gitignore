@@ -17,6 +17,8 @@ Thumbs.db
 
 # ==== Frontend (React / Node) ====
 /fe/node_modules/
+/admin/node_modules/
+
 /fe/build/
 /fe/dist/
 /fe/.pnp

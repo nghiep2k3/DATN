@@ -1,0 +1,122 @@
+.footer {
+    background-color: #0c4a6e;
+    color: white;
+    padding-top: 60px;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    /* canh top đều nhau */
+    flex-wrap: wrap;
+    /* cho xuống hàng khi nhỏ */
+    gap: 40px;
+}
+
+.col {
+    flex: 1;
+    min-width: 220px;
+}
+
+.col h5 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    display: inline-block;
+    padding-bottom: 4px;
+}
+
+.col h4 {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.col p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.logo {
+    width: 120px;
+    margin-bottom: 15px;
+}
+
+.socialLabel {
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.socialIcons {
+    display: flex;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.socialIcons a {
+    color: white;
+    transition: color 0.3s;
+}
+
+.socialIcons a:hover {
+    color: #f59e0b;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul li {
+    margin-bottom: 6px;
+}
+
+ul li a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+ul li a:hover {
+    color: #f59e0b;
+}
+
+.contactList li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.icon {
+    color: #f59e0b;
+    font-size: 16px;
+    margin-top: 2px;
+}
+
+.bottomBar {
+    background-color: #f59e0b;
+    text-align: center;
+    padding: 10px 20px;
+    color: #000;
+    font-weight: 500;
+    margin-top: 40px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .contactList li {
+        justify-content: center;
+    }
+}
