@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/../../vendor/autoload.php';
+file_put_contents("log_delete.txt", print_r($_SERVER, true));
 
 use Config\Db;
 use App\Controllers\CategoriesController;
@@ -7,16 +8,25 @@ use App\Controllers\CategoriesController;
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../config');
 $dotenv->safeLoad();
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: DELETE, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+// ====================
+// FIX CORS ĐÚNG 100%
+// ====================
+// header("Access-Control-Allow-Origin: *");
+// header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+// header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept");
+// header("Access-Control-Expose-Headers: Content-Type, Authorization");
 
-$method = $_SERVER['REQUEST_METHOD'];
-if ($method === 'OPTIONS') { http_response_code(204); exit; }
-if (!in_array($method, ['DELETE','POST'], true)) {
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    // Cho FE biết được phép gửi DELETE
+    http_response_code(204);
+    exit;
+}
+// =====================
+
+// CHỈ CHO PHÉP DELETE
+if ($_SERVER["REQUEST_METHOD"] !== "DELETE") {
     http_response_code(405);
-    echo json_encode(['error'=>true,'message'=>'Chỉ cho phép DELETE hoặc POST']);
+    echo json_encode(['error' => true, 'message' => 'Method not allowed. Chỉ cho phép DELETE.']);
     exit;
 }
 
@@ -24,23 +34,26 @@ try {
     $pdo = (new Db())->connect();
     $ctl = new CategoriesController($pdo);
 
-    $id = 0;
-    if (isset($_GET['id'])) {
-        $id = (int)$_GET['id'];
-    } else {
-        $raw = file_get_contents('php://input');
-        $input = json_decode($raw, true);
-        if (!is_array($input)) { $input = $_POST; }
-        $id = (int)($input['id'] ?? 0);
+    // Lấy ID từ query string
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+    if ($id <= 0) {
+        http_response_code(422);
+        echo json_encode(['error' => true, 'message' => 'Thiếu id hoặc id không hợp lệ']);
+        exit;
     }
 
-    if ($id <= 0) { http_response_code(422); echo json_encode(['error'=>true,'message'=>'Thiếu id']); exit; }
+    // XÓA DANH MỤC
+    [$code, $payload] = $ctl->delete($id);
 
-    [$code,$payload] = $ctl->delete($id);
     http_response_code($code);
     echo json_encode($payload);
 
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo json_encode(['error'=>true,'message'=>'Server error','detail'=>$e->getMessage()]);
+    echo json_encode([
+        'error' => true,
+        'message' => 'Server error',
+        'detail' => $e->getMessage()
+    ]);
 }

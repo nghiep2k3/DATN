@@ -18,7 +18,7 @@ class CategoriesController
         if ($parentId) {
             // Lấy 1 cha
             $pstmt = $this->pdo->prepare(
-                'SELECT id, name, url_image FROM categories 
+                'SELECT id, name, description, url_image FROM categories 
              WHERE id = :id AND parent_id IS NULL LIMIT 1'
             );
             $pstmt->execute(['id' => $parentId]);
@@ -53,6 +53,7 @@ class CategoriesController
                     [
                         'id' => (int) $parent['id'],
                         'category' => $parent['name'],
+                        'description' => $parent['description'] ?? '',
                         'url_image' => $parent['url_image'] ?? null,
                         'sub_category' => $children,
                     ]
@@ -62,7 +63,7 @@ class CategoriesController
 
         // Lấy tất cả cha
         $parents = $this->pdo->query(
-            'SELECT id, name, url_image 
+            'SELECT id, name, description, url_image 
          FROM categories 
          WHERE parent_id IS NULL 
          ORDER BY id ASC'
@@ -102,6 +103,7 @@ class CategoriesController
             $out[] = [
                 'id' => (int) $p['id'],
                 'category' => $p['name'],
+                'description' => $p['description'] ?? '',
                 'url_image' => $p['url_image'] ?? null,
                 'sub_category' => $grouped[(int) $p['id']] ?? []
             ];

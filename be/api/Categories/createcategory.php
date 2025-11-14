@@ -1,6 +1,8 @@
 <?php
 require __DIR__ . '/../../vendor/autoload.php';
 
+
+
 use Config\Db;
 use App\Controllers\CategoriesController;
 

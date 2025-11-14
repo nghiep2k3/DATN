@@ -1,0 +1,51 @@
+Array
+(
+    [MIBDIRS] => C:/xampp/php/extras/mibs
+    [MYSQL_HOME] => \xampp\mysql\bin
+    [OPENSSL_CONF] => C:/xampp/apache/bin/openssl.cnf
+    [PHP_PEAR_SYSCONF_DIR] => \xampp\php
+    [PHPRC] => \xampp\php
+    [TMP] => \xampp\tmp
+    [HTTP_HOST] => localhost:8081
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_CH_UA_PLATFORM] => "Windows"
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
+    [HTTP_ACCEPT] => application/json, text/plain, */*
+    [HTTP_SEC_CH_UA] => "Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"
+    [HTTP_SEC_CH_UA_MOBILE] => ?0
+    [HTTP_ORIGIN] => http://localhost:3000
+    [HTTP_SEC_FETCH_SITE] => same-site
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_REFERER] => http://localhost:3000/
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_ACCEPT_LANGUAGE] => vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5
+    [PATH] => C:\Program Files\Microsoft MPI\Bin\;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft SQL Server\110\Tools\Binn\;E:\Tài Nguyên\OpenSSL-Win64\bin;C:\Dart\dart-sdk\bin;C:\Flutter\flutter\bin;C:\JDKJAVA\jdk-17.0.9\bin;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\Azure Data Studio\bin;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\160\Tools\Binn\;C:\Program Files\Microsoft SQL Server\160\Tools\Binn\;C:\Program Files\Microsoft SQL Server\160\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\160\DTS\Binn\;C:\xampp\php;C:\ProgramData\ComposerSetup\bin;D:\Downloads\apache-maven-3.9.7-bin\apache-maven-3.9.7\bin;C:\Program Files\Cloudflare\Cloudflare WARP\;C:\Program Files\Docker\Docker\resources\bin;C:\Windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps
+    [SystemRoot] => C:\Windows
+    [COMSPEC] => C:\Windows\system32\cmd.exe
+    [PATHEXT] => .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+    [WINDIR] => C:\Windows
+    [SERVER_SIGNATURE] => <address>Apache/2.4.56 (Win64) OpenSSL/1.1.1t PHP/8.2.4 Server at localhost Port 8081</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.56 (Win64) OpenSSL/1.1.1t PHP/8.2.4
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => ::1
+    [SERVER_PORT] => 8081
+    [REMOTE_ADDR] => ::1
+    [DOCUMENT_ROOT] => C:/xampp/htdocs
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => C:/xampp/htdocs
+    [SERVER_ADMIN] => postmaster@localhost
+    [SCRIPT_FILENAME] => C:/xampp/htdocs/DATN/be/api/Categories/deletecategory.php
+    [REMOTE_PORT] => 56054
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => DELETE
+    [QUERY_STRING] => id=46
+    [REQUEST_URI] => /datn/be/api/categories/deletecategory.php?id=46
+    [SCRIPT_NAME] => /datn/be/api/categories/deletecategory.php
+    [PHP_SELF] => /datn/be/api/categories/deletecategory.php
+    [REQUEST_TIME_FLOAT] => 1763144816.0187
+    [REQUEST_TIME] => 1763144816
+)

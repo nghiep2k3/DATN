@@ -71,7 +71,7 @@ class BrandsController
             }
 
             // Đường dẫn public/relative để lưu DB
-            $imageRelPath = '/upload/' . $newName;
+            $imageRelPath = 'upload/' . $newName;
         }
 
         // Insert DB (có url_image + created_at)
@@ -140,7 +140,7 @@ class BrandsController
                 throw new \RuntimeException('Không thể lưu file upload.');
             }
 
-            $newImageRelPath = '/upload/' . $newName;
+            $newImageRelPath = 'upload/' . $newName;
         }
 
         // 3) Nếu không có file nhưng có chuỗi $urlImage -> dùng chuỗi đó
