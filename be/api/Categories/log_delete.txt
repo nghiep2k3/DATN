@@ -38,14 +38,14 @@ Array
     [CONTEXT_DOCUMENT_ROOT] => C:/xampp/htdocs
     [SERVER_ADMIN] => postmaster@localhost
     [SCRIPT_FILENAME] => C:/xampp/htdocs/DATN/be/api/Categories/deletecategory.php
-    [REMOTE_PORT] => 56054
+    [REMOTE_PORT] => 57329
     [GATEWAY_INTERFACE] => CGI/1.1
     [SERVER_PROTOCOL] => HTTP/1.1
     [REQUEST_METHOD] => DELETE
-    [QUERY_STRING] => id=46
-    [REQUEST_URI] => /datn/be/api/categories/deletecategory.php?id=46
+    [QUERY_STRING] => id=47
+    [REQUEST_URI] => /datn/be/api/categories/deletecategory.php?id=47
     [SCRIPT_NAME] => /datn/be/api/categories/deletecategory.php
     [PHP_SELF] => /datn/be/api/categories/deletecategory.php
-    [REQUEST_TIME_FLOAT] => 1763144816.0187
-    [REQUEST_TIME] => 1763144816
+    [REQUEST_TIME_FLOAT] => 1763313336.3837
+    [REQUEST_TIME] => 1763313336
 )

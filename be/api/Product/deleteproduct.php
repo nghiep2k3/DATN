@@ -8,6 +8,14 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../config');
 $dotenv->safeLoad();
 
 header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    http_response_code(200);
+    exit;
+}
 
 $pdo = (new Db())->connect();
 $controller = new ProductController($pdo);
@@ -22,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         exit;
     }
 
-    $id = (int)$_GET['id'];
+    $id = (int) $_GET['id'];
     $result = $controller->delete($id);
     echo json_encode($result);
     exit;

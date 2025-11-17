@@ -29,9 +29,9 @@ export default function App() {
             label: "Trang chủ",
         },
         {
-            key: "/product-category",
+            key: "/product-dashboard",
             icon: <AppstoreOutlined />,
-            label: "Danh mục sản phẩm",
+            label: "Sản phẩm",
         },
         {
             key: "/post-category",

@@ -7,13 +7,12 @@ import reportWebVitals from './reportWebVitals';
 import Home from './Page/Home/Home';
 import Login from './Page/Login/Login';
 
-import ProductCategory from './Page/ProductCategory/ProductCategory.jsx';
+import ProductDashboard from './Page/ProductDashboard/ProductDashboard.jsx';
 import DownloadProduct from './Components/DownloadProduct/DownloadProduct.jsx';
 
 import { CartProvider } from './Context/CartContext';
 
 // Tạo page rỗng để tránh báo lỗi
-// const ProductCategory = () => <h2>Danh mục sản phẩm</h2>;
 const PostCategory = () => <h2>Danh mục bài viết</h2>;
 const Orders = () => <h2>Đơn hàng</h2>;
 const Account = () => <h2>Thông tin tài khoản</h2>;
@@ -28,14 +27,14 @@ root.render(
           <Route index element={<Home />} />
 
           {/* Các trang trong sidebar */}
-          <Route path="/product-category" element={<ProductCategory />} />
+          <Route path="/product-dashboard" element={<ProductDashboard />} />
           <Route path="/post-category" element={<PostCategory />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/account" element={<Account />} />
           <Route path="/warehouse" element={<Warehouse />} />
 
           {/* Trang có sẵn */}
-          <Route path="/category/:id" element={<ProductCategory />} />
+          {/* <Route path="/category/:id" element={<ProductCategory />} /> */}
           <Route path="/dev" element={<DownloadProduct />} />
         </Route>
 
