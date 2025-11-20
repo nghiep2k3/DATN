@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Input, Row, Col, Spin } from "antd";
-import { url_api } from "../../config";
+import { url_api,url } from "../../config";
 import "./Brand.css";
 
 const { Search } = Input;
@@ -55,7 +55,7 @@ export default function Brand() {
                     {featuredBrands.map((brand) => (
                         <div key={brand.id} className="brand-card">
                             <img
-                                src={`${url_api}${brand.url_image}`}
+                                src={`${url}${brand.url_image}`}
                                 alt={brand.name}
                                 className="brand-logo"
                             />

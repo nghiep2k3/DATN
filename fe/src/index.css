@@ -26,19 +26,22 @@ code {
   justify-content: center;
 }
 
-.bg-xam_nhat {
-  background-color: #f9fafb;
-}
-
 .box-1200px {
   width: 1200px;
   margin: 0 auto;
 }
 
-.bg-cam {
+.bg-xam_nhat {
+  background-color: #f9fafb;
+}
+.red{
+  background-color: #ff4d4f;
+}
+
+.cam {
   background-color: #ff9900;
 }
 
-.bg-xanh {
+.xanh {
   background-color: #146eb4;
 }

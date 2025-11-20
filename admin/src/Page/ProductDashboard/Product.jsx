@@ -105,14 +105,25 @@ export default function Product() {
             const formData = new FormData();
 
             Object.keys(values).forEach((key) => {
-                if (key !== "images")
-                    formData.append(key, values[key]);
+                if (key !== "images") {
+                    const value =
+                        typeof values[key] === "number"
+                            ? String(values[key])
+                            : values[key];
+
+                    formData.append(key, value);
+                }
             });
 
             if (values.images && values.images.length > 0) {
                 values.images.forEach((fileObj) => {
                     formData.append("image[]", fileObj.originFileObj);
                 });
+            }
+            // 🔥 Log toàn bộ FormData (bao gồm file)
+            console.log("📦 FORM DATA GỬI LÊN API:");
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ": ", pair[1]);
             }
 
             const apiUrl = editMode

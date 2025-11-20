@@ -15,19 +15,22 @@ $controller = new ProductController($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [
-        'name'          => $_POST['name'] ?? null,
-        'sku'           => $_POST['sku'] ?? null,
-        'description'   => $_POST['description'] ?? null,
-        'price'         => $_POST['price'] ?? null,
-        'stock_quantity'=> $_POST['stock_quantity'] ?? 0,
-        'brand_id'      => $_POST['brand_id'] ?? null,
-        'category_id'   => $_POST['category_id'] ?? null,
-        'image_url'     => null,   // ảnh đại diện
-        'images'        => []      // danh sách ảnh
+        'name' => $_POST['name'] ?? null,
+        'sku' => $_POST['sku'] ?? null,
+        'description' => $_POST['description'] ?? null,
+        'price' => $_POST['price'] ?? null,
+        'stock_quantity' => $_POST['stock_quantity'] ?? 0,
+        'brand_id' => $_POST['brand_id'] ?? null,
+        'category_id' => $_POST['category_id'] ?? null,
+        'image_url' => null,   // ảnh đại diện
+        'images' => []      // danh sách ảnh
     ];
 
     // Validate bắt buộc
-    if (empty($data['name']) || empty($data['price'])) {
+    if (
+        !isset($data['name']) || trim($data['name']) === "" ||
+        !isset($data['price']) || trim($data['price']) === ""
+    ) {
         http_response_code(400);
         echo json_encode([
             "error" => true,
@@ -35,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         exit;
     }
+
 
     // Xử lý upload ảnh
     $uploadedFiles = [];
@@ -45,12 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         foreach ($_FILES['image']['name'] as $i => $filename) {
-            if ($_FILES['image']['error'][$i] !== UPLOAD_ERR_OK) continue;
-            if ($_FILES['image']['size'][$i] > 5 * 1024 * 1024) continue; // >5MB bỏ qua
+            if ($_FILES['image']['error'][$i] !== UPLOAD_ERR_OK)
+                continue;
+            if ($_FILES['image']['size'][$i] > 5 * 1024 * 1024)
+                continue; // >5MB bỏ qua
 
             $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
             $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
-            if (!in_array($ext, $allowed)) continue;
+            if (!in_array($ext, $allowed))
+                continue;
 
             $fileName = time() . '_' . uniqid() . '.' . $ext;
             $filePath = $uploadDir . $fileName;

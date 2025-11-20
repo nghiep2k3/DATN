@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import "./carouselProduct.css";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useCart } from "../../Context/CartContext";
+import { Link } from "react-router-dom";
 
 export default function CarouselProduct({ title, linkMore, products }) {
     const { addToCart } = useCart();
@@ -38,64 +39,66 @@ export default function CarouselProduct({ title, linkMore, products }) {
             <Slider {...settings}>
                 {products.map((item) => (
                     <div key={item.id} className="px-2 my-4">
-                        <div className="card-product border rounded-4 bg-white shadow-sm p-3 position-relative d-flex flex-column">
-                            {/* Label giảm giá */}
-                            {item.discount && (
-                                <span className="badge bg-danger position-absolute top-0 end-0 m-2 px-3 py-2">
-                                    -{item.discount}%
-                                </span>
-                            )}
-
-                            {/* Khối thông tin (title + model) */}
-                            <div className="info-block mb-2 flex-grow-1">
-                                <div className="text-center mb-2">
-                                    <img
-                                        src={item.image}
-                                        alt={item.name}
-                                        className="rounded-3"
-                                        style={{
-                                            width: "100%",
-                                            minHeight: "100px",
-                                            objectFit: "contain",
-                                        }}
-                                    />
-                                </div>
-                                <h6 className="fw-bold text-dark text-truncate-2 mb-1">{item.name}</h6>
-                                <p className="text-secondary mb-0">
-                                    <strong>Model:</strong> {item.model}
-                                </p>
-                            </div>
-
-                            {/* Giá hoặc Liên hệ */}
-                            <div className="price-block">
-                                {item.oldPrice && (
-                                    <p className="text-muted text-decoration-line-through mb-0 small">
-                                        {item.oldPrice.toLocaleString()}₫
-                                    </p>
+                        <Link to={`/chi-tiet-san-pham/${item.id}`} style={{ textDecoration: 'none' }}>
+                            <div className="card-product border rounded-4 bg-white shadow-sm p-3 position-relative d-flex flex-column">
+                                {/* Label giảm giá */}
+                                {item.discount && (
+                                    <span className="badge bg-danger position-absolute top-0 end-0 m-2 px-3 py-2">
+                                        -{item.discount}%
+                                    </span>
                                 )}
 
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <p
-                                        className={`fw-semibold mb-0 ${item.price
-                                            ? "text-primary"
-                                            : "text-primary fw-semibold"
-                                            }`}
-                                    >
-                                        {item.price
-                                            ? `${item.price.toLocaleString()}₫`
-                                            : "Liên hệ"}
+                                {/* Khối thông tin (title + model) */}
+                                <div className="info-block mb-2 flex-grow-1">
+                                    <div className="text-center mb-2">
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="rounded-3"
+                                            style={{
+                                                width: "100%",
+                                                minHeight: "100px",
+                                                objectFit: "contain",
+                                            }}
+                                        />
+                                    </div>
+                                    <h6 className="fw-bold text-dark text-truncate-2 mb-1">{item.name}</h6>
+                                    <p className="text-secondary mb-0">
+                                        <strong>Model:</strong> {item.model}
                                     </p>
-                                    <span
-                                        className="cart-icon-wrapper"
-                                        onClick={() => addToCart(item)}
-                                        style={{ cursor: "pointer" }}
-                                    >
-                                        <ShoppingCartOutlined className="cart-icon" />
-                                    </span>
+                                </div>
 
+                                {/* Giá hoặc Liên hệ */}
+                                <div className="price-block">
+                                    {item.oldPrice && (
+                                        <p className="text-muted text-decoration-line-through mb-0 small">
+                                            {item.oldPrice.toLocaleString()}₫
+                                        </p>
+                                    )}
+
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <p
+                                            className={`fw-semibold mb-0 ${item.price
+                                                ? "text-primary"
+                                                : "text-primary fw-semibold"
+                                                }`}
+                                        >
+                                            {item.price
+                                                ? `${item.price.toLocaleString()}₫`
+                                                : "Liên hệ"}
+                                        </p>
+                                        <span
+                                            className="cart-icon-wrapper"
+                                            onClick={() => addToCart(item)}
+                                            style={{ cursor: "pointer" }}
+                                        >
+                                            <ShoppingCartOutlined className="cart-icon" />
+                                        </span>
+
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 ))}
             </Slider>
