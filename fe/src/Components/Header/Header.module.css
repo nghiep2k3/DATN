@@ -1,7 +1,7 @@
 .topBar_content {
     width: 1200px;
     max-width: 1200px;
-    height: 90px;
+    height: 64px;
 }
 
 .logo {
@@ -19,6 +19,7 @@
 .nav {
     position: relative;
     background: #f9f9f9;
+    padding: 8px 0;
 }
 
 .navContent {
@@ -39,13 +40,13 @@
 .menu .categoryLink {
     text-decoration: none;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     color: #ff6600;
 }
 
 .categoryMenu {
     background-color: #0d3b66;
-    padding: 12px 34px;
+    padding: 5px 30px;
     border-radius: 2px;
 }
 

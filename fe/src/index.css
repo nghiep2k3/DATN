@@ -1,47 +1,73 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+        monospace;
 }
 
 /* Layout */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-  text-decoration: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+}
+
+.ant-row {
+    margin: 0 !important;
+}
+
+a {
+    text-decoration: none !important;
+    color: inherit;
 }
 
 .container-box {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 }
 
 .box-1200px {
-  width: 1200px;
-  margin: 0 auto;
+    width: 1200px;
+    margin: 0 auto;
 }
 
 .bg-xam_nhat {
-  background-color: #f9fafb;
+    background-color: #f9fafb;
 }
-.red{
-  background-color: #ff4d4f;
+
+.red {
+    background-color: #ff4d4f;
 }
 
 .cam {
-  background-color: #ff9900;
+    background-color: #ff9900;
+}
+
+.text-cam{
+    color: #ff9900;
+}
+.text-xanh{
+    color: #146eb4;
 }
 
 .xanh {
-  background-color: #146eb4;
+    background-color: #146eb4;
+}
+
+.slick-prev,
+.slick-next {
+    z-index: 1;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50%;
+    background-color: #146eb4 !important;
 }

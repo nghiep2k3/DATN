@@ -323,7 +323,7 @@ export default function Header() {
                         <Badge count={totalQuantity} size="large" offset={[2, 8]}>
                             <Button
                                 type="primary"
-                                size="large"
+                                size="medium"
                                 style={{ backgroundColor: "#ff6600", borderColor: "#ff6600" }}
                                 onClick={showDrawer}
                             >

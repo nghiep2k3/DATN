@@ -21,12 +21,14 @@ import ListProductWithCategory from './Page/ListProductWithCategory/ListProductW
 import Brand from './Page/Brand/Brand';
 import Profile from './Page/Profile/Profile';
 import FAQ from './Page/FAQ/FAQ';
+import Checkout from './Page/Checkout/Checkout.jsx';
 import { CartProvider } from './Context/CartContext';
 import Contact from './Page/Contact/Contact';
 import DownloadProduct from './Components/DownloadProduct/DownloadProduct.jsx';
 import SearchPage from './Page/SearchPage/SearchPage.jsx';
 import SinglePost from './Page/SinglePost/SinglePost.jsx';
 import ProductDetail from './Components/ProductDetail/ProductDetail.jsx';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -47,6 +49,7 @@ root.render(
           <Route path="contact" element={<Contact />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/dev" element={<DownloadProduct />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Route>
 
         <Route path="post" element={<Post />} />

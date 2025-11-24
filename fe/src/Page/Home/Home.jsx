@@ -13,6 +13,8 @@ import axios from "axios";
 import Category_List from "./Category_List";
 import Product_List from "./Product_List";
 import ProductCard from "../../Components/ProductCard/ProductCard";
+import HeroBanner from "./HeroBanner";
+
 const contentStyle = {
     margin: 0,
     height: '280px',
@@ -32,15 +34,13 @@ const Home = () => {
     if (loading) return <Spin tip="Đang tải danh mục..." />;
     return (
         <div style={{ padding: '20px 0' }}>
-            <Carousel autoplay style={{marginBottom: '40px', }}>
-                <div>
-                    <h3 style={contentStyle}>1</h3>
-                </div>
-                <div>
-                    <h3 style={contentStyle}>2</h3>
-                </div>
-            </Carousel>
+           <HeroBanner />
+            <Category_List />
 
+            {/* Carousel Component */}
+            <Product_List />
+            {/* <CarouselProduct title="Thiết bị đo tần số vô tuyến" products={products} linkMore="#" /> */}
+            {/* <CarouselProduct title="Thiết bị kiểm tra không phá hủy" products={products} linkMore="#" /> */}
             <div className="container-box ">
                 <div className="box-1200px row">
                     <div className="col-md-6">
@@ -121,12 +121,6 @@ const Home = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Carousel Component */}
-            <Category_List />
-            <Product_List />
-            {/* <CarouselProduct title="Thiết bị đo tần số vô tuyến" products={products} linkMore="#" /> */}
-            {/* <CarouselProduct title="Thiết bị kiểm tra không phá hủy" products={products} linkMore="#" /> */}
             <Carousel autoplay style={{ marginTop: '40px', marginBottom: '40px' }}>
                 <div>
                     <h3 style={contentStyle}>1</h3>

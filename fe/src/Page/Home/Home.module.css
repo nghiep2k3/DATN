@@ -1,0 +1,93 @@
+.campaignBox {
+    position: relative;
+    background-size: cover;
+    background-position: center right;
+    background-repeat: no-repeat;
+    border-radius: 10px;
+    padding: 24px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.campaignBox::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.campaignContent {
+    position: relative;
+    z-index: 2;
+}
+
+.big {
+    height: 600px;
+}
+
+.small {
+    height: 295px;
+}
+
+.title {
+    font-size: 34px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+}
+
+.title span {
+    color: #ff9900;
+}
+
+.titleSmall {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.btnBlue {
+    background: #146eb4 !important;
+    font-weight: bold;
+    border: none;
+    color: #fff !important;
+}
+
+.btnBlue:hover,
+.btnBlue:focus,
+.btnBlue:active {
+    background: #0f5a94 !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btnOrange {
+    background: #ff9900 !important;
+    font-weight: bold;
+    border: none;
+    color: #fff !important;
+}
+
+.btnOrange:hover,
+.btnOrange:focus,
+.btnOrange:active {
+    background: #e88a00 !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+@media (max-width: 768px) {
+    .big {
+        height: auto;
+        padding: 32px;
+    }
+
+    .small {
+        height: 200px;
+    }
+}
