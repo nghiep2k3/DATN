@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Col, Input, Button, Flex, Dropdown, Menu, Drawer, Badge, List, Avatar, message } from "antd";
 import Cookies from "js-cookie";
 import styles from "./Header.module.css";
-import { url,url_api } from "../../config";
+import { url, url_api } from "../../config";
 import {
     RightOutlined,
     LoginOutlined,
@@ -24,7 +24,7 @@ export default function Header() {
     const [userName, setUserName] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [open, setOpen] = useState(false);
-    const { cartItems, totalQuantity, removeFromCart } = useCart();
+    const { cartItems, totalQuantity, removeFromCart, updateQuantity } = useCart();
     const showDrawer = () => setOpen(true);
     const onClose = () => setOpen(false);
 
@@ -403,7 +403,29 @@ export default function Header() {
                                             title={<span style={{ fontWeight: 500 }}>{item.name}</span>}
                                             description={
                                                 <>
-                                                    <div>Số lượng: {item.quantity}</div>
+                                                    {/* Nút tăng giảm */}
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: 6 }}>
+                                                        
+                                                        
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                            disabled={item.quantity <= 1}
+                                                        >
+                                                            -
+                                                        </Button>
+
+                                                        <span style={{ fontWeight: 600 }}>{item.quantity}</span>
+
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                        >
+                                                            +
+                                                        </Button>
+                                                    </div>
+
+                                                    {/* Giá */}
                                                     <div>
                                                         Giá:{" "}
                                                         {item.price
@@ -414,6 +436,7 @@ export default function Header() {
                                             }
                                         />
                                     </List.Item>
+
                                 )}
                             />
                         </Drawer>

@@ -26,13 +26,13 @@ const Carousel = ({ title, data }) => {
 
             <Slider {...settings}>
                 {data.map((item) => (
-                    <div key={item.id} className="px-2">
+                    <div key={item.id} className="px-2 pb-1">
                         <Link
                             to={`/category/${item.id}`}
                             style={{ textDecoration: "none", color: "inherit" }}
                         >
                             <div
-                                className="bg-white border rounded-4 shadow-sm text-center p-3 card-equal hover-scale"
+                                className="bg-white border rounded-4 shadow-sm text-center p-2 card-equal hover-scale"
                                 style={{
                                     height: "100%",
                                     cursor: "pointer",

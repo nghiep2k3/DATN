@@ -34,7 +34,7 @@ const Home = () => {
     if (loading) return <Spin tip="Đang tải danh mục..." />;
     return (
         <div style={{ padding: '20px 0' }}>
-           <HeroBanner />
+            <HeroBanner />
             <Category_List />
 
             {/* Carousel Component */}

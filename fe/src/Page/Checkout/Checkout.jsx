@@ -1,9 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Row, Col, Card, Input, Form, Button } from "antd";
 import { useCart } from "../../Context/CartContext";
-
+import { useNavigate } from "react-router-dom";
 export default function Checkout() {
     const { cartItems, removeFromCart } = useCart();
+    const navigate = useNavigate();
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     // Tính tổng tiền (memo để tối ưu)
     const totalPrice = useMemo(() => {
@@ -14,9 +18,15 @@ export default function Checkout() {
     }, [cartItems]);
 
     const handleSubmit = (values) => {
-        console.log("Dữ liệu checkout:", values);
-        console.log("Giỏ hàng:", cartItems);
-        alert("Đặt hàng thành công! (demo)");
+        const orderData = {
+            ...values,
+            amount: totalPrice,
+            content: "DONHANG" + Date.now(),   // nội dung chuyển khoản
+            cart: cartItems
+        };
+
+        // Điều hướng đến trang thanh toán QR
+        navigate("/payment", { state: orderData });
     };
 
     return (

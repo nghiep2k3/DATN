@@ -38,7 +38,7 @@ export default function CarouselProduct({ title, linkMore, products }) {
 
             <Slider {...settings}>
                 {products.map((item) => (
-                    <div key={item.id} className="px-2 my-4">
+                    <div key={item.id} className="px-2 my-1 position-relative">
                         <Link to={`/chi-tiet-san-pham/${item.id}`} style={{ textDecoration: 'none' }}>
                             <div className="card-product border rounded-4 bg-white shadow-sm p-3 position-relative d-flex flex-column">
                                 {/* Label giảm giá */}
@@ -87,18 +87,17 @@ export default function CarouselProduct({ title, linkMore, products }) {
                                                 ? `${item.price.toLocaleString()}₫`
                                                 : "Liên hệ"}
                                         </p>
-                                        <span
-                                            className="cart-icon-wrapper"
-                                            onClick={() => addToCart(item)}
-                                            style={{ cursor: "pointer" }}
-                                        >
-                                            <ShoppingCartOutlined className="cart-icon" />
-                                        </span>
-
                                     </div>
                                 </div>
                             </div>
                         </Link>
+                        <span
+                            className="cart-icon-wrapper position-absolute bottom-0 end-0 mb-3 me-4 p-2 bg-white rounded-circle shadow-sm"
+                            onClick={() => addToCart(item)}
+                            style={{ cursor: "pointer", zIndex: 20 }}
+                        >
+                            <ShoppingCartOutlined className="cart-icon" />
+                        </span>
                     </div>
                 ))}
             </Slider>

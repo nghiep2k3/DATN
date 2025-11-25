@@ -32,6 +32,17 @@ export const CartProvider = ({ children }) => {
         });
     };
 
+    const updateQuantity = (id, newQty) => {
+        setCartItems(prev =>
+            prev.map(item =>
+                item.id === id
+                    ? { ...item, quantity: Math.max(1, newQty) }
+                    : item
+            )
+        );
+    };
+
+
     // Xóa sản phẩm
     const removeFromCart = (id) => {
         setCartItems((prev) => prev.filter((item) => item.id !== id));
@@ -41,7 +52,7 @@ export const CartProvider = ({ children }) => {
     const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
-        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, totalQuantity }}>
+        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, totalQuantity, updateQuantity }}>
             {children}
         </CartContext.Provider>
     );

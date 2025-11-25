@@ -8,7 +8,7 @@ export default function Product_List() {
             name: "Thước kẹp cơ khí vạch dấu 7203-300A",
             model: "7203-300A",
             oldPrice: 955000,
-            price: 679000,
+            price: 2000,
             discount: 29,
             image:
                 "https://tecotec.store/wp-content/uploads/2025/05/1109-13.jpg",

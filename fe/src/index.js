@@ -28,6 +28,8 @@ import DownloadProduct from './Components/DownloadProduct/DownloadProduct.jsx';
 import SearchPage from './Page/SearchPage/SearchPage.jsx';
 import SinglePost from './Page/SinglePost/SinglePost.jsx';
 import ProductDetail from './Components/ProductDetail/ProductDetail.jsx';
+import Payment from './Page/Payment/Payment.jsx';
+import Success from './Page/Success/Success.jsx';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -50,6 +52,8 @@ root.render(
           <Route path="/search" element={<SearchPage />} />
           <Route path="/dev" element={<DownloadProduct />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/success" element={<Success />} />
         </Route>
 
         <Route path="post" element={<Post />} />
