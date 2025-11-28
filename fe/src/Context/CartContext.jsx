@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 // Tạo context
 const CartContext = createContext();
@@ -7,6 +8,8 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
+    const [needPhoneModal, setNeedPhoneModal] = useState(false);
+    const [pendingProduct, setPendingProduct] = useState(null);
     const [cartItems, setCartItems] = useState(() => {
         const stored = localStorage.getItem("cartItems");
         return stored ? JSON.parse(stored) : [];
@@ -17,8 +20,19 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }, [cartItems]);
 
-    // ✅ Thêm vào giỏ hàng
+
+
+    // Thêm vào giỏ hàng
     const addToCart = (product) => {
+        const loggedIn = Cookies.get("loggedIn");
+
+        if (!loggedIn) {
+            // Chưa login → mở modal
+            setPendingProduct(product);
+            setNeedPhoneModal(true);
+            return;
+        }
+        // Đã login → thêm vào giỏ hàng
         setCartItems((prev) => {
             const existing = prev.find((item) => item.id === product.id);
             if (existing) {
@@ -30,6 +44,18 @@ export const CartProvider = ({ children }) => {
             // Nếu chưa có, thêm mới
             return [...prev, { ...product, quantity: 1 }];
         });
+    };
+
+    // Khi xác nhận số điện thoại → cho phép addToCart
+    const confirmPhone = (phone) => {
+        Cookies.set("temp_phone", phone, { expires: 1 });
+
+        if (pendingProduct) {
+            setCartItems((prev) => [...prev, { ...pendingProduct, quantity: 1 }]);
+        }
+
+        setNeedPhoneModal(false);
+        setPendingProduct(null);
     };
 
     const updateQuantity = (id, newQty) => {
@@ -52,7 +78,18 @@ export const CartProvider = ({ children }) => {
     const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
-        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, totalQuantity, updateQuantity }}>
+        <CartContext.Provider
+            value={{
+                cartItems,
+                addToCart,
+                removeFromCart,
+                updateQuantity,
+                totalQuantity,
+                needPhoneModal,
+                confirmPhone,
+                closePhoneModal: () => setNeedPhoneModal(false),
+            }}
+        >
             {children}
         </CartContext.Provider>
     );

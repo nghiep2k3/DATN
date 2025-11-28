@@ -30,6 +30,7 @@ import SinglePost from './Page/SinglePost/SinglePost.jsx';
 import ProductDetail from './Components/ProductDetail/ProductDetail.jsx';
 import Payment from './Page/Payment/Payment.jsx';
 import Success from './Page/Success/Success.jsx';
+import ReqBaoGia from './Page/ReqBaoGia/ReqBaoGia.jsx';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -37,7 +38,6 @@ root.render(
   <CartProvider>
     <BrowserRouter>
       <Routes>
-        {/* Layout chung đưa vào App.js */}
         <Route path="/" element={<App />}>
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
@@ -54,6 +54,7 @@ root.render(
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/success" element={<Success />} />
+          <Route path="/yeu-cau-bao-gia" element={<ReqBaoGia />} />
         </Route>
 
         <Route path="post" element={<Post />} />

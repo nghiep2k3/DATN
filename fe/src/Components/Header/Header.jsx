@@ -221,52 +221,71 @@ export default function Header() {
                         </Col>
                     </Flex>
 
-                    {/* Nếu đã đăng nhập -> Hiển thị tên user */}
-                    <Col>
-                        {userName ? (
-                            <Dropdown overlay={menu} placement="bottomRight" arrow>
-                                <Button
-                                    size="large"
-                                    icon={<UserOutlined />}
-                                    style={{
-                                        color: "black",
-                                        borderColor: "#00796B",
-                                        fontWeight: "500",
-                                    }}
-                                >
-                                    {userName}
-                                </Button>
-                            </Dropdown>
-                        ) : (
-                            <div className={styles.authButtons}>
-                                <Button
-                                    href="/login"
-                                    icon={<LoginOutlined />}
-                                    size="large"
-                                    style={{
-                                        marginRight: "10px",
-                                        borderColor: "#00796B",
-                                        color: "#00796B",
-                                    }}
-                                >
-                                    Đăng nhập
-                                </Button>
 
-                                <Button
-                                    href="/register"
-                                    type="primary"
-                                    size="large"
-                                    icon={<UserAddOutlined />}
-                                    style={{
-                                        backgroundColor: "#ff6600",
-                                        borderColor: "#ff6600",
-                                    }}
-                                >
-                                    Đăng ký
-                                </Button>
-                            </div>
-                        )}
-                    </Col>
+                    <Flex align={"center"} gap={20}>
+                        <Col>
+                            <Button
+                                size="large"
+                                icon={<UserOutlined />}
+                                style={{
+                                    color: "#00796B",
+                                    borderColor: "#FF9900",
+                                    fontWeight: "700",
+                                }}
+                                href="/yeu-cau-bao-gia"
+                            >
+                                Yêu cầu báo giá
+                            </Button>
+                        </Col>
+
+                        {/* Nếu đã đăng nhập -> Hiển thị tên user */}
+                        <Col>
+                            {userName ? (
+                                <Dropdown overlay={menu} placement="bottomRight" arrow>
+                                    <Button
+                                        size="large"
+                                        icon={<UserOutlined />}
+                                        style={{
+                                            color: "black",
+                                            borderColor: "#00796B",
+                                            fontWeight: "500",
+                                        }}
+                                    >
+                                        {userName}
+                                    </Button>
+                                </Dropdown>
+                            ) : (
+                                <div className={styles.authButtons}>
+                                    <Button
+                                        href="/login"
+                                        icon={<LoginOutlined />}
+                                        size="large"
+                                        style={{
+                                            marginRight: "10px",
+                                            borderColor: "#00796B",
+                                            color: "#00796B",
+                                        }}
+                                    >
+
+                                    </Button>
+
+                                    <Button
+                                        href="/register"
+                                        type="primary"
+                                        size="large"
+                                        icon={<UserAddOutlined />}
+                                        style={{
+                                            backgroundColor: "#ff6600",
+                                            borderColor: "#ff6600",
+                                        }}
+                                    >
+
+                                    </Button>
+                                </div>
+                            )}
+                        </Col>
+                    </Flex>
+
                 </Flex>
             </Flex>
 
@@ -405,8 +424,8 @@ export default function Header() {
                                                 <>
                                                     {/* Nút tăng giảm */}
                                                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: 6 }}>
-                                                        
-                                                        
+
+
                                                         <Button
                                                             size="small"
                                                             onClick={() => updateQuantity(item.id, item.quantity - 1)}

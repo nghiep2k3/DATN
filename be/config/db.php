@@ -5,7 +5,7 @@ use PDO;
 use PDOException;
 use RuntimeException;
 
-class Db   // 👈 Đổi từ "class db" -> "class Db"
+class Db
 {
     private string $host;
     private string $port;
