@@ -1,0 +1,71 @@
+.faq-page {
+    color: #000;
+}
+
+/* ========== HERO ========== */
+.faq-hero {
+    background: linear-gradient(90deg, #ff9900, #ffb74d);
+    padding: 80px 0;
+    color: #fff;
+}
+
+.faq-title {
+    font-weight: 700 !important;
+}
+
+.faq-subtitle {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* ========== TABLE OF CONTENT ========== */
+.toc-box {
+    border: 1px solid #e6e6e6;
+    padding: 20px;
+    border-radius: 10px;
+    position: sticky;
+    top: 100px;
+}
+
+.ant-anchor-link-title {
+    font-size: 15px !important;
+}
+
+.ant-anchor-link-title:hover {
+    color: #146eb4 !important;
+}
+
+/* ========== SECTIONS ========== */
+.faq-section {
+    margin-bottom: 50px;
+}
+
+.faq-section-title {
+    color: #146eb4 !important;
+    font-weight: 700 !important;
+}
+
+/* ========== COLLAPSE ========== */
+.faq-collapse .ant-collapse-item {
+    margin-bottom: 12px;
+    border-radius: 10px;
+    border: 1px solid #e6e6e6;
+}
+
+.faq-collapse .ant-collapse-header {
+    color: #146eb4 !important;
+    font-size: 17px;
+    font-weight: 600;
+    padding: 18px !important;
+}
+
+.faq-collapse .ant-collapse-item-active .ant-collapse-header {
+    background: #f4faff;
+    border-left: 4px solid #ff9900;
+}
+
+.faq-collapse .ant-collapse-content-box {
+    padding: 16px 20px !important;
+    font-size: 16px;
+    line-height: 1.6;
+}

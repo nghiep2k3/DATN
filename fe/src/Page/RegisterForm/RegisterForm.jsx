@@ -75,11 +75,11 @@ export default function RegisterForm() {
     };
 
     return (
-        <div className="register-container">
+        <div className="register-container bg-gray ">
             <div className="register-box">
                 {/* Phần trái */}
                 <div className="register-left">
-                    <img src={`${url}/logo.svg`} alt="Logo" className="register-logo" />
+                    <img src={`${url_api}/upload/logo.png`} alt="Logo" className="register-logo" />
                     <h2 className="slogan">
                         Giải pháp thiết bị đo lường <br /> và cơ khí chính xác
                     </h2>

@@ -44,6 +44,10 @@ a {
     background-color: #f9fafb;
 }
 
+.bg-gray {
+    background-color: #dfdddd;
+}
+
 .red {
     background-color: #ff4d4f;
 }
@@ -58,6 +62,7 @@ a {
 .text-xanh{
     color: #146eb4;
 }
+
 
 .xanh {
     background-color: #146eb4;

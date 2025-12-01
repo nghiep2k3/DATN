@@ -26,6 +26,10 @@ export default function Payment() {
             localStorage.setItem("orderStartTime", orderStart);
         }
 
+        orderStart = Number(orderStart); // ép số NGAY tại đây
+
+
+
         const updateTimer = () => {
             const now = Date.now();
             const elapsed = Math.floor((now - orderStart) / 1000);
@@ -101,7 +105,7 @@ export default function Payment() {
     const minutes = String(Math.floor(remaining / 60)).padStart(2, "0");
     const seconds = String(remaining % 60).padStart(2, "0");
 
-    const percent = (remaining / TOTAL_SECONDS) * 100;
+    const percent = isNaN(remaining) ? 100 : (remaining / TOTAL_SECONDS) * 100;
 
     return (
         <div style={{ padding: "40px 0" }}>

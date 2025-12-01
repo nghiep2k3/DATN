@@ -334,7 +334,7 @@ export default function Header() {
 
                         <div><Link to="/brand" className={`${styles.categoryLink}`}>HÃNG SẢN XUẤT ▾</Link></div>
                         <div><Link to="/about" className={`${styles.categoryLink}`}>GIỚI THIỆU</Link></div>
-                        <div><Link to="/tin-tuc" className={`${styles.categoryLink}`}>TIN TỨC</Link></div>
+                        <div><Link to="/cau-hoi-thuong-gap" className={`${styles.categoryLink}`}>CÂU HỎI THƯỜNG GẶP</Link></div>
                         <div><Link to="/contact" className={`${styles.categoryLink}`}>LIÊN HỆ</Link></div>
                     </div>
 

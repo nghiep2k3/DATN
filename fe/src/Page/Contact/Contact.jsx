@@ -29,7 +29,7 @@ export default function Contact() {
                         <h2 style={{ color: "#ff6600" }}>Liên hệ với chúng tôi</h2>
                         <p style={{ fontSize: 15, lineHeight: 1.7, color: "#333" }}>
                             Chúng tôi luôn sẵn sàng lắng nghe mọi ý kiến, câu hỏi hay nhu cầu hợp tác của bạn.
-                            Đội ngũ tư vấn viên của <strong>TECOTEC</strong> cam kết phản hồi trong thời gian nhanh nhất,
+                            Đội ngũ tư vấn viên của <strong>TN GROUP</strong> cam kết phản hồi trong thời gian nhanh nhất,
                             nhằm mang đến cho bạn trải nghiệm hỗ trợ chuyên nghiệp, tận tâm và hiệu quả.
                         </p>
                         <p style={{ fontSize: 15, lineHeight: 1.7, color: "#333" }}>
@@ -41,7 +41,7 @@ export default function Contact() {
                         <div style={{ marginTop: 24 }}>
                             <p>
                                 <EnvironmentOutlined style={{ color: "#ff6600", marginRight: 8 }} />
-                                <strong>Địa chỉ:</strong> 90 Nguyễn Tuân, Thanh Xuân, Hà Nội
+                                <strong>Địa chỉ:</strong> Số 86A Tây Mỗ - Nam Từ Liêm - Hà Nội
                             </p>
                             <p>
                                 <PhoneOutlined style={{ color: "#ff6600", marginRight: 8 }} />
@@ -49,7 +49,7 @@ export default function Contact() {
                             </p>
                             <p>
                                 <MailOutlined style={{ color: "#ff6600", marginRight: 8 }} />
-                                <strong>Email:</strong> contact@tecotec.store
+                                <strong>Email:</strong> nguyennghiep1320@gmail.com
                             </p>
                         </div>
                     </Card>

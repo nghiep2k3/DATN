@@ -96,7 +96,7 @@ export default function Login() {
             <div className="auth-box">
                 {/* Bên trái */}
                 <div className="auth-left">
-                    <img src={`${url}/logo.png`} alt="Logo" className="auth-logo" />
+                    <img src={`${url_api}/upload/logo.png`} alt="Logo" className="auth-logo" />
                     <h2 className="auth-slogan">
                         GIẢI PHÁP THIẾT BỊ ĐO LƯỜNG <br /> VÀ CƠ KHÍ CHÍNH XÁC
                     </h2>
