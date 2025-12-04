@@ -170,7 +170,6 @@ export default function Product() {
     // ================================
     return (
         <div className="category-container">
-
             <div className="category-header">
                 <h2 className="category-title">Quản lý sản phẩm</h2>
 

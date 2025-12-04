@@ -26,7 +26,7 @@ export default function App() {
         {
             key: "/",
             icon: <HomeOutlined />,
-            label: "Trang chủ",
+            label: "Bảng điều khiển",
         },
         {
             key: "/product-dashboard",
@@ -34,9 +34,9 @@ export default function App() {
             label: "Sản phẩm",
         },
         {
-            key: "/post-category",
+            key: "/quote-requests",
             icon: <FileTextOutlined />,
-            label: "Danh mục bài viết",
+            label: "Yêu cầu báo giá",
         },
         {
             key: "/orders",

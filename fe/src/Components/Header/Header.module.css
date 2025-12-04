@@ -5,6 +5,7 @@
 }
 
 .logo {
+    padding: 14px 0;
     width: 90px;
     height: 90px;
 }
@@ -12,7 +13,7 @@
 .logo img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 

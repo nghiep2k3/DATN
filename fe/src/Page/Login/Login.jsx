@@ -24,10 +24,10 @@ export default function Login() {
             if (!res.data.error) {
                 message.success(res.data.message || "Đăng nhập thành công");
 
-                // Lưu trạng thái đăng nhập (hoặc thông tin user) vào cookie
                 Cookies.set("loggedIn", true, { expires: 7 }); // lưu 7 ngày
                 Cookies.set("user", JSON.stringify(res.data.user), { expires: 7 });
                 Cookies.set("name", res.data.user.name, { expires: 7 });
+                Cookies.set("user_id", res.data.user.id, { expires: 7 });
 
                 navigate("/");
             } else {
@@ -92,7 +92,7 @@ export default function Login() {
 
 
     return (
-        <div className="auth-container">
+        <div className="auth-container" style={{background: "url('/bg.jpg') no-repeat center center/cover"}}>
             <div className="auth-box">
                 {/* Bên trái */}
                 <div className="auth-left">

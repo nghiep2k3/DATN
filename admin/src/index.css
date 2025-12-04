@@ -21,6 +21,10 @@ code {
   text-decoration: none;
 }
 
+main{
+  padding: 0px 0 !important;
+}
+
 .container-box {
   display: flex;
   justify-content: center;

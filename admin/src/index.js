@@ -11,12 +11,12 @@ import ProductDashboard from './Page/ProductDashboard/ProductDashboard.jsx';
 import DownloadProduct from './Components/DownloadProduct/DownloadProduct.jsx';
 
 import { CartProvider } from './Context/CartContext';
+import Orders from './Page/Orders/Orders.jsx';
+import Warehouse from './Warehouse/Warehouse.jsx';
+import Account from './Page/Account/Account.jsx';
+import QuoteRequests from './Page/QuoteRequests/QuoteRequests.jsx';
 
 // Tạo page rỗng để tránh báo lỗi
-const PostCategory = () => <h2>Danh mục bài viết</h2>;
-const Orders = () => <h2>Đơn hàng</h2>;
-const Account = () => <h2>Thông tin tài khoản</h2>;
-const Warehouse = () => <h2>Thông tin kho hàng</h2>;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -28,7 +28,7 @@ root.render(
 
           {/* Các trang trong sidebar */}
           <Route path="/product-dashboard" element={<ProductDashboard />} />
-          <Route path="/post-category" element={<PostCategory />} />
+          <Route path="/quote-requests" element={<QuoteRequests />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/account" element={<Account />} />
           <Route path="/warehouse" element={<Warehouse />} />
