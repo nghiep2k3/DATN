@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-$host = "194.59.164.15";  
+$host = "";  
 $user = "u809771405_root";  
-$pass = "Nghiep1320!";        
-$db   = "u809771405_ecommerce"; 
+$pass = "";        
+$db   = ""; 
 $port = 3306;
 
 try {

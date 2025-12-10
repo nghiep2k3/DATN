@@ -167,20 +167,21 @@ export default function Header() {
     };
 
 
-    // Xử lý đăng xuất
     const handleLogout = () => {
         Cookies.remove("loggedIn");
         Cookies.remove("user");
         Cookies.remove("name");
         setUserName(null);
-        window.location.href = "/"; // reload về trang chủ
+        window.location.href = "/"; 
     };
 
-    // Menu thả xuống khi đã đăng nhập
     const menu = (
         <Menu>
             <Menu.Item key="profile" icon={<UserOutlined />}>
                 <Link to="/profile">Thông tin cá nhân</Link>
+            </Menu.Item>
+            <Menu.Item key="profile" icon={<UserOutlined />}>
+                <Link to="/yeu-cau-bao-gia-cua-toi">Yêu cầu báo giá của tôi</Link>
             </Menu.Item>
             <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
                 Đăng xuất
@@ -190,7 +191,6 @@ export default function Header() {
 
     return (
         <header>
-            {/* Section 1 */}
             <Flex className={styles.topBar} justify="center" align={"center"}>
                 <Flex className={styles.topBar_content} justify="space-between" align={"center"}>
                     <Flex align={"center"} gap={20}>
@@ -238,7 +238,6 @@ export default function Header() {
                             </Button>
                         </Col>
 
-                        {/* Nếu đã đăng nhập -> Hiển thị tên user */}
                         <Col>
                             {userName ? (
                                 <Dropdown overlay={menu} placement="bottomRight" arrow>
@@ -289,7 +288,6 @@ export default function Header() {
                 </Flex>
             </Flex>
 
-            {/* Section 2 - Categories */}
             <nav className={`${styles.nav} ${isSticky ? styles.sticky : ""}`}>
                 <div className={styles.navContent}>
                     <div className={styles.menu}>

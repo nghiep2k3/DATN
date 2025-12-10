@@ -43,6 +43,19 @@ class RFQController
         return $row ? RFQRequest::fromArray($row) : null;
     }
 
+    /** Lấy tất cả yêu cầu theo user_id */
+    public function getRFQByUserId(int $userId): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM rfq_requests WHERE user_id = :user_id ORDER BY created_at DESC");
+        $stmt->execute([':user_id' => $userId]);
+
+        $list = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $list[] = RFQRequest::fromArray($row);
+        }
+        return $list;
+    }
+
     /** Tạo yêu cầu báo giá mới */
     public function createRFQ(array $data): RFQRequest
     {

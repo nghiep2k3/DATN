@@ -36,18 +36,19 @@ class CartItemController
     }
 
     /** Thêm mới cart item */
-    public function create(?int $user_id, ?int $product_id, ?int $quantity, ?string $number_phone): array
+    public function create(?int $user_id, ?int $product_id, ?int $quantity, ?string $phone, ?string $price = null): array
     {
         try {
             $stmt = $this->db->prepare("
-            INSERT INTO cartitems (user_id, product_id, quantity, number_phone)
-            VALUES (:user_id, :product_id, :quantity, :number_phone)
+            INSERT INTO cartitems (user_id, product_id, quantity, phone, price)
+            VALUES (:user_id, :product_id, :quantity, :phone, :price)
         ");
             $stmt->execute([
                 'user_id' => $user_id,
                 'product_id' => $product_id,
                 'quantity' => $quantity,
-                'number_phone' => $number_phone
+                'phone' => $phone,
+                'price' => $price
             ]);
             return ["error" => false, "message" => "Thêm vào giỏ hàng thành công"];
         } catch (PDOException $e) {
@@ -55,7 +56,7 @@ class CartItemController
         }
     }
 
-    public function getCart(?int $user_id = null, ?string $number_phone = null): array
+    public function getCart(?int $user_id = null, ?string $phone = null): array
     {
         try {
             $where = [];
@@ -66,21 +67,24 @@ class CartItemController
                 $params['user_id'] = $user_id;
             }
 
-            if ($number_phone !== null) {
-                $where[] = "c.number_phone = :number_phone";
-                $params['number_phone'] = $number_phone;
+            if ($phone !== null) {
+                $where[] = "c.phone = :phone";
+                $params['phone'] = $phone;
             }
 
             $sql = "
             SELECT 
                 c.id AS cart_id,
+                c.user_id,
+                c.product_id,
                 c.quantity,
-                c.number_phone,
+                c.phone,
+                c.price,
                 p.id AS product_id,
                 p.name AS product_name,
                 p.sku,
                 p.description,
-                p.price,
+                p.price AS product_price,
                 p.stock_quantity,
                 b.name AS brand_name,
                 cat.name AS category_name
@@ -99,7 +103,7 @@ class CartItemController
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Lấy danh sách product_id để join ảnh
-            $productIds = array_column($rows, 'product_id');
+            $productIds = array_unique(array_filter(array_column($rows, 'product_id')));
             $imagesMap = [];
 
             if (!empty($productIds)) {
@@ -132,7 +136,7 @@ class CartItemController
 
 
 
-    public function update(int $id, ?int $quantity = null, ?string $number_phone = null): array
+    public function update(int $id, ?int $quantity = null, ?string $phone = null, ?string $price = null): array
     {
         try {
             $fields = [];
@@ -143,9 +147,14 @@ class CartItemController
                 $params['quantity'] = $quantity;
             }
 
-            if ($number_phone !== null) {
-                $fields[] = "number_phone = :number_phone";
-                $params['number_phone'] = $number_phone;
+            if ($phone !== null) {
+                $fields[] = "phone = :phone";
+                $params['phone'] = $phone;
+            }
+
+            if ($price !== null) {
+                $fields[] = "price = :price";
+                $params['price'] = $price;
             }
 
             if (empty($fields)) {

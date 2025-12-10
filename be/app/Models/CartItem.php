@@ -8,20 +8,24 @@ class CartItem
     public ?int $user_id;
     public ?int $product_id;
     public ?int $quantity;
-    public ?string $number_phone;
+    public ?string $phone;
+    public ?string $price;
+
 
     public function __construct(
         ?int $id,
         ?int $user_id,
         ?int $product_id,
         ?int $quantity,
-        ?string $number_phone
+        ?string $phone,
+        ?string $price
     ) {
         $this->id = $id;
         $this->user_id = $user_id;
         $this->product_id = $product_id;
         $this->quantity = $quantity;
-        $this->number_phone = $number_phone;
+        $this->phone = $phone;
+        $this->price = $price;
     }
 
     public static function fromArray(array $data): CartItem
@@ -31,7 +35,8 @@ class CartItem
             $data['user_id'] ?? null,
             $data['product_id'] ?? null,
             $data['quantity'] ?? null,
-            $data['number_phone'] ?? null
+            $data['phone'] ?? null,
+            $data['price'] ?? null
         );
     }
 }
