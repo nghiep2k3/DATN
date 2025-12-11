@@ -60,7 +60,7 @@ try {
             echo json_encode($result);
         } else {
             http_response_code(404);
-            echo json_encode(['error' => true, 'message' => 'Không tìm thấy giỏ hàng cho người dùng này']);
+            echo json_encode(['error' => true, 'message' => 'Không tìm thấy giỏ hàng cho người dùng này', 'data' => []]);
         }
     }
     // Nếu có tham số phone
@@ -73,7 +73,7 @@ try {
             echo json_encode($result);
         } else {
             http_response_code(404);
-            echo json_encode(['error' => true, 'message' => 'Không tìm thấy giỏ hàng cho số điện thoại này']);
+            echo json_encode(['error' => true, 'message' => 'Không tìm thấy giỏ hàng cho số điện thoại này', 'data' => []]);
         }
     }
     // Nếu không có tham số nào, trả về tất cả

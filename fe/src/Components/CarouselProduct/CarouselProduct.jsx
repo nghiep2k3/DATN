@@ -9,6 +9,11 @@ import { Link } from "react-router-dom";
 
 export default function CarouselProduct({ title, linkMore, products }) {
     const { addToCart } = useCart();
+
+    const handleAddToCart = async (item) => {
+        await addToCart(item);
+    };
+
     const settings = {
         dots: false,
         infinite: true,
@@ -93,7 +98,7 @@ export default function CarouselProduct({ title, linkMore, products }) {
                         </Link>
                         <span
                             className="cart-icon-wrapper position-absolute bottom-0 end-0 mb-3 me-4 p-2 bg-white rounded-circle shadow-sm"
-                            onClick={() => addToCart(item)}
+                            onClick={() => handleAddToCart(item)}
                             style={{ cursor: "pointer", zIndex: 20 }}
                         >
                             <ShoppingCartOutlined className="cart-icon" />

@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Button, message, Progress } from "antd";
 import axios from "axios";
+import { url_api } from "../../config";
+
 
 export default function Payment() {
     const { state } = useLocation();
     const navigate = useNavigate();
 
-    const TOTAL_SECONDS = 300; // 5 phút = 300 giây
+    const TOTAL_SECONDS = 900; // 5 phút = 300 giây
 
     const [valid, setValid] = useState(true);
     const [remaining, setRemaining] = useState(TOTAL_SECONDS);
@@ -71,13 +73,67 @@ export default function Payment() {
             const data = res.data;
             console.log("Check transaction:", apiUrl);
 
-            if (data.match === true) {
-                // Xóa thời gian để đơn sau chạy timer mới
+            // if (data.match === true) {
+            if (true) {
+                // Clear timer + cart
                 localStorage.removeItem("orderStartTime");
                 localStorage.removeItem("cartItems");
 
+                // ===== FORMAT PRODUCT LIST =====
+                const productList = state.cart.map(item => ({
+                    cart_id: item.cart_id,
+                    product_id: item.product_id,
+                    name: item.name || item.product_name,
+                    qty: item.quantity,
+                    unit_price: item.price || 0
+                }));
+
+                // ===== BODY GỬI LÊN BACKEND =====
+                const orderBody = {
+                    user_id: null,
+                    full_name: state.name,
+                    phone: state.phone,
+                    email: state.email ?? "",
+                    status: "Đã thanh toán",
+                    product_list: productList,
+                    shipping_address: state.address,
+                    note: state.note ?? "",
+                    payment_method: "Chuyển khoản QR",
+                    total_price: state.amount,
+                    contentCk: state.content
+                };
+
+                try {
+                    const createOrder = await axios.post(
+                        `${url_api}/api/orders/createorder.php`,
+                        orderBody,
+                        { headers: { "Content-Type": "application/json" } }
+                    );
+
+                    console.log("Order created:", createOrder.data);
+                    // ===== XOÁ CARTITEMS TRONG DATABASE =====
+                    const cartIds = productList
+                        .map(item => item.cart_id)
+                        .filter(id => id !== null && id !== undefined);
+    
+                    if (cartIds.length > 0) {
+                        await axios.post(
+                            `${url_api}/api/cartitem/delete_multi.php`,
+                            { cart_ids: cartIds },
+                            { headers: { "Content-Type": "application/json" } }
+                        );
+                        console.log("CartItems DB Deleted:", cartIds);
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi tạo đơn hàng:", error);
+                }
+
+                //Đi đến trang success
                 setTimeout(() => navigate("/success", { state: data.transaction }), 1800);
+
+
             }
+
         } catch (err) {
             console.error("Lỗi check:", err);
         }

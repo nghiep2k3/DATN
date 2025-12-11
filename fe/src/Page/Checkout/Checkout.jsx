@@ -2,6 +2,8 @@ import React, { useEffect, useMemo } from "react";
 import { Row, Col, Card, Input, Form, Button } from "antd";
 import { useCart } from "../../Context/CartContext";
 import { useNavigate } from "react-router-dom";
+import { url } from "../../config";
+
 export default function Checkout() {
     const { cartItems, removeFromCart } = useCart();
     const navigate = useNavigate();
@@ -18,10 +20,11 @@ export default function Checkout() {
     }, [cartItems]);
 
     const handleSubmit = (values) => {
+        let contentCKEY = "DONHANG" + Date.now();
         const orderData = {
             ...values,
             amount: totalPrice,
-            content: "DONHANG" + Date.now(),   // nội dung chuyển khoản
+            content: contentCKEY,
             cart: cartItems
         };
 
@@ -52,40 +55,41 @@ export default function Checkout() {
                             ) : (
                                 cartItems.map((item) => (
                                     <div
-                                        key={item.id}
+                                        key={item.cart_id || item.id}
                                         style={{
                                             display: "flex",
                                             gap: "15px",
                                             marginBottom: "20px",
-                                            borderBottom: "1px solid #eee",
+                                            borderBottom: "px solid #eee",
                                             paddingBottom: "15px",
                                             position: "relative"
                                         }}
                                     >
                                         <img
-                                            src={item.image}
-                                            alt={item.name}
+                                            src={item.images && item.images.length > 0 ? `${url}${item.images[0]}` : item.image}
+                                            alt={item.product_name || item.name}
                                             style={{
                                                 width: "90px",
                                                 height: "90px",
                                                 objectFit: "cover",
                                                 borderRadius: "6px",
+                                                border: "1px solid #ddd",
                                             }}
                                         />
 
                                         <div style={{ flex: 1 }}>
                                             <h4 style={{ margin: 0, fontWeight: 600 }}>
-                                                {item.name}
+                                                {item.product_name || item.name}
                                             </h4>
 
                                             <p style={{ margin: "4px 0" }}>
-                                                Model: <strong>{item.model}</strong>
+                                                Model: <strong>{item.sku || item.model}</strong>
                                             </p>
 
                                             {item.price ? (
                                                 <p>
                                                     Giá:{" "}
-                                                    <strong>{item.price.toLocaleString()} đ</strong> ×{" "}
+                                                    <strong>{Number(item.price).toLocaleString()} đ</strong> ×{" "}
                                                     {item.quantity}
                                                 </p>
                                             ) : (
@@ -96,7 +100,7 @@ export default function Checkout() {
 
                                             {/* ===== Nút XÓA ===== */}
                                             <button
-                                                onClick={() => removeFromCart(item.id)}
+                                                onClick={() => removeFromCart(item.cart_id || item.id)}
                                                 style={{
                                                     border: "none",
                                                     background: "none",

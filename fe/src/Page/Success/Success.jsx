@@ -11,7 +11,7 @@ export default function Success() {
             setSeconds((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    navigate("/");
+                    window.location.href = "/"; 
                 }
                 return prev - 1;
             });
@@ -62,7 +62,7 @@ export default function Success() {
                         type="primary"
                         size="large"
                         block
-                        onClick={() => navigate("/")}
+                        onClick={() => window.location.href = "/"}
                     >
                         Về trang chủ ngay
                     </Button>

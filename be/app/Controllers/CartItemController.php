@@ -183,4 +183,38 @@ class CartItemController
         }
     }
 
+    public function deleteCartItemsByIds(array $cartIds): array
+    {
+        try {
+
+            if (empty($cartIds)) {
+                return [
+                    "error" => true,
+                    "message" => "Danh sách cart_id trống"
+                ];
+            }
+
+            // Tạo placeholder ?, ?, ?, ...
+            $placeholders = implode(",", array_fill(0, count($cartIds), "?"));
+
+            // Chuẩn bị query DELETE
+            $sql = "DELETE FROM cartitems WHERE id IN ($placeholders)";
+            $stmt = $this->db->prepare($sql);
+
+            // Thực thi câu lệnh SQL
+            $stmt->execute($cartIds);
+
+            return [
+                "error" => false,
+                "message" => "Đã xóa " . count($cartIds) . " cartitems"
+            ];
+
+        } catch (\Throwable $e) {
+            return [
+                "error" => true,
+                "message" => $e->getMessage()
+            ];
+        }
+    }
+
 }

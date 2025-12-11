@@ -410,23 +410,26 @@ export default function Header() {
                                 renderItem={(item) => (
                                     <List.Item
                                         actions={[
-                                            <a key="remove" onClick={() => removeFromCart(item.id)}>
+                                            <a key="remove" onClick={() => removeFromCart(item.cart_id || item.id)}>
                                                 Xóa
                                             </a>,
                                         ]}
                                     >
                                         <List.Item.Meta
-                                            avatar={<Avatar src={item.image} shape="square" />}
-                                            title={<span style={{ fontWeight: 500 }}>{item.name}</span>}
+                                            avatar={
+                                                <Avatar 
+                                                    src={item.images && item.images.length > 0 ? `${url}${item.images[0]}` : item.image} 
+                                                    shape="square" 
+                                                />
+                                            }
+                                            title={<span style={{ fontWeight: 500 }}>{item.product_name || item.name}</span>}
                                             description={
                                                 <>
                                                     {/* Nút tăng giảm */}
                                                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: 6 }}>
-
-
                                                         <Button
                                                             size="small"
-                                                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                            onClick={() => updateQuantity(item.cart_id || item.id, item.quantity - 1)}
                                                             disabled={item.quantity <= 1}
                                                         >
                                                             -
@@ -436,7 +439,7 @@ export default function Header() {
 
                                                         <Button
                                                             size="small"
-                                                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                            onClick={() => updateQuantity(item.cart_id || item.id, item.quantity + 1)}
                                                         >
                                                             +
                                                         </Button>
@@ -446,14 +449,13 @@ export default function Header() {
                                                     <div>
                                                         Giá:{" "}
                                                         {item.price
-                                                            ? `${item.price.toLocaleString()}₫`
+                                                            ? `${Number(item.price).toLocaleString()}₫`
                                                             : "Liên hệ"}
                                                     </div>
                                                 </>
                                             }
                                         />
                                     </List.Item>
-
                                 )}
                             />
                         </Drawer>
