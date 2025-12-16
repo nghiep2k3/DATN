@@ -86,6 +86,12 @@ class ProductController
                 $imgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
                 $imgStmt->execute(['id' => $prod['id']]);
                 $prod['images'] = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                // document_url
+                if (!empty($prod['document_url'])) {
+                    $prod['document_url'] = json_decode($prod['document_url'], true);
+                }
+
             }
 
             return [
@@ -117,6 +123,10 @@ class ProductController
             $imgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
             $imgStmt->execute(['id' => $id]);
             $product['images'] = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+            // document_url
+            if (!empty($product['document_url'])) {
+                $product['document_url'] = json_decode($product['document_url'], true);
+            }
 
             return [
                 "error" => false,
@@ -268,9 +278,16 @@ class ProductController
                 SELECT image_url FROM product_images WHERE product_id = :id
             ");
             foreach ($products as &$prod) {
+                // images
                 $imgStmt->execute(['id' => $prod['id']]);
                 $prod['images'] = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                // document_url
+                if (!empty($prod['document_url'])) {
+                    $prod['document_url'] = json_decode($prod['document_url'], true);
+                }
             }
+
 
             return [
                 "error" => false,
@@ -305,12 +322,20 @@ class ProductController
             ");
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
             // Lấy ảnh phụ cho từng sản phẩm
             $imgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
             foreach ($products as &$prod) {
+                // images
                 $imgStmt->execute(['id' => $prod['id']]);
                 $prod['images'] = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                // document_url
+                if (!empty($prod['document_url'])) {
+                    $prod['document_url'] = json_decode($prod['document_url'], true);
+                }
             }
+
 
             return [
                 "error" => false,

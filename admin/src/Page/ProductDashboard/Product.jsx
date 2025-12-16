@@ -8,9 +8,12 @@ import {
     Upload,
     Button,
     Select,
-    message
+    message,
+    Row,
+    Col,
+    Card
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { url_api, url } from "../../config";
 import "./Product.css";
 
@@ -81,6 +84,28 @@ export default function Product() {
         setEditMode(true);
         setEditingProduct(p);
 
+        // Parse document_url từ JSON string thành array
+        let documentList = [];
+        if (p.document_url) {
+            try {
+                const parsed = typeof p.document_url === 'string' 
+                    ? JSON.parse(p.document_url) 
+                    : p.document_url;
+                if (Array.isArray(parsed)) {
+                    // Convert existing links thành fileList format cho Upload component
+                    documentList = parsed.map((doc, idx) => ({
+                        uid: `doc-${idx}`,
+                        name: doc.link.split('/').pop() || `document${idx + 1}.pdf`,
+                        status: 'done',
+                        url: `${url}/${doc.link}`,
+                        link: doc.link, // Giữ lại link gốc
+                    }));
+                }
+            } catch (e) {
+                console.error("Lỗi parse document_url:", e);
+            }
+        }
+
         form.setFieldsValue({
             id: p.id,
             name: p.name,
@@ -89,7 +114,8 @@ export default function Product() {
             price: p.price,
             stock_quantity: p.stock_quantity,
             brand_id: p.brand_id,
-            category_id: p.category_id
+            category_id: p.category_id,
+            document_url: documentList
         });
 
         setOpenModal(true);
@@ -105,21 +131,54 @@ export default function Product() {
             const formData = new FormData();
 
             Object.keys(values).forEach((key) => {
-                if (key !== "images") {
-                    const value =
-                        typeof values[key] === "number"
-                            ? String(values[key])
-                            : values[key];
+                if (key === "images" || key === "document_url") return;
 
-                    formData.append(key, value);
-                }
+                const value =
+                    typeof values[key] === "number"
+                        ? String(values[key])
+                        : values[key];
+
+                formData.append(key, value);
             });
 
+            // Xử lý upload ảnh
             if (values.images && values.images.length > 0) {
                 values.images.forEach((fileObj) => {
-                    formData.append("image[]", fileObj.originFileObj);
+                    if (fileObj.originFileObj) {
+                        formData.append("image[]", fileObj.originFileObj);
+                    }
                 });
             }
+
+            // Xử lý upload document files
+            const documentLinks = [];
+            const newDocuments = [];
+            
+            if (values.document_url && values.document_url.length > 0) {
+                values.document_url.forEach((doc) => {
+                    if (doc.originFileObj) {
+                        // File mới được upload
+                        newDocuments.push(doc.originFileObj);
+                    } else if (doc.link) {
+                        // File đã có sẵn (khi edit)
+                        documentLinks.push({ link: doc.link });
+                    }
+                });
+            }
+
+            // Upload file mới
+            if (newDocuments.length > 0) {
+                newDocuments.forEach((file) => {
+                    formData.append("document[]", file);
+                });
+            }
+
+            // Nếu có document cũ (khi edit và không upload file mới), gửi JSON string
+            // Nếu có cả file mới và file cũ, backend sẽ merge lại
+            if (documentLinks.length > 0) {
+                formData.append("document_url", JSON.stringify(documentLinks));
+            }
+
             // 🔥 Log toàn bộ FormData (bao gồm file)
             console.log("📦 FORM DATA GỬI LÊN API:");
             for (let pair of formData.entries()) {
@@ -130,7 +189,9 @@ export default function Product() {
                 ? `${url_api}/api/product/updateproduct.php`
                 : `${url_api}/api/product/createproduct.php`;
 
-            const res = await axios.post(apiUrl, formData);
+            const res = await axios.post(apiUrl, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
 
             if (!res.data.error) {
                 message.success(editMode ? "Cập nhật thành công" : "Tạo sản phẩm thành công");
@@ -142,6 +203,7 @@ export default function Product() {
 
         } catch (error) {
             console.error("Lỗi submit:", error);
+            message.error("Có lỗi xảy ra khi lưu sản phẩm");
         }
     };
 
@@ -252,56 +314,118 @@ export default function Product() {
                         </Form.Item>
                     )}
 
-                    <Form.Item label="Tên sản phẩm" name="name" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item label="Tên sản phẩm" name="name" rules={[{ required: true }]}>
+                                <Input />
+                            </Form.Item>
 
-                    <Form.Item label="SKU" name="sku" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
+                            <Form.Item label="SKU" name="sku" rules={[{ required: true }]}>
+                                <Input />
+                            </Form.Item>
 
-                    <Form.Item label="Mô tả" name="description">
-                        <Input.TextArea rows={3} />
-                    </Form.Item>
+                            <Form.Item label="Giá" name="price" rules={[{ required: true }]}>
+                                <InputNumber style={{ width: "100%" }} />
+                            </Form.Item>
 
-                    <Form.Item label="Giá" name="price" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: "100%" }} />
-                    </Form.Item>
+                            <Form.Item label="Tồn kho" name="stock_quantity" rules={[{ required: true }]}>
+                                <InputNumber style={{ width: "100%" }} />
+                            </Form.Item>
 
-                    <Form.Item label="Tồn kho" name="stock_quantity" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: "100%" }} />
-                    </Form.Item>
+                            <Form.Item label="Thương hiệu" name="brand_id" rules={[{ required: true }]}>
+                                <Select placeholder="Chọn thương hiệu">
+                                    {brands.map((b) => (
+                                        <Select.Option key={b.id} value={b.id}>
+                                            {b.name}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
 
-                    <Form.Item label="Thương hiệu" name="brand_id" rules={[{ required: true }]}>
-                        <Select placeholder="Chọn thương hiệu">
-                            {brands.map((b) => (
-                                <Select.Option key={b.id} value={b.id}>
-                                    {b.name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
+                            <Form.Item label="Danh mục" name="category_id" rules={[{ required: true }]}>
+                                <Select placeholder="Chọn danh mục">
+                                    {categories.map((c) => (
+                                        <Select.Option key={c.id} value={c.id}>
+                                            {c.category}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
 
-                    <Form.Item label="Danh mục" name="category_id" rules={[{ required: true }]}>
-                        <Select placeholder="Chọn danh mục">
-                            {categories.map((c) => (
-                                <Select.Option key={c.id} value={c.id}>
-                                    {c.category}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
+                        <Col span={12}>
+                            <Form.Item label="Mô tả" name="description">
+                                <Input.TextArea rows={3} />
+                            </Form.Item>
 
-                    <Form.Item
-                        label="Ảnh sản phẩm"
-                        name="images"
-                        valuePropName="fileList"
-                        getValueFromEvent={(e) => e.fileList}
-                    >
-                        <Upload beforeUpload={() => false} multiple listType="picture">
-                            <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
-                        </Upload>
-                    </Form.Item>
+                            <Form.Item label="Tài liệu (document_url)">
+                                <Form.List name="document_url">
+                                    {(fields, { add, remove }) => (
+                                        <>
+                                            {fields.map(({ key, name, ...restField }) => (
+                                                <Card
+                                                    key={key}
+                                                    size="small"
+                                                    style={{ marginBottom: 12 }}
+                                                    extra={
+                                                        fields.length > 1 ? (
+                                                            <Button
+                                                                type="text"
+                                                                danger
+                                                                icon={<DeleteOutlined />}
+                                                                onClick={() => remove(name)}
+                                                            />
+                                                        ) : null
+                                                    }
+                                                >
+                                                    <Form.Item
+                                                        {...restField}
+                                                        name={name}
+                                                        valuePropName="fileList"
+                                                        getValueFromEvent={(e) => {
+                                                            if (Array.isArray(e)) {
+                                                                return e;
+                                                            }
+                                                            return e?.fileList;
+                                                        }}
+                                                        rules={[{ required: true, message: "Vui lòng chọn file tài liệu" }]}
+                                                    >
+                                                        <Upload
+                                                            beforeUpload={() => false}
+                                                            maxCount={1}
+                                                            accept=".pdf,.doc,.docx,.xls,.xlsx"
+                                                        >
+                                                            <Button icon={<UploadOutlined />}>Chọn file tài liệu</Button>
+                                                        </Upload>
+                                                    </Form.Item>
+                                                </Card>
+                                            ))}
+                                            <Button
+                                                type="dashed"
+                                                onClick={() => add()}
+                                                block
+                                                icon={<PlusOutlined />}
+                                                style={{ marginTop: 8 }}
+                                            >
+                                                Thêm tài liệu
+                                            </Button>
+                                        </>
+                                    )}
+                                </Form.List>
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Ảnh sản phẩm"
+                                name="images"
+                                valuePropName="fileList"
+                                getValueFromEvent={(e) => e.fileList}
+                            >
+                                <Upload beforeUpload={() => false} multiple listType="picture">
+                                    <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                                </Upload>
+                            </Form.Item>
+                        </Col>
+                    </Row>
 
                 </Form>
             </Modal>

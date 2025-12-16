@@ -48,10 +48,10 @@ export const CartProvider = ({ children }) => {
             const response = await axios.get(url);
 
             if (!response.data.error && response.data.data) {
-                const cartData = Array.isArray(response.data.data) 
-                    ? response.data.data 
+                const cartData = Array.isArray(response.data.data)
+                    ? response.data.data
                     : [response.data.data];
-                
+
                 setCartItems(cartData);
                 console.log("✅ Cart fetched:", cartData);
             } else {
@@ -72,47 +72,40 @@ export const CartProvider = ({ children }) => {
 
     // Thêm vào giỏ hàng
     // ================== ADD TO CART ==================
-    const addToCart = async (product) => {
+    const addToCart = async (product, quantity = 1) => {
         const loggedIn = Cookies.get("loggedIn");
         const userId = Cookies.get("user_id");
         const phone = Cookies.get("temp_phone");
 
-        // ===========================
-        // 1. Nếu ĐÃ CÓ temp_phone → bỏ qua popup, gọi API luôn
-        // ===========================
+        // 1. Có phone → gọi API luôn
         if (phone) {
-            return await sendAddToCartRequest(product, userId, phone, loggedIn);
+            return await sendAddToCartRequest(product, quantity, userId, phone, loggedIn);
         }
 
-        // ===========================
-        // 2. Nếu chưa login & chưa có phone → mở popup nhập phone
-        // ===========================
+        // 2. Chưa login & chưa phone → mở popup
         if (!loggedIn && !phone) {
-            setPendingProduct(product);
+            setPendingProduct({ ...product, quantity });
             setNeedPhoneModal(true);
             return;
         }
 
-        // ===========================
-        // 3. Nếu login nhưng chưa có phone → mở popup nhập phone
-        // ===========================
+        // 3. Login nhưng chưa phone
         if (loggedIn && !phone) {
-            setPendingProduct(product);
+            setPendingProduct({ ...product, quantity });
             setNeedPhoneModal(true);
             return;
         }
     };
 
-    const sendAddToCartRequest = async (product, userId, phone, loggedIn) => {
+
+    const sendAddToCartRequest = async (product, quantity, userId, phone, loggedIn) => {
         const payload = {
             user_id: loggedIn ? userId : "",
             product_id: String(product.id),
-            quantity: "1",
+            quantity: String(quantity),
             phone: phone,
             price: String(product.price || 0)
         };
-
-        console.log("Payload gửi API:", payload);
 
         try {
             const res = await axios.post(
@@ -122,17 +115,13 @@ export const CartProvider = ({ children }) => {
             );
 
             if (!res.data.error) {
-                console.log("Thêm giỏ hàng thành công:", res.data);
-
-                // Fetch lại giỏ hàng để sync dữ liệu mới từ server (bao gồm cart_id)
                 await fetchCart();
-            } else {
-                console.error("API lỗi:", res.data.message);
             }
         } catch (error) {
-            console.error("Lỗi axios:", error);
+            console.error("❌ Lỗi axios:", error);
         }
     };
+
 
 
 
@@ -141,12 +130,19 @@ export const CartProvider = ({ children }) => {
         Cookies.set("temp_phone", phone, { expires: 1 });
 
         if (pendingProduct) {
-            sendAddToCartRequest(pendingProduct, Cookies.get("user_id"), phone, Cookies.get("loggedIn"));
+            sendAddToCartRequest(
+                pendingProduct,
+                pendingProduct.quantity || 1,
+                Cookies.get("user_id"),
+                phone,
+                Cookies.get("loggedIn")
+            );
         }
 
         setNeedPhoneModal(false);
         setPendingProduct(null);
     };
+
 
 
 
@@ -193,7 +189,7 @@ export const CartProvider = ({ children }) => {
             // Sau đó gọi fetchCart để lấy dữ liệu mới từ server
             setCartItems((prev) => prev.filter((item) => item.cart_id !== id && item.id !== id));
             console.log("✅ Xóa sản phẩm thành công:", response.data);
-            
+
             // Fetch lại giỏ hàng từ server (có thể trống hoặc còn sản phẩm khác)
             await fetchCart();
         } catch (error) {

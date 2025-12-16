@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Row, Col, Image, Button, Divider, Typography, Card } from "antd";
+import { Link, useParams } from "react-router-dom";
+import { Row, Col, Image, Button, Divider, Typography, Card, InputNumber } from "antd";
 import { PhoneOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import { Tabs } from "antd";
 import axios from "axios";
+import { useCart } from "../../Context/CartContext";
 import { url_api } from "../../config";
 
 const { Title, Text } = Typography;
 
 export default function ProductDetail() {
+    const { addToCart } = useCart();
     const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [quantity, setQuantity] = useState(1);
+
 
     // Ảnh đang được hiển thị lớn
     const [activeImage, setActiveImage] = useState(null);
@@ -132,10 +137,36 @@ export default function ProductDetail() {
                                 <Text strong>Tình trạng:</Text> Còn hàng
                             </div>
 
-                            <Divider />
+                            <div style={{ marginBottom: 20 }}>
+                                <Text strong>Số lượng:</Text>
+                                <div style={{ marginTop: 8 }}>
+                                    <InputNumber
+                                        min={1}
+                                        max={product.stock_quantity || 999}
+                                        value={quantity}
+                                        onChange={(value) => setQuantity(value)}
+                                        size="large"
+                                    />
+                                </div>
+                            </div>
 
                             {/* Buttons */}
                             <div style={{ display: "flex", gap: 12 }}>
+                                <Button
+                                    size="large"
+                                    type="primary"
+                                    icon={<PhoneOutlined />}
+                                    style={{
+                                        background: "#007964",
+                                        borderColor: "#007964",
+                                        fontSize: 16,
+                                        height: 45,
+                                    }}
+                                    onClick={() => addToCart(product, quantity)}
+                                >
+                                    Thêm vào giỏ hàng
+                                </Button>
+
                                 <Button
                                     size="large"
                                     type="primary"
@@ -147,7 +178,7 @@ export default function ProductDetail() {
                                         height: 45,
                                     }}
                                 >
-                                    Gọi ngay: 0966580008
+                                    <a href="tel:0378936624" style={{ color: "#fff" }}>Gọi ngay: 0378936624</a>
                                 </Button>
 
                                 <Button
@@ -156,7 +187,7 @@ export default function ProductDetail() {
                                     icon={<ArrowRightOutlined />}
                                     style={{ height: 45 }}
                                 >
-                                    Đề nghị báo giá
+                                    <Link to="/yeu-cau-bao-gia">Yêu cầu báo giá</Link>
                                 </Button>
                             </div>
                         </Col>
@@ -164,20 +195,47 @@ export default function ProductDetail() {
                 </div>
             </section>
 
-            {/* ==== DESCRIPTION ==== */}
+            {/* ==== DESCRIPTION & DOCUMENTS ==== */}
             <section className="container-box" style={{ marginTop: 40 }}>
                 <div className="box-1200px">
                     <Card>
-                        <Title level={4}>Mô tả</Title>
-                        <Divider />
-                        <div
-                            dangerouslySetInnerHTML={{
-                                __html: product.description,
-                            }}
-                        ></div>
+                        <Tabs defaultActiveKey="description">
+                            <Tabs.TabPane tab="Mô tả sản phẩm" key="description">
+                                <div
+                                    dangerouslySetInnerHTML={{
+                                        __html: product.description || "<p>Chưa có mô tả</p>",
+                                    }}
+                                />
+                            </Tabs.TabPane>
+
+                            {/* ===== TAB TÀI LIỆU ===== */}
+                            <Tabs.TabPane tab="Tài liệu kỹ thuật" key="documents">
+                                {Array.isArray(product.document_url) &&
+                                    product.document_url.length > 0 ? (
+                                    <ul style={{ paddingLeft: 20 }}>
+                                        {product.document_url.map((doc, idx) => (
+                                            <li key={idx} style={{ marginBottom: 10 }}>
+                                                📄{" "}
+                                                <a
+                                                    style={{color: "black"}}
+                                                    href={`${url_api}/${doc.link}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {doc.name || `Tài liệu ${idx + 1}`}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <Text type="secondary">Chưa có tài liệu đính kèm</Text>
+                                )}
+                            </Tabs.TabPane>
+                        </Tabs>
                     </Card>
                 </div>
             </section>
+
         </div>
     );
 }

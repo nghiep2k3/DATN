@@ -62,7 +62,7 @@ export default function CarouselProduct({ title, linkMore, products }) {
                                             className="rounded-3"
                                             style={{
                                                 width: "100%",
-                                                minHeight: "100px",
+                                                height: "150px",
                                                 objectFit: "contain",
                                             }}
                                         />

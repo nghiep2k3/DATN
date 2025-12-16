@@ -62,6 +62,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['images'] = $uploadedFiles;
     }
 
+    // Xử lý upload document files
+    $documentLinks = [];
+    
+    // Lấy document cũ từ POST (nếu có)
+    if (isset($_POST['document_url']) && !empty($_POST['document_url'])) {
+        $docJson = json_decode($_POST['document_url'], true);
+        if (is_array($docJson)) {
+            $documentLinks = $docJson;
+        }
+    }
+    
+    // Xử lý upload document files mới và merge với document cũ
+    if (!empty($_FILES['document']['name'][0])) {
+        $uploadDir = __DIR__ . '/../../upload/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        foreach ($_FILES['document']['name'] as $i => $filename) {
+            if ($_FILES['document']['error'][$i] !== UPLOAD_ERR_OK)
+                continue;
+            if ($_FILES['document']['size'][$i] > 10 * 1024 * 1024)
+                continue; // >10MB bỏ qua
+
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'];
+            if (!in_array($ext, $allowed))
+                continue;
+
+            $fileName = time() . '_' . uniqid() . '.' . $ext;
+            $filePath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($_FILES['document']['tmp_name'][$i], $filePath)) {
+                $documentLinks[] = ['link' => '/upload/' . $fileName];
+            }
+        }
+    }
+
+    // Lưu document_url dạng JSON (merge cả file cũ và mới)
+    if (!empty($documentLinks)) {
+        $data['document_url'] = json_encode($documentLinks, JSON_UNESCAPED_UNICODE);
+    }
+
     $result = $controller->update((int)$id, $data);
     echo json_encode($result);
     exit;

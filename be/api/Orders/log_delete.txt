@@ -8,21 +8,21 @@ Array
     [TMP] => \xampp\tmp
     [HTTP_HOST] => localhost:8081
     [HTTP_CONNECTION] => keep-alive
-    [CONTENT_LENGTH] => 550
+    [CONTENT_LENGTH] => 458
     [HTTP_SEC_CH_UA_PLATFORM] => "Windows"
     [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
     [HTTP_ACCEPT] => application/json, text/plain, */*
     [HTTP_SEC_CH_UA] => "Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
     [CONTENT_TYPE] => application/json
     [HTTP_SEC_CH_UA_MOBILE] => ?0
-    [HTTP_ORIGIN] => http://localhost:3000
+    [HTTP_ORIGIN] => http://localhost:3001
     [HTTP_SEC_FETCH_SITE] => same-site
     [HTTP_SEC_FETCH_MODE] => cors
     [HTTP_SEC_FETCH_DEST] => empty
-    [HTTP_REFERER] => http://localhost:3000/
+    [HTTP_REFERER] => http://localhost:3001/
     [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
     [HTTP_ACCEPT_LANGUAGE] => vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5
-    [PATH] => C:\Program Files\Microsoft MPI\Bin\;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft SQL Server\110\Tools\Binn\;E:\Tài Nguyên\OpenSSL-Win64\bin;C:\Dart\dart-sdk\bin;C:\Flutter\flutter\bin;C:\JDKJAVA\jdk-17.0.9\bin;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\Azure Data Studio\bin;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\160\Tools\Binn\;C:\Program Files\Microsoft SQL Server\160\Tools\Binn\;C:\Program Files\Microsoft SQL Server\160\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\160\DTS\Binn\;C:\xampp\php;C:\ProgramData\ComposerSetup\bin;D:\Downloads\apache-maven-3.9.7-bin\apache-maven-3.9.7\bin;C:\Program Files\Cloudflare\Cloudflare WARP\;C:\Program Files\Docker\Docker\resources\bin;C:\Windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps
+    [PATH] => C:\Program Files\Microsoft MPI\Bin\;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft SQL Server\110\Tools\Binn\;E:\Tài Nguyên\OpenSSL-Win64\bin;C:\Dart\dart-sdk\bin;C:\Flutter\flutter\bin;C:\JDKJAVA\jdk-17.0.9\bin;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\Azure Data Studio\bin;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\160\Tools\Binn\;C:\Program Files\Microsoft SQL Server\160\Tools\Binn\;C:\Program Files\Microsoft SQL Server\160\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\160\DTS\Binn\;C:\xampp\php;C:\ProgramData\ComposerSetup\bin;D:\Downloads\apache-maven-3.9.7-bin\apache-maven-3.9.7\bin;C:\Program Files\Cloudflare\Cloudflare WARP\;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\cursor\resources\app\bin;C:\Windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps
     [SystemRoot] => C:\Windows
     [COMSPEC] => C:\Windows\system32\cmd.exe
     [PATHEXT] => .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
@@ -40,7 +40,7 @@ Array
     [CONTEXT_DOCUMENT_ROOT] => C:/xampp/htdocs
     [SERVER_ADMIN] => postmaster@localhost
     [SCRIPT_FILENAME] => C:/xampp/htdocs/DATN/be/api/Orders/createorder.php
-    [REMOTE_PORT] => 63536
+    [REMOTE_PORT] => 57262
     [GATEWAY_INTERFACE] => CGI/1.1
     [SERVER_PROTOCOL] => HTTP/1.1
     [REQUEST_METHOD] => POST
@@ -48,6 +48,6 @@ Array
     [REQUEST_URI] => /datn/be/api/orders/createorder.php
     [SCRIPT_NAME] => /datn/be/api/orders/createorder.php
     [PHP_SELF] => /datn/be/api/orders/createorder.php
-    [REQUEST_TIME_FLOAT] => 1765448041.781
-    [REQUEST_TIME] => 1765448041
+    [REQUEST_TIME_FLOAT] => 1765901644.7953
+    [REQUEST_TIME] => 1765901644
 )

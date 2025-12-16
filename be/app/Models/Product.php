@@ -11,6 +11,7 @@ class Product {
     public ?int $brand_id;
     public ?int $category_id;
     public ?string $image_url;
+    public ?string $document_url;
     public ?string $created_at;
 
     public function __construct(array $row) {
@@ -23,6 +24,7 @@ class Product {
         $this->brand_id = isset($row['brand_id']) ? (int)$row['brand_id'] : null;
         $this->category_id = isset($row['category_id']) ? (int)$row['category_id'] : null;
         $this->image_url = $row['image_url'] ?? null;
+        $this->document_url = $row['document_url'] ?? null;
         $this->created_at = $row['created_at'] ?? null;
     }
 
@@ -39,6 +41,7 @@ class Product {
             'brand_id' => $this->brand_id,
             'category_id' => $this->category_id,
             'image_url' => $this->image_url,
+            'document_url' => $this->document_url ? json_decode($this->document_url, true) : null,
             'created_at' => $this->created_at,
         ];
     }

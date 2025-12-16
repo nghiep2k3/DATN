@@ -1,104 +1,190 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tag, Card, Input, Select, Space, Button, message } from "antd";
-
-// Fake API trả về dữ liệu đơn hàng (với `items` để minh hoạ)
-// Các ví dụ minh hoạ:
-// - Đơn 1: 1 sản phẩm đơn lẻ
-// - Đơn 2: Nhiều sản phẩm (hiển thị nhiều tag)
-// - Đơn 3: Giao dịch B2B với nhiều sản phẩm
-// - Đơn 4: Đơn đã huỷ (không có items)
-// - Đơn 5: Có giảm giá/chiết khấu (ví dụ giá đã cập nhật trong `price`)
-const mockOrders = [
-    {
-        id: "DH001",
-        customer: "Nguyễn Văn A",
-        items: [
-            { sku: "SP001", name: "Laptop ABC", qty: 1, price: 5200000 },
-        ],
-        status: "processing",
-        date: "2025-02-10",
-    },
-    {
-        id: "DH002",
-        customer: "Trần Thị B",
-        items: [
-            { sku: "SP010", name: "Tai nghe X", qty: 1, price: 290000 },
-            { sku: "SP011", name: "Chuột Y", qty: 2, price: 500000 },
-        ],
-        status: "completed",
-        date: "2025-02-09",
-    },
-    {
-        id: "DH003",
-        customer: "Công ty Nam Hoà",
-        items: [
-            { sku: "SP020", name: "Server Rack", qty: 2, price: 3000000 },
-            { sku: "SP021", name: "UPS 3kVA", qty: 1, price: 2990000 },
-            { sku: "SP022", name: "Cáp mạng CAT6 (100m)", qty: 10, price: 10000 },
-        ],
-        status: "processing",
-        date: "2025-02-09",
-    },
-    {
-        id: "DH004",
-        customer: "Phạm Minh K",
-        items: [], // ví dụ đơn bị huỷ, không có items
-        status: "cancelled",
-        date: "2025-02-08",
-    },
-    {
-        id: "DH005",
-        customer: "Lê Văn C",
-        items: [
-            // ví dụ có chiết khấu: giá đã là giá sau chiết khấu
-            { sku: "SP030", name: "Điện thoại Z (KM)", qty: 1, price: 4200000 },
-        ],
-        status: "completed",
-        date: "2025-02-07",
-    },
-    {
-        id: "DH006",
-        customer: "Lê Văn C",
-        items: [
-            // ví dụ có chiết khấu: giá đã là giá sau chiết khấu
-            { sku: "SP030", name: "Điện thoại Z (KM)", qty: 1, price: 4200000 },
-        ],
-        status: "completed",
-        date: "2025-02-07",
-    },
-    {
-        id: "DH007",
-        customer: "Lê Văn C",
-        items: [
-            // ví dụ có chiết khấu: giá đã là giá sau chiết khấu
-            { sku: "SP030", name: "Điện thoại Z (KM)", qty: 1, price: 4200000 },
-        ],
-        status: "completed",
-        date: "2025-02-07",
-    },
-];
+import { Table, Tag, Card, Input, Select, Space, Button, message, Popconfirm, Form, Modal, Row, Col } from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import axios from "axios";
+import { url_api } from "../../config";
 
 export default function Orders() {
     const [orders, setOrders] = useState([]);
     const [filterStatus, setFilterStatus] = useState("all");
     const [searchText, setSearchText] = useState("");
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [creating, setCreating] = useState(false);
+    const [createForm] = Form.useForm();
+    const [products, setProducts] = useState([]);
+    const [loadingProducts, setLoadingProducts] = useState(false);
 
-    useEffect(() => {
-        // Giả lập API call — load sau 0.5s
-        setTimeout(() => {
-            setOrders(mockOrders);
-        }, 500);
-    }, []);
+    const fetchOrders = async () => {
+        try {
+            const res = await axios.get(`${url_api}/api/orders/getorders.php`, {
+                headers: { "Content-Type": "application/json" },
+            });
 
-    const statusMap = {
-        processing: { color: "blue", text: "Đang xử lý" },
-        completed: { color: "green", text: "Hoàn thành" },
-        cancelled: { color: "red", text: "Đã hủy" },
+            if (!res.data.error && Array.isArray(res.data.data)) {
+                const mapped = res.data.data.map((o) => ({
+                    ...o,
+                    customer: o.full_name,
+                    // chuẩn hóa items để tái sử dụng UI cũ
+                    items: (o.product_list || []).map((p) => ({
+                        sku: p.product_id,
+                        name: p.name,
+                        qty: p.qty,
+                        price: Number(p.unit_price),
+                        product_id: p.product_id,
+                        unit_price: Number(p.unit_price),
+                    })),
+                    date: o.created_at,
+                    total: Number(o.total_price),
+                }));
+                setOrders(mapped);
+            } else {
+                message.error(res.data.message || "Không thể tải danh sách đơn hàng");
+            }
+        } catch (error) {
+            console.error("Lỗi tải danh sách đơn hàng:", error);
+            message.error("Không thể kết nối đến máy chủ");
+        }
     };
 
-    const updateOrderStatus = (id, newStatus) => {
-        setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o)));
-        message.success(`Cập nhật trạng thái ${id} → ${statusMap[newStatus].text}`);
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const fetchProducts = async () => {
+        try {
+            setLoadingProducts(true);
+            const res = await axios.get(`${url_api}/api/product/get_all_products.php`, {
+                headers: { "Content-Type": "application/json" },
+            });
+
+            if (!res.data.error && Array.isArray(res.data.products)) {
+                setProducts(res.data.products);
+            } else {
+                message.error(res.data.message || "Không thể tải danh sách sản phẩm");
+            }
+        } catch (error) {
+            console.error("Lỗi tải danh sách sản phẩm:", error);
+            message.error("Không thể kết nối đến máy chủ");
+        } finally {
+            setLoadingProducts(false);
+        }
+    };
+
+    const handleOpenCreateModal = () => {
+        setIsCreateModalOpen(true);
+        fetchProducts(); // Load sản phẩm khi mở modal
+    };
+
+    const statusMap = {
+        "Chưa thanh toán": { color: "orange", text: "Chưa thanh toán" },
+        "Đã thanh toán": { color: "green", text: "Đã thanh toán" },
+        "Đang giao hàng": { color: "blue", text: "Đang giao hàng" },
+        "Đã hủy": { color: "red", text: "Đã hủy" },
+    };
+
+    const updateOrderStatus = async (id, newStatus) => {
+        const target = orders.find((o) => o.id === id);
+        if (!target) return;
+
+        const updated = { ...target, status: newStatus };
+
+        const payload = {
+            full_name: updated.full_name,
+            phone: updated.phone,
+            email: updated.email,
+            status: updated.status,
+            product_list: (updated.product_list || updated.items || []).map((it) => ({
+                product_id: it.product_id || it.sku,
+                name: it.name,
+                qty: it.qty,
+                unit_price: it.unit_price || it.price,
+            })),
+            note: updated.note || "",
+            payment_method: updated.payment_method,
+            shipping_address: updated.shipping_address,
+            total_price: updated.total_price || updated.total,
+        };
+
+        try {
+            await axios.post(`${url_api}/api/orders/updateorder.php?id=${id}`, payload, {
+                headers: { "Content-Type": "application/json" },
+            });
+            setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
+            const s = statusMap[newStatus];
+            message.success(`Cập nhật trạng thái đơn #${id}${s ? ` → ${s.text}` : ""}`);
+        } catch (error) {
+            console.error("Lỗi cập nhật đơn hàng:", error);
+            message.error("Không thể cập nhật đơn hàng");
+        }
+    };
+
+    const deleteOrder = async (id) => {
+        try {
+            const res = await axios.delete(`${url_api}/api/orders/deleteorder.php?id=${id}`);
+            if (!res.data.error) {
+                setOrders((prev) => prev.filter((o) => o.id !== id));
+                message.success(res.data.message || "Đã xoá đơn hàng");
+            } else {
+                message.error(res.data.message || "Xoá đơn hàng thất bại");
+            }
+        } catch (error) {
+            console.error("Lỗi xoá đơn hàng:", error);
+            message.error("Không thể kết nối đến máy chủ");
+        }
+    };
+
+    const handleCreateOrder = async (values) => {
+        // Xử lý product_list từ Form.List
+        if (!values.product_list || values.product_list.length === 0) {
+            message.error("Vui lòng thêm ít nhất một sản phẩm");
+            return;
+        }
+
+        const product_list = values.product_list.map((item) => ({
+            product_id: item.product_id || 0,
+            name: item.product_name || "",
+            qty: Number(item.qty || 1),
+            unit_price: Number(item.unit_price || 0),
+        }));
+
+        // Tính tổng tiền
+        const totalPrice = product_list.reduce((sum, item) => sum + item.qty * item.unit_price, 0);
+
+        const payload = {
+            user_id: null,
+            full_name: values.full_name,
+            phone: values.phone,
+            email: values.email,
+            status: values.status || "Chưa thanh toán",
+            product_list,
+            shipping_address: values.shipping_address,
+            note: values.note || "",
+            payment_method: values.payment_method,
+            total_price: totalPrice,
+            contentCk: "",
+        };
+
+        try {
+            setCreating(true);
+            const res = await axios.post(`${url_api}/api/orders/createorder.php`, payload, {
+                headers: { "Content-Type": "application/json" },
+            });
+
+            if (!res.data.error) {
+                message.success(res.data.message || "Thêm đơn hàng thành công");
+                setIsCreateModalOpen(false);
+                createForm.resetFields();
+                // load lại danh sách để chắc chắn đồng bộ với DB
+                await fetchOrders();
+            } else {
+                message.error(res.data.message || "Không thể tạo đơn hàng");
+            }
+        } catch (error) {
+            console.error("Lỗi tạo đơn hàng:", error);
+            message.error("Không thể kết nối đến máy chủ");
+        } finally {
+            setCreating(false);
+        }
     };
 
     const columns = [
@@ -106,12 +192,14 @@ export default function Orders() {
             title: "Mã đơn",
             dataIndex: "id",
             key: "id",
-            render: (text) => <strong>{text}</strong>,
+            render: (text) => <strong>#{text}</strong>,
+            width: 100,
         },
         {
             title: "Khách hàng",
             dataIndex: "customer",
             key: "customer",
+            width: 180,
         },
         {
             title: "Sản phẩm",
@@ -119,9 +207,8 @@ export default function Orders() {
             key: "items",
             render: (items) => {
                 if (!items || items.length === 0) return <i>Không có sản phẩm</i>;
-                // hiển thị tối đa 2 tag, còn lại hiện "..."
                 const display = items.slice(0, 2).map((it) => (
-                    <Tag key={it.sku} style={{ marginBottom: 6 }}>
+                    <Tag key={it.sku || it.product_id} style={{ marginBottom: 6 }}>
                         {it.name} x{it.qty}
                     </Tag>
                 ));
@@ -132,20 +219,23 @@ export default function Orders() {
                 }
                 return <div>{display}</div>;
             },
+            width: 200,
         },
         {
             title: "Tổng tiền",
-            dataIndex: "items",
+            dataIndex: "total",
             key: "total",
             sorter: (a, b) => {
-                const sum = (o) => (o.items || []).reduce((s, it) => s + it.price * it.qty, 0);
-                return sum(a) - sum(b);
+                const valA = Number(a.total || 0);
+                const valB = Number(b.total || 0);
+                return valA - valB;
             },
-            render: (items, record) => {
-                const total = (record.items || []).reduce((s, it) => s + it.price * it.qty, 0);
-                // nếu ko có items, fallback sang record.total (legacy)
-                const value = total || record.total || 0;
-                return value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+            render: (_, record) => {
+                const value = Number(record.total || record.total_price || 0);
+                return value.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                });
             },
         },
         {
@@ -153,7 +243,7 @@ export default function Orders() {
             dataIndex: "status",
             key: "status",
             render: (status, record) => {
-                const s = statusMap[status] || { color: 'default', text: status };
+                const s = statusMap[status] || { color: "default", text: status };
                 return (
                     <Space direction="vertical">
                         <Tag color={s.color}>{s.text}</Tag>
@@ -161,9 +251,10 @@ export default function Orders() {
                             value={status}
                             onChange={(val) => updateOrderStatus(record.id, val)}
                             options={[
-                                { value: 'processing', label: 'Đang xử lý' },
-                                { value: 'completed', label: 'Hoàn thành' },
-                                { value: 'cancelled', label: 'Đã hủy' },
+                                { value: "Chưa thanh toán", label: "Chưa thanh toán" },
+                                { value: "Đã thanh toán", label: "Đã thanh toán" },
+                                { value: "Đang giao hàng", label: "Đang giao hàng" },
+                                { value: "Đã hủy", label: "Đã hủy" },
                             ]}
                             style={{ width: 140 }}
                         />
@@ -178,12 +269,34 @@ export default function Orders() {
             sorter: (a, b) => new Date(a.date) - new Date(b.date),
             render: (date) => new Date(date).toLocaleDateString("vi-VN"),
         },
+        {
+            title: "Thao tác",
+            key: "actions",
+            render: (_, record) => (
+                <Space>
+                    <Popconfirm
+                        title="Xoá đơn hàng"
+                        description={`Bạn có chắc muốn xoá đơn #${record.id}?`}
+                        okText="Xoá"
+                        cancelText="Huỷ"
+                        onConfirm={() => deleteOrder(record.id)}
+                    >
+                        <Button danger>Xoá</Button>
+                    </Popconfirm>
+                </Space>
+            ),
+        },
     ];
 
     // Áp dụng filter và search trước khi render table
     const filteredOrders = orders.filter((o) => {
-        const matchStatus = filterStatus === 'all' ? true : o.status === filterStatus;
-        const matchSearch = searchText.trim() === '' ? true : o.id.toLowerCase().includes(searchText.trim().toLowerCase());
+        const matchStatus = filterStatus === "all" ? true : o.status === filterStatus;
+        const matchSearch =
+            searchText.trim() === ""
+                ? true
+                : String(o.id)
+                    .toLowerCase()
+                    .includes(searchText.trim().toLowerCase());
         return matchStatus && matchSearch;
     });
 
@@ -195,7 +308,7 @@ export default function Orders() {
             <Space style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between' }}>
                 <Space>
                     <Input.Search
-                        placeholder="Tìm theo mã đơn (VD: DH001)"
+                        placeholder="Tìm theo mã đơn (VD: 84)"
                         allowClear
                         onSearch={(val) => setSearchText(val)}
                         onChange={(e) => setSearchText(e.target.value)}
@@ -207,18 +320,24 @@ export default function Orders() {
                         onChange={(val) => setFilterStatus(val)}
                         style={{ width: 160 }}
                         options={[
-                            { value: 'all', label: 'Tất cả trạng thái' },
-                            { value: 'processing', label: 'Đang xử lý' },
-                            { value: 'completed', label: 'Hoàn thành' },
-                            { value: 'cancelled', label: 'Đã hủy' },
+                            { value: "all", label: "Tất cả trạng thái" },
+                            { value: "Chưa thanh toán", label: "Chưa thanh toán" },
+                            { value: "Đã thanh toán", label: "Đã thanh toán" },
+                            { value: "Đang giao hàng", label: "Đang giao hàng" },
+                            { value: "Đã hủy", label: "Đã hủy" },
                         ]}
                     />
                     <Button onClick={() => { setFilterStatus('all'); setSearchText(''); }}>Xóa bộ lọc</Button>
                 </Space>
 
-                <div>
-                    <strong>Tổng đơn đã lọc: </strong>{filteredOrders.length}
-                </div>
+                <Space>
+                    <div>
+                        <strong>Tổng đơn đã lọc: </strong>{filteredOrders.length}
+                    </div>
+                    <Button type="primary" onClick={handleOpenCreateModal}>
+                        Thêm đơn hàng
+                    </Button>
+                </Space>
             </Space>
 
             <Table
@@ -244,6 +363,215 @@ export default function Orders() {
                     }
                 }}
             />
+
+            <Modal
+                title="Thêm đơn hàng"
+                open={isCreateModalOpen}
+                onCancel={() => setIsCreateModalOpen(false)}
+                footer={null}
+                destroyOnClose
+                width={900}
+            >
+                <Form
+                    layout="vertical"
+                    form={createForm}
+                    onFinish={handleCreateOrder}
+                    initialValues={{
+                        status: "Chưa thanh toán",
+                        payment_method: "Thanh toán QR code",
+                        product_list: [{ qty: 1 }], // Khởi tạo với 1 sản phẩm
+                    }}
+                >
+                    <Row gutter={16}>
+                        {/* Cột trái */}
+                        <Col span={12}>
+                            <Form.Item
+                                name="full_name"
+                                label="Họ tên khách hàng"
+                                rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
+                            >
+                                <Input placeholder="Nguyễn Văn A" />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="phone"
+                                label="Số điện thoại"
+                                rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+                            >
+                                <Input placeholder="0987xxxxxx" />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="email"
+                                label="Email"
+                                rules={[
+                                    { required: true, message: "Vui lòng nhập email" },
+                                    { type: "email", message: "Email không hợp lệ" },
+                                ]}
+                            >
+                                <Input placeholder="email@example.com" />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="shipping_address"
+                                label="Địa chỉ giao hàng"
+                                rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
+                            >
+                                <Input.TextArea rows={2} placeholder="Số nhà, đường, quận/huyện, tỉnh/thành" />
+                            </Form.Item>
+
+                            <Form.Item name="status" label="Trạng thái">
+                                <Select
+                                    options={[
+                                        { value: "Chưa thanh toán", label: "Chưa thanh toán" },
+                                        { value: "Đã thanh toán", label: "Đã thanh toán" },
+                                        { value: "Đang giao hàng", label: "Đang giao hàng" },
+                                        { value: "Đã hủy", label: "Đã hủy" },
+                                    ]}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="payment_method"
+                                label="Phương thức thanh toán"
+                                rules={[{ required: true, message: "Vui lòng chọn phương thức thanh toán" }]}
+                            >
+                                <Select
+                                    options={[
+                                        { value: "Thanh toán QR code", label: "Thanh toán QR code" },
+                                        { value: "COD", label: "Thanh toán khi nhận hàng (COD)" },
+                                        { value: "Chuyển khoản", label: "Chuyển khoản" },
+                                    ]}
+                                />
+                            </Form.Item>
+
+                            <Form.Item name="note" label="Ghi chú">
+                                <Input.TextArea rows={3} placeholder="Ghi chú cho đơn hàng (tùy chọn)" />
+                            </Form.Item>
+                        </Col>
+
+                        {/* Cột phải - Danh sách sản phẩm */}
+                        <Col span={12}>
+                            <Form.Item label="Danh sách sản phẩm" required>
+                                <Form.List name="product_list">
+                                    {(fields, { add, remove }) => (
+                                        <>
+                                            {fields.map(({ key, name, ...restField }) => {
+                                                return (
+                                                    <Card
+                                                        key={key}
+                                                        size="small"
+                                                        style={{ marginBottom: 12 }}
+                                                        extra={
+                                                            fields.length > 1 ? (
+                                                                <Button
+                                                                    type="text"
+                                                                    danger
+                                                                    icon={<DeleteOutlined />}
+                                                                    onClick={() => remove(name)}
+                                                                />
+                                                            ) : null
+                                                        }
+                                                    >
+                                                        <Form.Item
+                                                            {...restField}
+                                                            name={[name, "product_id"]}
+                                                            label="Chọn sản phẩm"
+                                                            rules={[{ required: true, message: "Vui lòng chọn sản phẩm" }]}
+                                                        >
+                                                            <Select
+                                                                placeholder="Chọn sản phẩm"
+                                                                showSearch
+                                                                optionFilterProp="children"
+                                                                loading={loadingProducts}
+                                                                onChange={(value) => {
+                                                                    const selectedProduct = products.find((p) => p.id === value);
+                                                                    if (selectedProduct) {
+                                                                        // Tự động điền tên và giá sản phẩm
+                                                                        const currentList = createForm.getFieldValue("product_list") || [];
+                                                                        const updatedList = currentList.map((item, idx) =>
+                                                                            idx === name
+                                                                                ? {
+                                                                                      ...item,
+                                                                                      product_id: selectedProduct.id,
+                                                                                      product_name: selectedProduct.name,
+                                                                                      unit_price: Number(selectedProduct.price || 0),
+                                                                                  }
+                                                                                : item
+                                                                        );
+                                                                        createForm.setFieldsValue({
+                                                                            product_list: updatedList,
+                                                                        });
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {products.map((product) => (
+                                                                    <Select.Option key={product.id} value={product.id}>
+                                                                        #{product.id} - {product.name}
+                                                                    </Select.Option>
+                                                                ))}
+                                                            </Select>
+                                                        </Form.Item>
+
+                                                        <Form.Item
+                                                            {...restField}
+                                                            name={[name, "product_name"]}
+                                                            hidden
+                                                        >
+                                                            <Input />
+                                                        </Form.Item>
+
+                                                        <Row gutter={8}>
+                                                            <Col span={12}>
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    name={[name, "qty"]}
+                                                                    label="Số lượng"
+                                                                    rules={[{ required: true, message: "Nhập số lượng" }]}
+                                                                >
+                                                                    <Input type="number" min={1} placeholder="1" />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col span={12}>
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    name={[name, "unit_price"]}
+                                                                    label="Đơn giá (VND)"
+                                                                    rules={[{ required: true, message: "Nhập đơn giá" }]}
+                                                                >
+                                                                    <Input type="number" min={0} placeholder="0" />
+                                                                </Form.Item>
+                                                            </Col>
+                                                        </Row>
+                                                    </Card>
+                                                );
+                                            })}
+                                            <Button
+                                                type="dashed"
+                                                onClick={() => add({ qty: 1 })}
+                                                block
+                                                icon={<PlusOutlined />}
+                                                style={{ marginTop: 8 }}
+                                            >
+                                                Thêm sản phẩm
+                                            </Button>
+                                        </>
+                                    )}
+                                </Form.List>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Form.Item style={{ marginTop: 16, marginBottom: 0 }}>
+                        <Space style={{ display: "flex", justifyContent: "flex-end" }}>
+                            <Button onClick={() => setIsCreateModalOpen(false)}>Huỷ</Button>
+                            <Button type="primary" htmlType="submit" loading={creating}>
+                                Lưu đơn hàng
+                            </Button>
+                        </Space>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </Card>
     );
 }

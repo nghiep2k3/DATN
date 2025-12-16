@@ -74,7 +74,7 @@ export default function Payment() {
             console.log("Check transaction:", apiUrl);
 
             // if (data.match === true) {
-            if (true) {
+            if (data.match === true) {
                 // Clear timer + cart
                 localStorage.removeItem("orderStartTime");
                 localStorage.removeItem("cartItems");
