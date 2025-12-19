@@ -8,7 +8,7 @@ Array
     [TMP] => \xampp\tmp
     [HTTP_HOST] => localhost:8081
     [HTTP_CONNECTION] => keep-alive
-    [CONTENT_LENGTH] => 458
+    [CONTENT_LENGTH] => 397
     [HTTP_SEC_CH_UA_PLATFORM] => "Windows"
     [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
     [HTTP_ACCEPT] => application/json, text/plain, */*
@@ -39,8 +39,8 @@ Array
     [CONTEXT_PREFIX] => 
     [CONTEXT_DOCUMENT_ROOT] => C:/xampp/htdocs
     [SERVER_ADMIN] => postmaster@localhost
-    [SCRIPT_FILENAME] => C:/xampp/htdocs/DATN/be/api/Orders/createorder.php
-    [REMOTE_PORT] => 57262
+    [SCRIPT_FILENAME] => C:/xampp/htdocs/DATN/be/api/orders/createorder.php
+    [REMOTE_PORT] => 59804
     [GATEWAY_INTERFACE] => CGI/1.1
     [SERVER_PROTOCOL] => HTTP/1.1
     [REQUEST_METHOD] => POST
@@ -48,6 +48,6 @@ Array
     [REQUEST_URI] => /datn/be/api/orders/createorder.php
     [SCRIPT_NAME] => /datn/be/api/orders/createorder.php
     [PHP_SELF] => /datn/be/api/orders/createorder.php
-    [REQUEST_TIME_FLOAT] => 1765901644.7953
-    [REQUEST_TIME] => 1765901644
+    [REQUEST_TIME_FLOAT] => 1766166925.4837
+    [REQUEST_TIME] => 1766166925
 )

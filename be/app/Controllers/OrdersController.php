@@ -2,6 +2,8 @@
 namespace App\Controllers;
 
 use App\Models\Orders;
+use DateTime;
+use DateTimeZone;
 use PDO;
 use PDOException;
 
@@ -287,6 +289,176 @@ class OrdersController
             return $items;
         } catch (PDOException $e) {
             return [];
+        }
+    }
+
+    /**
+     * Tính tổng doanh thu theo tháng
+     * @param int|null $year Năm cần tính (format: YYYY), nếu null thì lấy năm hiện tại
+     * @param int|null $month Tháng cần tính (1-12), nếu null thì lấy tháng hiện tại
+     * @return array ['error' => bool, 'revenue' => float, 'year' => int, 'month' => int, 'order_count' => int]
+     */
+    public function getRevenueByMonth(?int $year = null, ?int $month = null): array
+    {
+        try {
+            // Nếu không có year hoặc month, lấy năm/tháng hiện tại
+            if ($year === null) {
+                $year = (int) date('Y');
+            }
+            if ($month === null) {
+                $month = (int) date('m');
+            }
+
+            // Validate month (1-12)
+            if ($month < 1 || $month > 12) {
+                return [
+                    "error" => true,
+                    "message" => "Tháng không hợp lệ. Tháng phải từ 1 đến 12"
+                ];
+            }
+
+            // Validate year (ít nhất từ 2000)
+            if ($year < 2000 || $year > 9999) {
+                return [
+                    "error" => true,
+                    "message" => "Năm không hợp lệ. Năm phải từ 2000 đến 9999"
+                ];
+            }
+
+            // Query tính tổng doanh thu và số đơn hàng trong tháng
+            $stmt = $this->db->prepare("
+                SELECT 
+                    COALESCE(SUM(total_price), 0) as total_revenue,
+                    COUNT(*) as order_count
+                FROM orders 
+                WHERE YEAR(created_at) = :year 
+                AND MONTH(created_at) = :month
+            ");
+            $stmt->execute([
+                'year' => $year,
+                'month' => $month
+            ]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                "error" => false,
+                "revenue" => (float) ($result['total_revenue'] ?? 0),
+                "year" => $year,
+                "month" => $month,
+                "order_count" => (int) ($result['order_count'] ?? 0)
+            ];
+        } catch (PDOException $e) {
+            return [
+                "error" => true,
+                "message" => "Lỗi khi tính doanh thu: " . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Tính tổng doanh thu theo ngày
+     * @param string|null $date Ngày cần tính (format: Y-m-d), nếu null thì lấy ngày hôm nay
+     * @return array ['error' => bool, 'revenue' => float, 'date' => string, 'order_count' => int]
+     */
+    public function getRevenueByDate(?string $date = null): array
+    {
+        try {
+            $tzVN = new DateTimeZone('Asia/Ho_Chi_Minh');
+            $tzUTC = new DateTimeZone('UTC');
+
+            // Nếu không truyền date → lấy hôm nay theo giờ VN
+            if ($date === null) {
+                $date = (new DateTime('now', $tzVN))->format('Y-m-d');
+            }
+
+            // Validate format YYYY-MM-DD
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+                return [
+                    "error" => true,
+                    "message" => "Định dạng ngày không hợp lệ. Dùng YYYY-MM-DD"
+                ];
+            }
+
+            // Start / End của ngày theo giờ VN
+            $startVN = new DateTime($date . ' 00:00:00', $tzVN);
+            $endVN = new DateTime($date . ' 23:59:59', $tzVN);
+
+            // Convert sang UTC để query DB
+            $startVN->setTimezone($tzUTC);
+            $endVN->setTimezone($tzUTC);
+
+            $stmt = $this->db->prepare("
+            SELECT
+                COALESCE(SUM(total_price), 0) AS total_revenue,
+                COUNT(*) AS order_count
+            FROM orders
+            WHERE created_at BETWEEN :start AND :end
+        ");
+
+            $stmt->execute([
+                'start' => $startVN->format('Y-m-d H:i:s'),
+                'end' => $endVN->format('Y-m-d H:i:s'),
+            ]);
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                "error" => false,
+                "revenue" => (float) ($result['total_revenue'] ?? 0),
+                "order_count" => (int) ($result['order_count'] ?? 0),
+                "date" => $date,
+                "timezone" => "Asia/Ho_Chi_Minh"
+            ];
+
+        } catch (PDOException $e) {
+            return [
+                "error" => true,
+                "message" => "Lỗi khi tính doanh thu: " . $e->getMessage()
+            ];
+        }
+    }
+
+
+    /**
+     * Lấy tổng số đơn hàng theo ngày
+     * @param string|null $date Ngày cần tính (format: Y-m-d), nếu null thì lấy ngày hôm nay
+     * @return array ['error' => bool, 'order_count' => int, 'date' => string]
+     */
+    public function getOrderCountByDate(?string $date = null): array
+    {
+        try {
+            // Nếu không có date, lấy ngày hôm nay
+            if ($date === null) {
+                $date = date('Y-m-d');
+            }
+
+            // Validate date format
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+                return [
+                    "error" => true,
+                    "message" => "Định dạng ngày không hợp lệ. Sử dụng format: YYYY-MM-DD"
+                ];
+            }
+
+            // Query đếm số đơn hàng trong ngày
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) as order_count
+                FROM orders 
+                WHERE DATE(created_at) = :date
+            ");
+            $stmt->execute(['date' => $date]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                "error" => false,
+                "order_count" => (int) ($result['order_count'] ?? 0),
+                "date" => $date
+            ];
+        } catch (PDOException $e) {
+            return [
+                "error" => true,
+                "message" => "Lỗi khi lấy số đơn hàng: " . $e->getMessage()
+            ];
         }
     }
 }
