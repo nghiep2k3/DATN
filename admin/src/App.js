@@ -9,8 +9,10 @@ import {
     UserOutlined,
     HomeOutlined,
     DatabaseOutlined,
+    LogoutOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
+import Cookies from "js-cookie";
 
 const { Header, Sider, Content } = Layout;
 
@@ -52,6 +54,17 @@ export default function App() {
             key: "/account",
             icon: <UserOutlined />,
             label: "Thông tin tài khoản",
+        },
+        {
+            key: "/logout",
+            icon: <LogoutOutlined />,
+            label: "Đăng xuất",
+            onClick: () => {
+                Cookies.remove("loggedIn");
+                Cookies.remove("user");
+                Cookies.remove("name");
+                navigate("/login");
+            }
         },
     ];
 

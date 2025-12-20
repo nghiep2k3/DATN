@@ -85,6 +85,7 @@ export default function Payment() {
                     product_id: item.product_id,
                     name: item.name || item.product_name,
                     qty: item.quantity,
+                    category_name: item.category_name,
                     unit_price: item.price || 0
                 }));
 

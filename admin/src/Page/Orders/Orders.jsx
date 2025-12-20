@@ -21,20 +21,54 @@ export default function Orders() {
             });
 
             if (!res.data.error && Array.isArray(res.data.data)) {
+                // Mapping dữ liệu từ API
                 const mapped = res.data.data.map((o) => ({
                     ...o,
-                    customer: o.full_name,
-                    // chuẩn hóa items để tái sử dụng UI cũ
-                    items: (o.product_list || []).map((p) => ({
-                        sku: p.product_id,
-                        name: p.name,
-                        qty: p.qty,
-                        price: Number(p.unit_price),
+                    // Giữ nguyên các trường từ API
+                    id: o.id,
+                    full_name: o.full_name,
+                    phone: o.phone,
+                    email: o.email,
+                    status: o.status,
+                    total_price: Number(o.total_price || 0),
+                    shipping_address: o.shipping_address,
+                    note: o.note || "",
+                    payment_method: o.payment_method,
+                    contentCk: o.contentCk || "",
+                    created_at: o.created_at,
+                    // Map product_list từ API
+                    product_list: (o.product_list || []).map((p) => ({
+                        cart_id: p.cart_id,
+                        user_id: p.user_id,
                         product_id: p.product_id,
-                        unit_price: Number(p.unit_price),
+                        quantity: Number(p.quantity || 1),
+                        phone: p.phone,
+                        price: Number(p.price || p.product_price || 0),
+                        product_name: p.product_name,
+                        sku: p.sku,
+                        description: p.description,
+                        product_price: Number(p.product_price || 0),
+                        stock_quantity: p.stock_quantity,
+                        brand_name: p.brand_name,
+                        category_name: p.category_name,
+                        images: p.images || [],
+                        // Giữ thêm các trường cũ để tương thích với UI
+                        name: p.product_name,
+                        qty: Number(p.quantity || 1),
+                        unit_price: Number(p.price || p.product_price || 0),
+                    })),
+                    // Các trường để tương thích với UI cũ
+                    customer: o.full_name,
+                    items: (o.product_list || []).map((p) => ({
+                        sku: p.sku || p.product_id,
+                        name: p.product_name,
+                        qty: Number(p.quantity || 1),
+                        price: Number(p.price || p.product_price || 0),
+                        product_id: p.product_id,
+                        unit_price: Number(p.price || p.product_price || 0),
                     })),
                     date: o.created_at,
-                    total: Number(o.total_price),
+                    total: Number(o.total_price || 0),
                 }));
                 setOrders(mapped);
             } else {
@@ -203,35 +237,35 @@ export default function Orders() {
         },
         {
             title: "Sản phẩm",
-            dataIndex: "items",
-            key: "items",
-            render: (items) => {
-                if (!items || items.length === 0) return <i>Không có sản phẩm</i>;
-                const display = items.slice(0, 2).map((it) => (
-                    <Tag key={it.sku || it.product_id} style={{ marginBottom: 6 }}>
-                        {it.name} x{it.qty}
+            dataIndex: "product_list",
+            key: "product_list",
+            render: (productList) => {
+                if (!productList || productList.length === 0) return <i>Không có sản phẩm</i>;
+                const display = productList.slice(0, 2).map((p) => (
+                    <Tag key={p.product_id || p.cart_id} style={{ marginBottom: 6 }}>
+                        {p.product_name || p.name} x{p.quantity || p.qty}
                     </Tag>
                 ));
-                if (items.length > 2) {
+                if (productList.length > 2) {
                     display.push(
-                        <Tag key="more">+{items.length - 2} khác</Tag>
+                        <Tag key="more">+{productList.length - 2} khác</Tag>
                     );
                 }
                 return <div>{display}</div>;
             },
-            width: 200,
+            width: 250,
         },
         {
             title: "Tổng tiền",
-            dataIndex: "total",
-            key: "total",
+            dataIndex: "total_price",
+            key: "total_price",
             sorter: (a, b) => {
-                const valA = Number(a.total || 0);
-                const valB = Number(b.total || 0);
+                const valA = Number(a.total_price || a.total || 0);
+                const valB = Number(b.total_price || b.total || 0);
                 return valA - valB;
             },
             render: (_, record) => {
-                const value = Number(record.total || record.total_price || 0);
+                const value = Number(record.total_price || record.total || 0);
                 return value.toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
@@ -264,10 +298,25 @@ export default function Orders() {
         },
         {
             title: "Ngày đặt",
-            dataIndex: "date",
-            key: "date",
-            sorter: (a, b) => new Date(a.date) - new Date(b.date),
-            render: (date) => new Date(date).toLocaleDateString("vi-VN"),
+            dataIndex: "created_at",
+            key: "created_at",
+            sorter: (a, b) => {
+                const dateA = new Date(a.created_at || a.date);
+                const dateB = new Date(b.created_at || b.date);
+                return dateA - dateB;
+            },
+            render: (date, record) => {
+                const dateStr = date || record.date || record.created_at;
+                if (!dateStr) return "-";
+                return new Date(dateStr).toLocaleDateString("vi-VN", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                });
+            },
+            width: 180,
         },
         {
             title: "Thao tác",
@@ -291,12 +340,14 @@ export default function Orders() {
     // Áp dụng filter và search trước khi render table
     const filteredOrders = orders.filter((o) => {
         const matchStatus = filterStatus === "all" ? true : o.status === filterStatus;
+        const searchLower = searchText.trim().toLowerCase();
         const matchSearch =
-            searchText.trim() === ""
+            searchLower === ""
                 ? true
-                : String(o.id)
-                    .toLowerCase()
-                    .includes(searchText.trim().toLowerCase());
+                : String(o.id).toLowerCase().includes(searchLower) ||
+                  (o.full_name && o.full_name.toLowerCase().includes(searchLower)) ||
+                  (o.phone && o.phone.includes(searchLower)) ||
+                  (o.email && o.email.toLowerCase().includes(searchLower));
         return matchStatus && matchSearch;
     });
 
@@ -308,11 +359,11 @@ export default function Orders() {
             <Space style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between' }}>
                 <Space>
                     <Input.Search
-                        placeholder="Tìm theo mã đơn (VD: 84)"
+                        placeholder="Tìm theo mã đơn, tên, SĐT, email"
                         allowClear
                         onSearch={(val) => setSearchText(val)}
                         onChange={(e) => setSearchText(e.target.value)}
-                        style={{ width: 280 }}
+                        style={{ width: 300 }}
                     />
 
                     <Select
@@ -347,17 +398,62 @@ export default function Orders() {
                 pagination={{ pageSize: 5 }}
                 expandable={{
                     expandedRowRender: (record) => {
-                        if (!record.items || record.items.length === 0) return <i>Không có sản phẩm chi tiết</i>;
+                        const productList = record.product_list || record.items || [];
+                        if (productList.length === 0) return <i>Không có sản phẩm chi tiết</i>;
                         return (
-                            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                                {record.items.map((it) => (
-                                    <Card key={it.sku} size="small" style={{ minWidth: 220 }}>
-                                        <div><strong>{it.name}</strong></div>
-                                        <div>Số lượng: {it.qty}</div>
-                                        <div>Đơn giá: {it.price.toLocaleString('vi-VN')} VND</div>
-                                        <div>Tổng: {(it.price * it.qty).toLocaleString('vi-VN')} VND</div>
-                                    </Card>
-                                ))}
+                            <div style={{ padding: '16px' }}>
+                                <Row gutter={[16, 16]}>
+                                    <Col span={24}>
+                                        <div style={{ marginBottom: '12px' }}>
+                                            <strong>Thông tin khách hàng:</strong>
+                                            <div>Họ tên: {record.full_name}</div>
+                                            <div>Điện thoại: {record.phone}</div>
+                                            <div>Email: {record.email}</div>
+                                            <div>Địa chỉ: {record.shipping_address}</div>
+                                            <div>Phương thức thanh toán: {record.payment_method}</div>
+                                            {record.note && <div>Ghi chú: {record.note}</div>}
+                                        </div>
+                                    </Col>
+                                    <Col span={24}>
+                                        <strong>Chi tiết sản phẩm:</strong>
+                                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: '8px' }}>
+                                            {productList.map((p, index) => {
+                                                const productName = p.product_name || p.name;
+                                                const quantity = Number(p.quantity || p.qty || 1);
+                                                const price = Number(p.price || p.product_price || p.unit_price || 0);
+                                                const total = price * quantity;
+                                                const imageUrl = p.images && p.images.length > 0 
+                                                    ? `${url_api}${p.images[0]}` 
+                                                    : null;
+                                                
+                                                return (
+                                                    <Card 
+                                                        key={p.product_id || p.cart_id || index} 
+                                                        size="small" 
+                                                        style={{ minWidth: 280 }}
+                                                        cover={imageUrl ? (
+                                                            <img 
+                                                                alt={productName}
+                                                                src={imageUrl}
+                                                                style={{ height: 120, objectFit: 'cover' }}
+                                                            />
+                                                        ) : null}
+                                                    >
+                                                        <div><strong>{productName}</strong></div>
+                                                        {p.sku && <div>SKU: {p.sku}</div>}
+                                                        {p.brand_name && <div>Thương hiệu: {p.brand_name}</div>}
+                                                        {p.category_name && <div>Danh mục: {p.category_name}</div>}
+                                                        <div>Số lượng: {quantity}</div>
+                                                        <div>Đơn giá: {price.toLocaleString('vi-VN')} VND</div>
+                                                        <div style={{ marginTop: '8px', fontWeight: 'bold', color: '#1890ff' }}>
+                                                            Tổng: {total.toLocaleString('vi-VN')} VND
+                                                        </div>
+                                                    </Card>
+                                                );
+                                            })}
+                                        </div>
+                                    </Col>
+                                </Row>
                             </div>
                         );
                     }

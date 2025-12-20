@@ -1,6 +1,6 @@
 <?php
 // File: be/app/Controllers/AuthController.php
-// Xử lý đăng nhập, đăng xuất, quản lý phiên... câu lệnh SQL ở đây
+
 namespace App\Controllers;
 
 use App\Models\User;
@@ -323,6 +323,175 @@ class AuthController
         return ["error" => false, "message" => "Đặt lại mật khẩu thành công"];
     }
 
+    /* =======================================================
+   ========== CRUD USERS (Admin) ===========
+   ======================================================= */
 
+    /** Lấy tất cả users */
+    public function getAllUsers(): array
+    {
+        $stmt = $this->pdo->query("SELECT * FROM users ORDER BY created_at DESC");
+        $users = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $users[] = User::fromArray($row);
+        }
+        return $users;
+    }
+
+    /** Lấy user theo ID */
+    public function getUserById(int $id): ?User
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? User::fromArray($row) : null;
+    }
+
+    /** Admin tạo user mới (không cần xác minh) */
+    public function createUserByAdmin(string $name, string $email, string $password, ?string $phone = null, ?string $role = 'user'): array
+    {
+        try {
+            // Kiểm tra email đã tồn tại
+            if ($this->emailExists($email)) {
+                return ["error" => true, "message" => "Email đã tồn tại"];
+            }
+
+            // Validate email
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return ["error" => true, "message" => "Email không hợp lệ"];
+            }
+
+            // Hash mật khẩu
+            $hash = password_hash($password, PASSWORD_BCRYPT);
+
+            // Tạo user mới (đã xác minh sẵn vì admin tạo)
+            $stmt = $this->pdo->prepare("
+                INSERT INTO users (name, email, password, phone, role, verified_account, created_at)
+                VALUES (:name, :email, :password, :phone, :role, 1, NOW())
+            ");
+            $stmt->execute([
+                'name' => $name,
+                'email' => $email,
+                'password' => $hash,
+                'phone' => $phone,
+                'role' => $role
+            ]);
+
+            $userId = (int) $this->pdo->lastInsertId();
+            $user = $this->getUserById($userId);
+
+            return [
+                "error" => false,
+                "message" => "Tạo user thành công",
+                "data" => $user->toPublicArray()
+            ];
+
+        } catch (PDOException $e) {
+            return ["error" => true, "message" => "Lỗi: " . $e->getMessage()];
+        }
+    }
+
+    /** Cập nhật thông tin user */
+    public function updateUser(
+        int $id,
+        ?string $name = null,
+        ?string $email = null,
+        ?string $phone = null,
+        ?string $role = null,
+        ?string $password = null
+    ): array {
+        try {
+            // Kiểm tra user có tồn tại không
+            $existing = $this->getUserById($id);
+            if (!$existing) {
+                return ["error" => true, "message" => "Không tìm thấy user"];
+            }
+
+            // Nếu cập nhật email, kiểm tra email mới có trùng không
+            if ($email !== null && $email !== $existing->email) {
+                if ($this->emailExists($email)) {
+                    return ["error" => true, "message" => "Email đã tồn tại"];
+                }
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    return ["error" => true, "message" => "Email không hợp lệ"];
+                }
+            }
+
+            // Build câu UPDATE động
+            $fields = [];
+            $params = [':id' => $id];
+
+            if ($name !== null) {
+                $fields[] = 'name = :name';
+                $params[':name'] = $name;
+            }
+            if ($email !== null) {
+                $fields[] = 'email = :email';
+                $params[':email'] = $email;
+            }
+            if ($phone !== null) {
+                $fields[] = 'phone = :phone';
+                $params[':phone'] = $phone;
+            }
+            if ($role !== null) {
+                $fields[] = 'role = :role';
+                $params[':role'] = $role;
+            }
+            if ($password !== null && $password !== '') {
+                $fields[] = 'password = :password';
+                $params[':password'] = password_hash($password, PASSWORD_BCRYPT);
+            }
+
+            // Không có gì để cập nhật
+            if (empty($fields)) {
+                return [
+                    "error" => false,
+                    "message" => "Không có thay đổi nào",
+                    "data" => $existing->toPublicArray()
+                ];
+            }
+
+            $sql = 'UPDATE users SET ' . implode(', ', $fields) . ' WHERE id = :id';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+
+            // Lấy user đã cập nhật
+            $updated = $this->getUserById($id);
+
+            return [
+                "error" => false,
+                "message" => "Cập nhật user thành công",
+                "data" => $updated->toPublicArray()
+            ];
+
+        } catch (PDOException $e) {
+            return ["error" => true, "message" => "Lỗi: " . $e->getMessage()];
+        }
+    }
+
+    /** Xóa user */
+    public function deleteUser(int $id): array
+    {
+        try {
+            // Kiểm tra user có tồn tại không
+            $user = $this->getUserById($id);
+            if (!$user) {
+                return ["error" => true, "message" => "Không tìm thấy user"];
+            }
+
+            // Xóa user
+            $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = :id");
+            $stmt->execute(['id' => $id]);
+
+            if ($stmt->rowCount() > 0) {
+                return ["error" => false, "message" => "Xóa user thành công"];
+            } else {
+                return ["error" => true, "message" => "Không thể xóa user"];
+            }
+
+        } catch (PDOException $e) {
+            return ["error" => true, "message" => "Lỗi: " . $e->getMessage()];
+        }
+    }
 
 }

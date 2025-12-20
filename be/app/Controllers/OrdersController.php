@@ -2,8 +2,6 @@
 namespace App\Controllers;
 
 use App\Models\Orders;
-use DateTime;
-use DateTimeZone;
 use PDO;
 use PDOException;
 
@@ -363,53 +361,36 @@ class OrdersController
     public function getRevenueByDate(?string $date = null): array
     {
         try {
-            $tzVN = new DateTimeZone('Asia/Ho_Chi_Minh');
-            $tzUTC = new DateTimeZone('UTC');
-
-            // Nếu không truyền date → lấy hôm nay theo giờ VN
+            // Nếu không có date, lấy ngày hôm nay
             if ($date === null) {
-                $date = (new DateTime('now', $tzVN))->format('Y-m-d');
+                $date = date('Y-m-d');
             }
 
-            // Validate format YYYY-MM-DD
+            // Validate date format
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
                 return [
                     "error" => true,
-                    "message" => "Định dạng ngày không hợp lệ. Dùng YYYY-MM-DD"
+                    "message" => "Định dạng ngày không hợp lệ. Sử dụng format: YYYY-MM-DD"
                 ];
             }
 
-            // Start / End của ngày theo giờ VN
-            $startVN = new DateTime($date . ' 00:00:00', $tzVN);
-            $endVN = new DateTime($date . ' 23:59:59', $tzVN);
-
-            // Convert sang UTC để query DB
-            $startVN->setTimezone($tzUTC);
-            $endVN->setTimezone($tzUTC);
-
+            // Query tính tổng doanh thu và số đơn hàng trong ngày
             $stmt = $this->db->prepare("
-            SELECT
-                COALESCE(SUM(total_price), 0) AS total_revenue,
-                COUNT(*) AS order_count
-            FROM orders
-            WHERE created_at BETWEEN :start AND :end
-        ");
-
-            $stmt->execute([
-                'start' => $startVN->format('Y-m-d H:i:s'),
-                'end' => $endVN->format('Y-m-d H:i:s'),
-            ]);
-
+                SELECT 
+                    COALESCE(SUM(total_price), 0) as total_revenue,
+                    COUNT(*) as order_count
+                FROM orders 
+                WHERE DATE(created_at) = :date
+            ");
+            $stmt->execute(['date' => $date]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return [
                 "error" => false,
                 "revenue" => (float) ($result['total_revenue'] ?? 0),
-                "order_count" => (int) ($result['order_count'] ?? 0),
                 "date" => $date,
-                "timezone" => "Asia/Ho_Chi_Minh"
+                "order_count" => (int) ($result['order_count'] ?? 0)
             ];
-
         } catch (PDOException $e) {
             return [
                 "error" => true,
@@ -417,7 +398,6 @@ class OrdersController
             ];
         }
     }
-
 
     /**
      * Lấy tổng số đơn hàng theo ngày

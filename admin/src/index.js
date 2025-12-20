@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Home from './Page/Home/Home';
 import Login from './Page/Login/Login';
+import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute';
 
 import ProductDashboard from './Page/ProductDashboard/ProductDashboard.jsx';
 import DownloadProduct from './Components/DownloadProduct/DownloadProduct.jsx';
@@ -15,15 +16,22 @@ import Orders from './Page/Orders/Orders.jsx';
 import Warehouse from './Warehouse/Warehouse.jsx';
 import Account from './Page/Account/Account.jsx';
 import QuoteRequests from './Page/QuoteRequests/QuoteRequests.jsx';
-
-// Tạo page rỗng để tránh báo lỗi
+import NotFound from './Page/NotFound/NotFound.jsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <CartProvider>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />}>
+        {/* Route đăng nhập - không cần bảo vệ */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Các route được bảo vệ - cần đăng nhập */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <App />
+          </ProtectedRoute>
+        }>
           <Route index element={<Home />} />
 
           {/* Các trang trong sidebar */}
@@ -34,11 +42,11 @@ root.render(
           <Route path="/warehouse" element={<Warehouse />} />
 
           {/* Trang có sẵn */}
-          {/* <Route path="/category/:id" element={<ProductCategory />} /> */}
           <Route path="/dev" element={<DownloadProduct />} />
         </Route>
 
-        <Route path="login" element={<Login />} />
+        {/* Redirect mặc định về login nếu không match route nào */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   </CartProvider>

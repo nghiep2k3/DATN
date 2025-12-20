@@ -11,7 +11,7 @@ class User
     public string $password;
     public ?string $phone;
     public ?string $role;
-    public ?int $verified_account;              // <- giữ đúng tên cột bạn tạo
+    public ?int $verified_account;              
     public ?string $verification_code;
     public ?string $verification_expires_at;
     public ?string $created_at;

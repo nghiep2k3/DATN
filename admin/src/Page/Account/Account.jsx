@@ -22,68 +22,8 @@ import {
   UserOutlined,
   MailOutlined,
 } from '@ant-design/icons';
-
-// Mock dữ liệu người dùng
-const mockUsers = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn A',
-    email: 'nguyenvana@gmail.com',
-    phone: '0912345678',
-    role: 'admin',
-    status: 'active',
-    lastLogin: '2025-02-10',
-    createdAt: '2025-01-01',
-  },
-  {
-    id: 2,
-    name: 'Trần Thị B',
-    email: 'tranthib@gmail.com',
-    phone: '0923456789',
-    role: 'user',
-    status: 'active',
-    lastLogin: '2025-02-09',
-    createdAt: '2025-01-05',
-  },
-  {
-    id: 3,
-    name: 'Lê Văn C',
-    email: 'levanc@gmail.com',
-    phone: '0934567890',
-    role: 'user',
-    status: 'inactive',
-    lastLogin: '2025-01-20',
-    createdAt: '2025-01-10',
-  },
-  {
-    id: 4,
-    name: 'Phạm Minh D',
-    email: 'phamminhd@gmail.com',
-    phone: '0945678901',
-    role: 'moderator',
-    status: 'active',
-    lastLogin: '2025-02-08',
-    createdAt: '2025-01-15',
-  },
-  {
-    id: 5,
-    name: 'Hoàng Thu E',
-    email: 'hoangthue@gmail.com',
-    phone: '0956789012',
-    role: 'user',
-    status: 'active',
-    lastLogin: '2025-02-07',
-    createdAt: '2025-01-20',
-  },
-];
-
-// Mock API
-const mockAPI = {
-  getUsers: () => new Promise((resolve) => setTimeout(() => resolve(mockUsers), 300)),
-  createUser: (user) => new Promise((resolve) => setTimeout(() => resolve({ ...user, id: Date.now() }), 300)),
-  updateUser: (id, user) => new Promise((resolve) => setTimeout(() => resolve({ ...user, id }), 300)),
-  deleteUser: (id) => new Promise((resolve) => setTimeout(() => resolve({ id }), 300)),
-};
+import axios from 'axios';
+import { url_api } from '../../config';
 
 export default function Account() {
   const [users, setUsers] = useState([]);
@@ -100,13 +40,36 @@ export default function Account() {
     loadUsers();
   }, []);
 
+  // Chuyển đổi dữ liệu từ backend sang format frontend
+  const mapBackendToFrontend = (backendUser) => {
+    return {
+      id: backendUser.id,
+      name: backendUser.name || '',
+      email: backendUser.email || '',
+      phone: backendUser.phone || '',
+      role: backendUser.role || 'user',
+      status: backendUser.verified_account === 1 ? 'active' : 'inactive',
+      lastLogin: null, // Backend không có trường này
+      createdAt: null, // Backend có created_at nhưng không trả về trong toPublicArray
+    };
+  };
+
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const data = await mockAPI.getUsers();
-      setUsers(data);
+      const res = await axios.get(`${url_api}/api/user/getusers.php`);
+      if (res.data.error) {
+        message.error(res.data.message || 'Lỗi khi tải dữ liệu');
+        setUsers([]);
+      } else {
+        // Map dữ liệu từ backend sang frontend
+        const mappedUsers = res.data.data.map(mapBackendToFrontend);
+        setUsers(mappedUsers);
+      }
     } catch (error) {
-      message.error('Lỗi khi tải dữ liệu');
+      console.error('Lỗi khi tải dữ liệu:', error);
+      message.error('Không thể kết nối đến máy chủ');
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -122,7 +85,9 @@ export default function Account() {
   // Mở modal sửa người dùng
   const openEditModal = (user) => {
     setEditingUser(user);
-    form.setFieldsValue(user);
+    // Không set password khi edit
+    const { password, ...userWithoutPassword } = user;
+    form.setFieldsValue(userWithoutPassword);
     setIsModalOpen(true);
   };
 
@@ -130,31 +95,84 @@ export default function Account() {
   const handleSave = async (values) => {
     try {
       if (editingUser) {
-        // Sửa
-        await mockAPI.updateUser(editingUser.id, values);
-        setUsers(users.map((u) => (u.id === editingUser.id ? { ...u, ...values } : u)));
+        // Sửa - không cần password nếu không thay đổi
+        const updateData = {
+          id: editingUser.id,
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          role: values.role,
+        };
+        
+        // Chỉ thêm password nếu có thay đổi
+        if (values.password && values.password.trim() !== '') {
+          updateData.password = values.password;
+        }
+
+        const res = await axios.put(`${url_api}/api/user/updateuser.php`, updateData, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (res.data.error) {
+          message.error(res.data.message || 'Cập nhật thất bại');
+          return;
+        }
+
+        // Cập nhật lại danh sách
+        await loadUsers();
         message.success('Cập nhật người dùng thành công');
       } else {
-        // Thêm
-        const newUser = await mockAPI.createUser(values);
-        setUsers([...users, newUser]);
+        // Thêm - cần password
+        if (!values.password || values.password.trim() === '') {
+          message.error('Vui lòng nhập mật khẩu');
+          return;
+        }
+
+        const createData = {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+          phone: values.phone || null,
+          role: values.role || 'user',
+        };
+
+        const res = await axios.post(`${url_api}/api/user/createuser.php`, createData, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (res.data.error) {
+          message.error(res.data.message || 'Tạo người dùng thất bại');
+          return;
+        }
+
+        // Cập nhật lại danh sách
+        await loadUsers();
         message.success('Thêm người dùng thành công');
       }
       setIsModalOpen(false);
       form.resetFields();
     } catch (error) {
-      message.error('Lỗi khi lưu dữ liệu');
+      console.error('Lỗi khi lưu dữ liệu:', error);
+      message.error('Không thể kết nối đến máy chủ');
     }
   };
 
   // Xóa người dùng
   const handleDelete = async (id) => {
     try {
-      await mockAPI.deleteUser(id);
-      setUsers(users.filter((u) => u.id !== id));
+      const res = await axios.delete(`${url_api}/api/user/deleteuser.php?id=${id}`);
+      
+      if (res.data.error) {
+        message.error(res.data.message || 'Xóa thất bại');
+        return;
+      }
+
+      // Cập nhật lại danh sách
+      await loadUsers();
       message.success('Xóa người dùng thành công');
     } catch (error) {
-      message.error('Lỗi khi xóa dữ liệu');
+      console.error('Lỗi khi xóa dữ liệu:', error);
+      message.error('Không thể kết nối đến máy chủ');
     }
   };
 
@@ -175,13 +193,21 @@ export default function Account() {
       title: 'Tên người dùng',
       dataIndex: 'name',
       key: 'name',
-      render: (text) => (
-        <Space>
-          <UserOutlined />
-          <strong>{text}</strong>
-        </Space>
+      render: (text, record) => (
+        <div>
+          <Space>
+            <UserOutlined />
+            <span style={{ fontWeight: 500 }}>{text}</span>
+          </Space>
+          {/* Hiển thị email trên mobile - sử dụng CSS class */}
+          <div className="mobile-email" style={{ fontSize: '12px', color: '#8c8c8c', marginTop: '4px' }}>
+            <MailOutlined style={{ marginRight: '4px' }} />
+            {record.email}
+          </div>
+        </div>
       ),
-      width: 180,
+      ellipsis: true,
+      fixed: 'left',
     },
     {
       title: 'Email',
@@ -190,16 +216,19 @@ export default function Account() {
       render: (text) => (
         <Space>
           <MailOutlined />
-          {text}
+          <span style={{ fontSize: '13px' }}>{text}</span>
         </Space>
       ),
-      width: 200,
+      ellipsis: true,
+      responsive: ['sm'], // Ẩn trên mobile (< 576px), hiện từ tablet trở lên
     },
     {
       title: 'Điện thoại',
       dataIndex: 'phone',
       key: 'phone',
-      width: 120,
+      render: (text) => text || '-',
+      ellipsis: true,
+      responsive: ['md'], // Ẩn trên mobile và tablet nhỏ, hiện từ md (>= 768px)
     },
     {
       title: 'Vai trò',
@@ -210,7 +239,6 @@ export default function Account() {
         const text = { admin: 'Quản trị', moderator: 'Quản lý', user: 'Người dùng' };
         return <Tag color={colors[role]}>{text[role]}</Tag>;
       },
-      width: 110,
     },
     {
       title: 'Trạng thái',
@@ -221,26 +249,20 @@ export default function Account() {
         const text = { active: 'Hoạt động', inactive: 'Vô hiệu' };
         return <Tag color={colors[status]}>{text[status]}</Tag>;
       },
-      width: 100,
-    },
-    {
-      title: 'Lần đăng nhập cuối',
-      dataIndex: 'lastLogin',
-      key: 'lastLogin',
-      render: (date) => new Date(date).toLocaleDateString('vi-VN'),
-      width: 130,
     },
     {
       title: 'Hành động',
       key: 'action',
-      width: 120,
+      width: 150,
+      fixed: 'right',
       render: (_, record) => (
-        <Space>
+        <Space size="small" direction="vertical" wrap className="mobile-actions">
           <Button
             type="primary"
             size="small"
             icon={<EditOutlined />}
             onClick={() => openEditModal(record)}
+            className="mobile-btn"
           >
             Sửa
           </Button>
@@ -251,7 +273,13 @@ export default function Account() {
             okText="Xóa"
             cancelText="Hủy"
           >
-            <Button type="primary" danger size="small" icon={<DeleteOutlined />}>
+            <Button 
+              type="primary" 
+              danger 
+              size="small" 
+              icon={<DeleteOutlined />}
+              className="mobile-btn"
+            >
               Xóa
             </Button>
           </Popconfirm>
@@ -285,58 +313,136 @@ export default function Account() {
       {/* Danh sách người dùng */}
       <Card title="Quản lý người dùng" style={{ borderRadius: 12 }}>
         {/* Bộ lọc và tìm kiếm */}
-        <Space style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <Space>
-            <Input.Search
-              placeholder="Tìm theo tên hoặc email"
-              allowClear
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 250 }}
-            />
+        <Space 
+          direction="vertical" 
+          size="middle" 
+          style={{ width: '100%', marginBottom: 16 }}
+        >
+          {/* Row 1: Search và Button thêm */}
+          <Row gutter={[8, 8]}>
+            <Col xs={24} sm={16} md={18}>
+              <Input.Search
+                placeholder="Tìm theo tên hoặc email"
+                allowClear
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: '100%' }}
+              />
+            </Col>
+            <Col xs={24} sm={8} md={6}>
+              <Button 
+                type="primary" 
+                icon={<PlusOutlined />} 
+                onClick={openAddModal}
+                block
+                style={{ width: '100%' }}
+              >
+                Thêm người dùng
+              </Button>
+            </Col>
+          </Row>
 
-            <Select
-              value={filterRole}
-              onChange={(val) => setFilterRole(val)}
-              style={{ width: 140 }}
-              options={[
-                { value: 'all', label: 'Tất cả vai trò' },
-                { value: 'admin', label: 'Quản trị' },
-                { value: 'moderator', label: 'Quản lý' },
-                { value: 'user', label: 'Người dùng' },
-              ]}
-            />
-
-            <Select
-              value={filterStatus}
-              onChange={(val) => setFilterStatus(val)}
-              style={{ width: 140 }}
-              options={[
-                { value: 'all', label: 'Tất cả trạng thái' },
-                { value: 'active', label: 'Hoạt động' },
-                { value: 'inactive', label: 'Vô hiệu' },
-              ]}
-            />
-
-            <Button onClick={() => { setFilterRole('all'); setFilterStatus('all'); setSearchText(''); }}>
-              Xóa bộ lọc
-            </Button>
-          </Space>
-
-          <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
-            Thêm người dùng
-          </Button>
+          {/* Row 2: Filters */}
+          <Row gutter={[8, 8]}>
+            <Col xs={24} sm={8} md={6}>
+              <Select
+                value={filterRole}
+                onChange={(val) => setFilterRole(val)}
+                style={{ width: '100%' }}
+                options={[
+                  { value: 'all', label: 'Tất cả vai trò' },
+                  { value: 'admin', label: 'Quản trị' },
+                  { value: 'moderator', label: 'Quản lý' },
+                  { value: 'user', label: 'Người dùng' },
+                ]}
+              />
+            </Col>
+            <Col xs={24} sm={8} md={6}>
+              <Select
+                value={filterStatus}
+                onChange={(val) => setFilterStatus(val)}
+                style={{ width: '100%' }}
+                options={[
+                  { value: 'all', label: 'Tất cả trạng thái' },
+                  { value: 'active', label: 'Hoạt động' },
+                  { value: 'inactive', label: 'Vô hiệu' },
+                ]}
+              />
+            </Col>
+            <Col xs={24} sm={8} md={6}>
+              <Button 
+                onClick={() => { setFilterRole('all'); setFilterStatus('all'); setSearchText(''); }}
+                block
+                style={{ width: '100%' }}
+              >
+                Xóa bộ lọc
+              </Button>
+            </Col>
+          </Row>
         </Space>
 
         {/* Bảng người dùng */}
-        <Table
-          columns={columns}
-          dataSource={filteredUsers}
-          rowKey="id"
-          loading={loading}
-          pagination={{ pageSize: 8 }}
-          scroll={{ x: 1200 }}
-        />
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <Table
+            columns={columns}
+            dataSource={filteredUsers}
+            rowKey="id"
+            loading={loading}
+            pagination={{ 
+              pageSize: 8,
+              showSizeChanger: false,
+              responsive: true,
+              showTotal: (total) => `Tổng ${total} người dùng`,
+              simple: false,
+            }}
+            size="middle"
+            tableLayout="auto"
+            scroll={{ x: 'max-content' }}
+          />
+        </div>
       </Card>
+
+      {/* CSS cho responsive */}
+      <style>{`
+        /* Ẩn email trong cột Tên trên desktop, hiện trên mobile */
+        @media (min-width: 576px) {
+          .mobile-email {
+            display: none !important;
+          }
+        }
+        
+        /* Hiển thị email trong cột Tên trên mobile */
+        @media (max-width: 575px) {
+          .mobile-email {
+            display: block !important;
+          }
+        }
+        
+        /* Điều chỉnh nút hành động trên mobile */
+        @media (max-width: 767px) {
+          .mobile-actions {
+            flex-direction: column !important;
+            width: 100%;
+          }
+          .mobile-btn {
+            width: 100% !important;
+            margin-bottom: 4px;
+          }
+        }
+        
+        /* Điều chỉnh padding bảng trên mobile */
+        @media (max-width: 767px) {
+          .ant-table {
+            font-size: 12px;
+          }
+          .ant-table-thead > tr > th {
+            padding: 8px 4px;
+            font-size: 11px;
+          }
+          .ant-table-tbody > tr > td {
+            padding: 8px 4px;
+          }
+        }
+      `}</style>
 
       {/* Modal thêm/sửa */}
       <Modal
@@ -368,11 +474,23 @@ export default function Account() {
           </Form.Item>
 
           <Form.Item
+            label="Mật khẩu"
+            name="password"
+            rules={[
+              { required: !editingUser, message: 'Vui lòng nhập mật khẩu' },
+              { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' },
+            ]}
+          >
+            <Input.Password 
+              placeholder={editingUser ? "Để trống nếu không đổi mật khẩu" : "Nhập mật khẩu"} 
+            />
+          </Form.Item>
+
+          <Form.Item
             label="Điện thoại"
             name="phone"
-            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
           >
-            <Input placeholder="Nhập số điện thoại" />
+            <Input placeholder="Nhập số điện thoại (tùy chọn)" />
           </Form.Item>
 
           <Form.Item
@@ -385,19 +503,6 @@ export default function Account() {
                 { value: 'admin', label: 'Quản trị' },
                 { value: 'moderator', label: 'Quản lý' },
                 { value: 'user', label: 'Người dùng' },
-              ]}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Trạng thái"
-            name="status"
-            rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
-          >
-            <Select
-              options={[
-                { value: 'active', label: 'Hoạt động' },
-                { value: 'inactive', label: 'Vô hiệu' },
               ]}
             />
           </Form.Item>
