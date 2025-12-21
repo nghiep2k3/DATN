@@ -12,6 +12,8 @@ import {
   Select,
   message,
   Popconfirm,
+  Row,
+  Col,
 } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -243,68 +245,137 @@ export default function QuoteRequests() {
       <Modal
         title={isEdit ? "Cập nhật yêu cầu báo giá" : "Thêm yêu cầu báo giá"}
         open={openModal}
-        onCancel={() => setOpenModal(false)}
+        onCancel={() => {
+          setOpenModal(false);
+          form.resetFields();
+        }}
         onOk={() => form.submit()}
-        width={700}
+        width={900}
         okText={isEdit ? "Cập nhật" : "Thêm mới"}
+        cancelText="Hủy"
+        destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item label="Họ tên" name="full_name" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
+          <Row gutter={16}>
+            {/* Cột trái - Thông tin khách hàng và sản phẩm */}
+            <Col span={12}>
+              <div style={{ marginBottom: 16, fontWeight: 600, color: '#1890ff' }}>
+                Thông tin khách hàng
+              </div>
+              
+              <Form.Item 
+                label="Họ tên" 
+                name="full_name" 
+                rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
+              >
+                <Input placeholder="Nhập họ tên khách hàng" />
+              </Form.Item>
 
-          <Form.Item label="Số điện thoại" name="phone" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
+              <Form.Item 
+                label="Số điện thoại" 
+                name="phone" 
+                rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+              >
+                <Input placeholder="Nhập số điện thoại" />
+              </Form.Item>
 
-          <Form.Item label="Email" name="email" rules={[{ required: true, type: "email" }]}>
-            <Input />
-          </Form.Item>
+              <Form.Item 
+                label="Email" 
+                name="email" 
+                rules={[
+                  { required: true, message: "Vui lòng nhập email" },
+                  { type: "email", message: "Email không hợp lệ" }
+                ]}
+              >
+                <Input placeholder="Nhập email" />
+              </Form.Item>
 
-          <Form.Item label="Tên sản phẩm" name="product_name">
-            <Input />
-          </Form.Item>
+              <div style={{ marginTop: 24, marginBottom: 16, fontWeight: 600, color: '#1890ff' }}>
+                Thông tin sản phẩm
+              </div>
 
-          <Form.Item label="Số lượng" name="quantity">
-            <InputNumber style={{ width: "100%" }} min={1} />
-          </Form.Item>
+              <Form.Item label="Tên sản phẩm" name="product_name">
+                <Input placeholder="Nhập tên sản phẩm" />
+              </Form.Item>
 
-          <Form.Item label="Danh sách sản phẩm" name="product_list">
-            <Input.TextArea rows={3} />
-          </Form.Item>
+              <Form.Item label="Số lượng" name="quantity">
+                <InputNumber 
+                  style={{ width: "100%" }} 
+                  min={1} 
+                  placeholder="Nhập số lượng"
+                />
+              </Form.Item>
 
-          <Form.Item label="Ngân sách" name="budget_range">
-            <Select
-              allowClear
-              options={[
-                { value: "<10tr", label: "Dưới 10 triệu" },
-                { value: "10-50tr", label: "10 - 50 triệu" },
-                { value: "50-200tr", label: "50 - 200 triệu" },
-                { value: ">200tr", label: "Trên 200 triệu" },
-              ]}
-            />
-          </Form.Item>
+              <Form.Item label="Danh sách sản phẩm" name="product_list">
+                <Input.TextArea 
+                  rows={4} 
+                  placeholder="Nhập danh sách sản phẩm (mỗi sản phẩm một dòng)"
+                />
+              </Form.Item>
+            </Col>
 
-          <Form.Item label="Ghi chú" name="notes">
-            <Input.TextArea rows={2} />
-          </Form.Item>
+            {/* Cột phải - Thông tin chi tiết và trạng thái */}
+            <Col span={12}>
+              <div style={{ marginBottom: 16, fontWeight: 600, color: '#1890ff' }}>
+                Thông tin chi tiết
+              </div>
 
-          <Form.Item label="Trạng thái" name="status">
-            <Select
-              options={[
-                { value: "pending", label: "Chờ xử lý" },
-                { value: "processing", label: "Đang xử lý" },
-                { value: "done", label: "Hoàn thành" },
-                { value: "cancelled", label: "Đã huỷ" },
-              ]}
-            />
-          </Form.Item>
+              <Form.Item label="Ngân sách" name="budget_range">
+                <Select
+                  allowClear
+                  placeholder="Chọn mức ngân sách"
+                  options={[
+                    { value: "<10tr", label: "Dưới 10 triệu" },
+                    { value: "10-50tr", label: "10 - 50 triệu" },
+                    { value: "50-200tr", label: "50 - 200 triệu" },
+                    { value: ">200tr", label: "Trên 200 triệu" },
+                  ]}
+                />
+              </Form.Item>
 
-          <Form.Item label="File đính kèm" name="attachment">
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button icon={<UploadOutlined />}>Chọn file</Button>
-            </Upload>
-          </Form.Item>
+              <Form.Item label="Ghi chú" name="notes">
+                <Input.TextArea 
+                  rows={4} 
+                  placeholder="Nhập ghi chú (nếu có)"
+                />
+              </Form.Item>
+
+              <div style={{ marginTop: 24, marginBottom: 16, fontWeight: 600, color: '#1890ff' }}>
+                Trạng thái & File
+              </div>
+
+              <Form.Item 
+                label="Trạng thái" 
+                name="status"
+                initialValue="pending"
+              >
+                <Select
+                  placeholder="Chọn trạng thái"
+                  options={[
+                    { value: "pending", label: "Chờ xử lý" },
+                    { value: "processing", label: "Đang xử lý" },
+                    { value: "done", label: "Hoàn thành" },
+                    { value: "cancelled", label: "Đã huỷ" },
+                  ]}
+                />
+              </Form.Item>
+
+              <Form.Item label="File đính kèm" name="attachment">
+                <Upload 
+                  beforeUpload={() => false} 
+                  maxCount={1}
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                >
+                  <Button icon={<UploadOutlined />} block>
+                    Chọn file đính kèm
+                  </Button>
+                </Upload>
+                <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>
+                  Hỗ trợ: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (tối đa 1 file)
+                </div>
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </Card>

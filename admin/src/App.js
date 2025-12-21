@@ -48,12 +48,12 @@ export default function App() {
         {
             key: "/warehouse",
             icon: <DatabaseOutlined />,
-            label: "Thông tin kho hàng",
+            label: "Quản lý kho hàng",
         },
         {
             key: "/account",
             icon: <UserOutlined />,
-            label: "Thông tin tài khoản",
+            label: "Quản lý tài khoản",
         },
         {
             key: "/logout",

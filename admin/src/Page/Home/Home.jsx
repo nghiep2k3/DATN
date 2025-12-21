@@ -190,7 +190,7 @@ export default function Home() {
         <div style={{ padding: "24px" }}>
             <Row gutter={[24, 24]}>
                 {/* ===== ROW 1 - KPI ===== */}
-                <Col xs={24} md={6}>
+                <Col xs={24} md={8}>
                     <Card style={{ borderRadius: 12, background: "#E6F4FF" }}>
                         {loading ? (
                             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -213,7 +213,7 @@ export default function Home() {
                     </Card>
                 </Col>
 
-                <Col xs={24} md={6}>
+                <Col xs={24} md={8}>
                     <Card style={{ borderRadius: 12, background: "#FFF7E6" }}>
                         {loading ? (
                             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -236,7 +236,7 @@ export default function Home() {
                     </Card>
                 </Col>
 
-                <Col xs={24} md={6}>
+                <Col xs={24} md={8}>
                     <Card style={{ borderRadius: 12, background: "#E8F8F2" }}>
                         {loading ? (
                             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -256,22 +256,6 @@ export default function Home() {
                                 </div>
                             </div>
                         )}
-                    </Card>
-                </Col>
-
-                <Col xs={24} md={6}>
-                    <Card style={{ borderRadius: 12, background: "#FFE8E6" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                            <WarningOutlined style={{ fontSize: 36, color: "#ff4d4f" }} />
-                            <div>
-                                <Text strong style={{ fontSize: 16 }}>
-                                    Sản phẩm sắp hết hàng
-                                </Text>
-                                <Title level={3} style={{ margin: 0 }}>
-                                    4 sản phẩm
-                                </Title>
-                            </div>
-                        </div>
                     </Card>
                 </Col>
 

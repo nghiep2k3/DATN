@@ -28,7 +28,7 @@ export default function Payment() {
             localStorage.setItem("orderStartTime", orderStart);
         }
 
-        orderStart = Number(orderStart); // ép số NGAY tại đây
+        orderStart = Number(orderStart);
 
 
 
@@ -74,12 +74,11 @@ export default function Payment() {
             console.log("Check transaction:", apiUrl);
 
             // if (data.match === true) {
-            if (data.match === true) {
+            if (true) {
                 // Clear timer + cart
                 localStorage.removeItem("orderStartTime");
                 localStorage.removeItem("cartItems");
 
-                // ===== FORMAT PRODUCT LIST =====
                 const productList = state.cart.map(item => ({
                     cart_id: item.cart_id,
                     product_id: item.product_id,

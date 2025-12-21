@@ -83,7 +83,7 @@ class OrdersController
     }
 
     /**
-     * Thêm mới đơn hàng
+     * Thêm mới đơn hàng và trừ số lượng tồn kho
      */
     public function create(
         ?int $user_id,
@@ -98,12 +98,89 @@ class OrdersController
         ?string $payment_method,
         ?string $contentCk
     ): array {
+        // Bắt đầu transaction
+        $this->db->beginTransaction();
+        
         try {
-            // Nếu product_list là array, convert thành JSON
-            if (is_array($product_list)) {
-                $product_list = json_encode($product_list, JSON_UNESCAPED_UNICODE);
+            // Parse product_list từ JSON
+            $products = [];
+            if (!empty($product_list)) {
+                if (is_string($product_list)) {
+                    $products = json_decode($product_list, true);
+                } elseif (is_array($product_list)) {
+                    $products = $product_list;
+                }
+                
+                if (json_last_error() !== JSON_ERROR_NONE && is_string($product_list)) {
+                    $this->db->rollBack();
+                    return ["error" => true, "message" => "Dữ liệu sản phẩm không hợp lệ"];
+                }
             }
 
+            // Kiểm tra và trừ số lượng tồn kho trước khi tạo đơn hàng
+            if (!empty($products) && is_array($products)) {
+                foreach ($products as $product) {
+                    // Lấy product_id và quantity (hỗ trợ cả 'qty' và 'quantity')
+                    $productId = isset($product['product_id']) ? (int)$product['product_id'] : null;
+                    $quantity = isset($product['qty']) ? (int)$product['qty'] : (isset($product['quantity']) ? (int)$product['quantity'] : 0);
+                    
+                    if ($productId === null || $quantity <= 0) {
+                        $this->db->rollBack();
+                        return [
+                            "error" => true, 
+                            "message" => "Dữ liệu sản phẩm không hợp lệ: thiếu product_id hoặc số lượng (qty/quantity) không hợp lệ"
+                        ];
+                    }
+
+                    // Kiểm tra số lượng tồn kho hiện tại (sử dụng FOR UPDATE để lock row)
+                    $checkStmt = $this->db->prepare("SELECT stock_quantity FROM products WHERE id = :product_id FOR UPDATE");
+                    $checkStmt->execute(['product_id' => $productId]);
+                    $productData = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+                    if (!$productData) {
+                        $this->db->rollBack();
+                        return ["error" => true, "message" => "Sản phẩm ID {$productId} không tồn tại"];
+                    }
+
+                    $currentStock = (int)$productData['stock_quantity'];
+                    
+                    // Kiểm tra số lượng tồn kho có đủ không
+                    if ($currentStock < $quantity) {
+                        $this->db->rollBack();
+                        return [
+                            "error" => true, 
+                            "message" => "Sản phẩm '{$product['name']}' (ID: {$productId}) không đủ số lượng tồn kho. Hiện có: {$currentStock}, yêu cầu: {$quantity}"
+                        ];
+                    }
+
+                    // Trừ số lượng tồn kho
+                    $updateStmt = $this->db->prepare("
+                        UPDATE products 
+                        SET stock_quantity = stock_quantity - :quantity 
+                        WHERE id = :product_id
+                    ");
+                    $updateResult = $updateStmt->execute([
+                        'quantity' => $quantity,
+                        'product_id' => $productId
+                    ]);
+
+                    // Kiểm tra xem update có thành công không
+                    if (!$updateResult || $updateStmt->rowCount() === 0) {
+                        $this->db->rollBack();
+                        return [
+                            "error" => true, 
+                            "message" => "Không thể cập nhật số lượng tồn kho cho sản phẩm ID {$productId}"
+                        ];
+                    }
+                }
+            }
+
+            // Nếu product_list là array, convert thành JSON để lưu vào DB
+            $productListJson = is_array($product_list) 
+                ? json_encode($product_list, JSON_UNESCAPED_UNICODE) 
+                : $product_list;
+
+            // Tạo đơn hàng
             $stmt = $this->db->prepare("
                 INSERT INTO orders (user_id, full_name, phone, email, status, total_price, product_list, shipping_address, note, payment_method, contentCk, created_at)
                 VALUES (:user_id, :full_name, :phone, :email, :status, :total_price, :product_list, :shipping_address, :note, :payment_method, :contentCk, NOW())
@@ -116,7 +193,7 @@ class OrdersController
                 'email' => $email,
                 'status' => $status ?? "Đang lấy hàng",
                 'total_price' => $total_price,
-                'product_list' => $product_list,
+                'product_list' => $productListJson,
                 'shipping_address' => $shipping_address,
                 'note' => $note,
                 'payment_method' => $payment_method ?? "Thanh toán QR code",
@@ -125,12 +202,21 @@ class OrdersController
 
             $orderId = $this->db->lastInsertId();
 
+            // Commit transaction
+            $this->db->commit();
+
             return [
                 "error" => false,
                 "message" => "Tạo đơn hàng thành công",
                 "id" => $orderId
             ];
         } catch (PDOException $e) {
+            // Rollback nếu có lỗi
+            $this->db->rollBack();
+            return ["error" => true, "message" => $e->getMessage()];
+        } catch (\Exception $e) {
+            // Rollback nếu có lỗi khác
+            $this->db->rollBack();
             return ["error" => true, "message" => $e->getMessage()];
         }
     }

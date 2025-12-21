@@ -36,36 +36,39 @@ export default function Orders() {
                     payment_method: o.payment_method,
                     contentCk: o.contentCk || "",
                     created_at: o.created_at,
-                    // Map product_list từ API
+                    // Map product_list từ API - hỗ trợ cả 2 format (name/qty và product_name/quantity)
                     product_list: (o.product_list || []).map((p) => ({
+                        ...p, // Giữ nguyên tất cả các trường gốc
                         cart_id: p.cart_id,
                         user_id: p.user_id,
                         product_id: p.product_id,
-                        quantity: Number(p.quantity || 1),
+                        // Hỗ trợ cả 2 format: quantity hoặc qty
+                        quantity: Number(p.quantity || p.qty || 1),
                         phone: p.phone,
-                        price: Number(p.price || p.product_price || 0),
-                        product_name: p.product_name,
+                        price: Number(p.price || p.product_price || p.unit_price || 0),
+                        // Hỗ trợ cả 2 format: product_name hoặc name
+                        product_name: p.product_name || p.name || '',
+                        name: p.product_name || p.name || '',
                         sku: p.sku,
                         description: p.description,
-                        product_price: Number(p.product_price || 0),
+                        product_price: Number(p.product_price || p.unit_price || p.price || 0),
                         stock_quantity: p.stock_quantity,
                         brand_name: p.brand_name,
                         category_name: p.category_name,
                         images: p.images || [],
-                        // Giữ thêm các trường cũ để tương thích với UI
-                        name: p.product_name,
-                        qty: Number(p.quantity || 1),
-                        unit_price: Number(p.price || p.product_price || 0),
+                        // Giữ thêm các trường để tương thích với UI
+                        qty: Number(p.quantity || p.qty || 1),
+                        unit_price: Number(p.price || p.product_price || p.unit_price || 0),
                     })),
                     // Các trường để tương thích với UI cũ
                     customer: o.full_name,
                     items: (o.product_list || []).map((p) => ({
                         sku: p.sku || p.product_id,
-                        name: p.product_name,
-                        qty: Number(p.quantity || 1),
-                        price: Number(p.price || p.product_price || 0),
+                        name: p.product_name || p.name || '',
+                        qty: Number(p.quantity || p.qty || 1),
+                        price: Number(p.price || p.product_price || p.unit_price || 0),
                         product_id: p.product_id,
-                        unit_price: Number(p.price || p.product_price || 0),
+                        unit_price: Number(p.price || p.product_price || p.unit_price || 0),
                     })),
                     date: o.created_at,
                     total: Number(o.total_price || 0),
@@ -241,11 +244,15 @@ export default function Orders() {
             key: "product_list",
             render: (productList) => {
                 if (!productList || productList.length === 0) return <i>Không có sản phẩm</i>;
-                const display = productList.slice(0, 2).map((p) => (
-                    <Tag key={p.product_id || p.cart_id} style={{ marginBottom: 6 }}>
-                        {p.product_name || p.name} x{p.quantity || p.qty}
-                    </Tag>
-                ));
+                const display = productList.slice(0, 2).map((p, index) => {
+                    const productName = p.product_name || p.name || 'Sản phẩm không tên';
+                    const quantity = p.quantity || p.qty || 1;
+                    return (
+                        <Tag key={p.product_id || p.cart_id || index} style={{ marginBottom: 6 }}>
+                            {productName} x{quantity}
+                        </Tag>
+                    );
+                });
                 if (productList.length > 2) {
                     display.push(
                         <Tag key="more">+{productList.length - 2} khác</Tag>
