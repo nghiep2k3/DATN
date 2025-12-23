@@ -91,19 +91,35 @@ export default function Product() {
                 const parsed = typeof p.document_url === 'string' 
                     ? JSON.parse(p.document_url) 
                     : p.document_url;
-                if (Array.isArray(parsed)) {
-                    // Convert existing links thành fileList format cho Upload component
-                    documentList = parsed.map((doc, idx) => ({
-                        uid: `doc-${idx}`,
-                        name: doc.link.split('/').pop() || `document${idx + 1}.pdf`,
-                        status: 'done',
-                        url: `${url}/${doc.link}`,
-                        link: doc.link, // Giữ lại link gốc
-                    }));
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    // Với Form.List, mỗi document là một field riêng
+                    // Mỗi field có fileList (mảng), nên cần wrap mỗi document trong một mảng
+                    documentList = parsed.map((doc) => {
+                        // Mỗi field trong Form.List sẽ có fileList là mảng chứa 1 file object
+                        return [{
+                            uid: `doc-${doc.link}`,
+                            name: doc.link.split('/').pop() || `document.pdf`,
+                            status: 'done',
+                            url: `${url}/${doc.link}`,
+                            link: doc.link, // Giữ lại link gốc
+                        }];
+                    });
                 }
             } catch (e) {
                 console.error("Lỗi parse document_url:", e);
             }
+        }
+
+        // Convert ảnh hiện tại thành fileList format cho Upload component
+        let imageList = [];
+        if (p.images && Array.isArray(p.images) && p.images.length > 0) {
+            imageList = p.images.map((img, idx) => ({
+                uid: `img-${idx}`,
+                name: img.split('/').pop() || `image${idx + 1}.jpg`,
+                status: 'done',
+                url: `${url}/${img}`,
+                link: img, // Giữ lại link gốc để gửi lên backend
+            }));
         }
 
         form.setFieldsValue({
@@ -115,7 +131,8 @@ export default function Product() {
             stock_quantity: p.stock_quantity,
             brand_id: p.brand_id,
             category_id: p.category_id,
-            document_url: documentList
+            document_url: Array.isArray(documentList) ? documentList : [],
+            images: Array.isArray(imageList) ? imageList : []
         });
 
         setOpenModal(true);
@@ -142,42 +159,71 @@ export default function Product() {
             });
 
             // Xử lý upload ảnh
+            const imageLinks = [];
+            const newImages = [];
+            
             if (values.images && values.images.length > 0) {
                 values.images.forEach((fileObj) => {
                     if (fileObj.originFileObj) {
-                        formData.append("image[]", fileObj.originFileObj);
+                        // Ảnh mới được upload
+                        newImages.push(fileObj.originFileObj);
+                    } else if (fileObj.link) {
+                        // Ảnh đã có sẵn (khi edit)
+                        imageLinks.push(fileObj.link);
                     }
                 });
+            }
+
+            // Upload ảnh mới
+            if (newImages.length > 0) {
+                newImages.forEach((file) => {
+                    formData.append("image[]", file);
+                });
+            }
+
+            // Nếu có ảnh cũ (khi edit và không upload ảnh mới), gửi JSON string
+            // Nếu có cả ảnh mới và ảnh cũ, backend sẽ merge lại
+            if (imageLinks.length > 0) {
+                formData.append("existing_images", JSON.stringify(imageLinks));
             }
 
             // Xử lý upload document files
             const documentLinks = [];
             const newDocuments = [];
             
-            if (values.document_url && values.document_url.length > 0) {
-                values.document_url.forEach((doc) => {
-                    if (doc.originFileObj) {
-                        // File mới được upload
-                        newDocuments.push(doc.originFileObj);
-                    } else if (doc.link) {
-                        // File đã có sẵn (khi edit)
-                        documentLinks.push({ link: doc.link });
+            // Xử lý document_url từ form (Form.List trả về mảng các field, mỗi field có fileList)
+            if (values.document_url && Array.isArray(values.document_url)) {
+                values.document_url.forEach((fieldValue) => {
+                    // fieldValue là fileList từ Upload component (mảng các file object)
+                    // Đảm bảo fieldValue là mảng
+                    const fileList = Array.isArray(fieldValue) ? fieldValue : (fieldValue ? [fieldValue] : []);
+                    
+                    if (fileList && fileList.length > 0) {
+                        fileList.forEach((fileObj) => {
+                            if (fileObj && fileObj.originFileObj) {
+                                // File mới được upload
+                                newDocuments.push(fileObj.originFileObj);
+                            } else if (fileObj && fileObj.link) {
+                                // File đã có sẵn (khi edit)
+                                documentLinks.push({ link: fileObj.link });
+                            }
+                        });
                     }
                 });
             }
 
-            // Upload file mới
+            // Upload file mới - sử dụng tên field đúng với backend
             if (newDocuments.length > 0) {
                 newDocuments.forEach((file) => {
                     formData.append("document[]", file);
                 });
             }
 
+            // Luôn gửi document_url (kể cả khi rỗng để xóa tất cả document)
             // Nếu có document cũ (khi edit và không upload file mới), gửi JSON string
             // Nếu có cả file mới và file cũ, backend sẽ merge lại
-            if (documentLinks.length > 0) {
-                formData.append("document_url", JSON.stringify(documentLinks));
-            }
+            // Nếu không có document nào, gửi mảng rỗng để xóa tất cả
+            formData.append("document_url", JSON.stringify(documentLinks));
 
             // 🔥 Log toàn bộ FormData (bao gồm file)
             console.log("📦 FORM DATA GỬI LÊN API:");
@@ -368,14 +414,12 @@ export default function Product() {
                                                     size="small"
                                                     style={{ marginBottom: 12 }}
                                                     extra={
-                                                        fields.length > 1 ? (
-                                                            <Button
-                                                                type="text"
-                                                                danger
-                                                                icon={<DeleteOutlined />}
-                                                                onClick={() => remove(name)}
-                                                            />
-                                                        ) : null
+                                                        <Button
+                                                            type="text"
+                                                            danger
+                                                            icon={<DeleteOutlined />}
+                                                            onClick={() => remove(name)}
+                                                        />
                                                     }
                                                 >
                                                     <Form.Item
@@ -386,9 +430,10 @@ export default function Product() {
                                                             if (Array.isArray(e)) {
                                                                 return e;
                                                             }
-                                                            return e?.fileList;
+                                                            const fileList = e?.fileList || e?.target?.files || [];
+                                                            return Array.isArray(fileList) ? fileList : [];
                                                         }}
-                                                        rules={[{ required: true, message: "Vui lòng chọn file tài liệu" }]}
+                                                        rules={[{ required: false }]}
                                                     >
                                                         <Upload
                                                             beforeUpload={() => false}
@@ -432,3 +477,4 @@ export default function Product() {
         </div>
     );
 }
+

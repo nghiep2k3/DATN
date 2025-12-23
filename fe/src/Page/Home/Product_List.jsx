@@ -58,13 +58,13 @@ export default function Product_List() {
             />
 
             <CarouselProduct
-                title="Thiết bị đo điện – điện tử"
+                title="Thiết bị đo tần số vô tuyến"
                 products={group2}
                 linkMore="#"
             />
 
             <CarouselProduct
-                title="Thiết bị phòng thí nghiệm"
+                title="Thiết bị kiểm tra không phá hủy"
                 products={group3}
                 linkMore="#"
             />

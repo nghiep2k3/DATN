@@ -30,8 +30,8 @@ class ProductController
     {
         try {
             $stmt = $this->db->prepare("
-    INSERT INTO products (name, sku, description, price, stock_quantity, brand_id, category_id, image_url, created_at)
-    VALUES (:name, :sku, :description, :price, :stock_quantity, :brand_id, :category_id, :image_url, NOW())
+    INSERT INTO products (name, sku, description, price, stock_quantity, brand_id, category_id, image_url, document_url, created_at)
+    VALUES (:name, :sku, :description, :price, :stock_quantity, :brand_id, :category_id, :image_url, :document_url, NOW())
 ");
 
             $stmt->execute([
@@ -42,7 +42,8 @@ class ProductController
                 'stock_quantity' => $data['stock_quantity'] ?? 0,
                 'brand_id' => $data['brand_id'] ?? null,
                 'category_id' => $data['category_id'] ?? null,
-                'image_url' => $data['image_url']
+                'image_url' => $data['image_url'],
+                'document_url' => $data['document_url'] ?? null
             ]);
 
 
@@ -109,7 +110,16 @@ class ProductController
     public function getById(int $id): array
     {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM products WHERE id = :id");
+            $stmt = $this->db->prepare("
+                SELECT 
+                    p.*,
+                    b.name AS brand_name,
+                    c.name AS category_name
+                FROM products p
+                LEFT JOIN brands b ON p.brand_id = b.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                WHERE p.id = :id
+            ");
             $stmt->execute(['id' => $id]);
             $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -152,12 +162,44 @@ class ProductController
                 return ["error" => true, "message" => "Sản phẩm không tồn tại"];
             }
 
+            // Xử lý document: xóa file vật lý của document cũ không còn trong danh sách mới
+            $oldDocuments = [];
+            if (!empty($product['document_url'])) {
+                $oldDocsJson = json_decode($product['document_url'], true);
+                if (is_array($oldDocsJson)) {
+                    $oldDocuments = $oldDocsJson;
+                }
+            }
+
+            $newDocuments = [];
+            if (isset($data['document_url']) && !empty($data['document_url'])) {
+                $newDocsJson = is_string($data['document_url']) 
+                    ? json_decode($data['document_url'], true) 
+                    : $data['document_url'];
+                if (is_array($newDocsJson)) {
+                    $newDocuments = $newDocsJson;
+                }
+            }
+
+            // Tìm document cũ không còn trong danh sách mới để xóa file vật lý
+            $oldDocLinks = array_column($oldDocuments, 'link');
+            $newDocLinks = array_column($newDocuments, 'link');
+            $docsToDelete = array_diff($oldDocLinks, $newDocLinks);
+
+            // Xóa file vật lý của document đã bị loại bỏ
+            foreach ($docsToDelete as $docLink) {
+                $filePath = dirname(__DIR__, 2) . $docLink;
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
             // update sản phẩm
             $stmt = $this->db->prepare("
             UPDATE products 
             SET name = :name, sku = :sku, description = :description, price = :price, 
                 stock_quantity = :stock_quantity, brand_id = :brand_id, 
-                category_id = :category_id, image_url = :image_url
+                category_id = :category_id, image_url = :image_url, document_url = :document_url
             WHERE id = :id
         ");
             $stmt->execute([
@@ -169,38 +211,61 @@ class ProductController
                 'brand_id' => $data['brand_id'] ?? null,
                 'category_id' => $data['category_id'] ?? null,
                 'image_url' => $data['image_url'] ?? $product['image_url'],
+                'document_url' => isset($data['document_url']) ? $data['document_url'] : $product['document_url'],
                 'id' => $id
             ]);
 
-            // Xử lý ảnh: xóa ảnh cũ, insert ảnh mới
-            if (!empty($data['images']) && is_array($data['images'])) {
-                // Lấy ảnh cũ
-                $oldImgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
-                $oldImgStmt->execute(['id' => $id]);
-                $oldImages = $oldImgStmt->fetchAll(PDO::FETCH_COLUMN);
+            // Xử lý ảnh: luôn cập nhật theo danh sách mới
+            // Lấy ảnh cũ
+            $oldImgStmt = $this->db->prepare("SELECT image_url FROM product_images WHERE product_id = :id");
+            $oldImgStmt->execute(['id' => $id]);
+            $oldImages = $oldImgStmt->fetchAll(PDO::FETCH_COLUMN);
 
-                // Xóa file cũ trong thư mục upload
-                foreach ($oldImages as $img) {
+            // Nếu có danh sách ảnh mới
+            if (isset($data['images']) && is_array($data['images'])) {
+                // Tìm ảnh cũ không còn trong danh sách mới để xóa
+                $imagesToDelete = array_diff($oldImages, $data['images']);
+                
+                // Xóa file vật lý của ảnh đã bị loại bỏ
+                foreach ($imagesToDelete as $img) {
                     $filePath = dirname(__DIR__, 2) . $img;
                     if (file_exists($filePath)) {
                         unlink($filePath);
                     }
                 }
 
-                // Xóa record cũ trong DB
-                $this->db->prepare("DELETE FROM product_images WHERE product_id = :id")->execute(['id' => $id]);
-
-                // Insert ảnh mới
-                $imgStmt = $this->db->prepare("
-                INSERT INTO product_images (product_id, image_url) 
-                VALUES (:product_id, :image_url)
-            ");
-                foreach ($data['images'] as $url) {
-                    $imgStmt->execute([
-                        'product_id' => $id,
-                        'image_url' => $url
-                    ]);
+                // Xóa record cũ không còn trong danh sách mới
+                if (!empty($imagesToDelete)) {
+                    $placeholders = implode(',', array_fill(0, count($imagesToDelete), '?'));
+                    $deleteStmt = $this->db->prepare("DELETE FROM product_images WHERE product_id = ? AND image_url IN ($placeholders)");
+                    $deleteStmt->execute(array_merge([$id], $imagesToDelete));
                 }
+
+                // Tìm ảnh mới cần insert (chưa có trong DB)
+                $newImages = array_diff($data['images'], $oldImages);
+                
+                // Insert ảnh mới
+                if (!empty($newImages)) {
+                    $imgStmt = $this->db->prepare("
+                        INSERT INTO product_images (product_id, image_url) 
+                        VALUES (:product_id, :image_url)
+                    ");
+                    foreach ($newImages as $url) {
+                        $imgStmt->execute([
+                            'product_id' => $id,
+                            'image_url' => $url
+                        ]);
+                    }
+                }
+            } else {
+                // Nếu không có danh sách ảnh mới (mảng rỗng hoặc null), xóa tất cả ảnh cũ
+                foreach ($oldImages as $img) {
+                    $filePath = dirname(__DIR__, 2) . $img;
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
+                $this->db->prepare("DELETE FROM product_images WHERE product_id = :id")->execute(['id' => $id]);
             }
 
             return ["error" => false, "message" => "Cập nhật sản phẩm thành công"];

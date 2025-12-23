@@ -24,6 +24,10 @@ export default function Header() {
     const [userName, setUserName] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [open, setOpen] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [showSearchResults, setShowSearchResults] = useState(false);
+    const [allProducts, setAllProducts] = useState([]);
     const { cartItems, totalQuantity, removeFromCart, updateQuantity } = useCart();
     const showDrawer = () => setOpen(true);
     const onClose = () => setOpen(false);
@@ -128,7 +132,22 @@ export default function Header() {
     useEffect(() => {
         const name = Cookies.get("name");
         if (name) setUserName(name);
+        
+        // Load tất cả sản phẩm để tìm kiếm nhanh
+        loadAllProducts();
     }, []);
+
+    // Load tất cả sản phẩm
+    const loadAllProducts = async () => {
+        try {
+            const res = await axios.get(`${url_api}/api/product/get_all_products.php`);
+            if (!res.data.error && res.data.products) {
+                setAllProducts(res.data.products);
+            }
+        } catch (err) {
+            console.error("Lỗi khi load sản phẩm:", err);
+        }
+    };
 
     useEffect(() => {
         const handleScroll = () => setIsSticky(window.scrollY > 90);
@@ -136,34 +155,69 @@ export default function Header() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // Xử lý tìm kiếm
-    const onSearch = async (value) => {
-        const keyword = value.trim().toLowerCase();
-        if (!keyword) return message.warning("Vui lòng nhập từ khóa tìm kiếm!");
-
-        try {
-            const res = await axios.get(`${url_api}/search/product.json`, {
-                headers: { "Cache-Control": "no-cache" },
-            });
-
-            const products = res.data.products || [];
-            const results = products.filter((p) =>
+    // Xử lý tìm kiếm khi người dùng gõ
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchValue(value);
+        
+        if (value.trim().length > 0) {
+            const keyword = value.trim().toLowerCase();
+            const results = allProducts.filter((p) =>
                 p.name.toLowerCase().includes(keyword)
-            );
-
-            if (results.length > 0) {
-                console.log("🔍 Kết quả tìm thấy:", results);
-
-                localStorage.setItem("searchResults", JSON.stringify(results));
-
-                navigate(`/search?q=${encodeURIComponent(value)}`);
-            } else {
-                message.info("Không tìm thấy sản phẩm nào phù hợp.");
-            }
-        } catch (err) {
-            console.error("Lỗi khi đọc file JSON:", err);
-            message.error("Không thể đọc dữ liệu sản phẩm (product.json).");
+            ).slice(0, 5); // Chỉ hiển thị tối đa 5 kết quả
+            
+            setSearchResults(results);
+            setShowSearchResults(results.length > 0);
+        } else {
+            setSearchResults([]);
+            setShowSearchResults(false);
         }
+    };
+
+    // Xử lý khi nhấn Enter hoặc click Search
+    const onSearch = (value) => {
+        const keyword = value.trim().toLowerCase();
+        if (!keyword) {
+            message.warning("Vui lòng nhập từ khóa tìm kiếm!");
+            return;
+        }
+
+        const results = allProducts.filter((p) =>
+            p.name.toLowerCase().includes(keyword)
+        );
+
+        if (results.length > 0) {
+            localStorage.setItem("searchResults", JSON.stringify(results));
+            navigate(`/search?q=${encodeURIComponent(value)}`);
+            setShowSearchResults(false);
+        } else {
+            message.info("Không tìm thấy sản phẩm nào phù hợp.");
+        }
+    };
+
+    // Helper function để lấy URL ảnh
+    const getImageUrl = (item) => {
+        let imgPath = null;
+        if (item.images && item.images.length > 0) {
+            imgPath = item.images[0];
+        } else if (item.image_url) {
+            imgPath = item.image_url;
+        }
+        
+        if (imgPath) {
+            const cleanPath = imgPath.startsWith('/') ? imgPath.substring(1) : imgPath;
+            return `${url}/${cleanPath}`;
+        }
+        return `${url}/upload/no-image.png`;
+    };
+
+    // Helper function để format giá
+    const formatPrice = (price) => {
+        const priceNum = Number(price);
+        if (priceNum === 0 || isNaN(priceNum)) {
+            return "Liên hệ";
+        }
+        return `${priceNum.toLocaleString("vi-VN")} đ`;
     };
 
 
@@ -200,13 +254,24 @@ export default function Header() {
                             </div>
                         </Col>
 
-                        <Col style={{ width: 500 }}>
-                            <div className={styles.searchBox}>
+                        <Col style={{ width: 500, position: "relative" }}>
+                            <div className={styles.searchBox} style={{ position: "relative" }}>
                                 <Search
                                     className="custom_search"
                                     placeholder="Tìm kiếm sản phẩm..."
                                     allowClear
+                                    value={searchValue}
+                                    onChange={handleSearchChange}
                                     onSearch={onSearch}
+                                    onFocus={() => {
+                                        if (searchResults.length > 0) {
+                                            setShowSearchResults(true);
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        // Delay để cho phép click vào kết quả
+                                        setTimeout(() => setShowSearchResults(false), 200);
+                                    }}
                                     size="large"
                                     enterButton={
                                         <Button
@@ -217,6 +282,125 @@ export default function Header() {
                                         </Button>
                                     }
                                 />
+                                
+                                {/* Dropdown kết quả tìm kiếm */}
+                                {showSearchResults && searchResults.length > 0 && (
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            top: "100%",
+                                            left: 0,
+                                            right: 0,
+                                            background: "#fff",
+                                            border: "1px solid #ddd",
+                                            borderRadius: "4px",
+                                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                            zIndex: 1000,
+                                            maxHeight: "400px",
+                                            overflowY: "auto",
+                                            marginTop: "4px"
+                                        }}
+                                        onMouseDown={(e) => e.preventDefault()}
+                                    >
+                                        <div style={{ padding: "12px", borderBottom: "1px solid #f0f0f0" }}>
+                                            <strong style={{ fontSize: "14px", color: "#333" }}>SẢN PHẨM</strong>
+                                        </div>
+                                        {searchResults.map((item) => (
+                                            <Link
+                                                key={item.id}
+                                                to={`/chi-tiet-san-pham/${item.id}`}
+                                                style={{
+                                                    display: "flex",
+                                                    padding: "12px",
+                                                    textDecoration: "none",
+                                                    color: "inherit",
+                                                    borderBottom: "1px solid #f0f0f0",
+                                                    transition: "background 0.2s"
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.background = "#f5f5f5";
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.background = "#fff";
+                                                }}
+                                                onClick={() => {
+                                                    setShowSearchResults(false);
+                                                    setSearchValue("");
+                                                }}
+                                            >
+                                                <img
+                                                    src={getImageUrl(item)}
+                                                    alt={item.name}
+                                                    style={{
+                                                        width: "60px",
+                                                        height: "60px",
+                                                        objectFit: "contain",
+                                                        marginRight: "12px",
+                                                        background: "#f5f5f5",
+                                                        borderRadius: "4px",
+                                                        padding: "4px"
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.src = `${url}/upload/no-image.png`;
+                                                    }}
+                                                />
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div
+                                                        style={{
+                                                            fontSize: "14px",
+                                                            color: "#007fc0",
+                                                            fontWeight: 500,
+                                                            marginBottom: "4px",
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis",
+                                                            whiteSpace: "nowrap"
+                                                        }}
+                                                    >
+                                                        {item.name}
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            fontSize: "12px",
+                                                            color: "#666"
+                                                        }}
+                                                    >
+                                                        {formatPrice(item.price)}
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                        {searchResults.length >= 5 && (
+                                            <div
+                                                style={{
+                                                    padding: "12px",
+                                                    textAlign: "center",
+                                                    borderTop: "1px solid #f0f0f0",
+                                                    background: "#fafafa"
+                                                }}
+                                            >
+                                                <Link
+                                                    to={`/search?q=${encodeURIComponent(searchValue)}`}
+                                                    style={{
+                                                        color: "#00796B",
+                                                        textDecoration: "none",
+                                                        fontSize: "13px",
+                                                        fontWeight: 500
+                                                    }}
+                                                    onClick={() => {
+                                                        localStorage.setItem("searchResults", JSON.stringify(
+                                                            allProducts.filter((p) =>
+                                                                p.name.toLowerCase().includes(searchValue.trim().toLowerCase())
+                                                            )
+                                                        ));
+                                                        setShowSearchResults(false);
+                                                    }}
+                                                >
+                                                    Xem tất cả kết quả →
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </Col>
                     </Flex>

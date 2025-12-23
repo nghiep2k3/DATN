@@ -26,7 +26,6 @@ import { CartProvider } from './Context/CartContext';
 import Contact from './Page/Contact/Contact';
 import DownloadProduct from './Components/DownloadProduct/DownloadProduct.jsx';
 import SearchPage from './Page/SearchPage/SearchPage.jsx';
-import SinglePost from './Page/SinglePost/SinglePost.jsx';
 import ProductDetail from './Components/ProductDetail/ProductDetail.jsx';
 import Payment from './Page/Payment/Payment.jsx';
 import Success from './Page/Success/Success.jsx';
@@ -45,7 +44,6 @@ root.render(
           <Route path="about" element={<About />} />
           <Route path="/category/:id" element={<CategoryPage />} />
           <Route path="/category-child/:id" element={<ListProductWithCategory />} />
-          <Route path="/chi-tiet-bai-viet/:id" element={<SinglePost />} />
           <Route path="/chi-tiet-san-pham/:id" element={<ProductDetail />} />
           <Route path="brand" element={<Brand />} />
           <Route path="profile" element={<Profile />} />

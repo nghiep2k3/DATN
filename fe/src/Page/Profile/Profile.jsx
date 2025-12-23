@@ -4,7 +4,6 @@ import axios from 'axios'
 import { Form, Input, Button, Card, message, Spin } from 'antd'
 import { UserOutlined, MailOutlined, PhoneOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons'
 import Cookies from 'js-cookie'
-import './Profile.css'
 
 export default function Profile() {
   const [form] = Form.useForm()

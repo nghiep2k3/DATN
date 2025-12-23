@@ -32,7 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'images'        => []
     ];
 
-    // xử lý upload ảnh mới (nếu có)
+    // Lấy danh sách ảnh cũ (nếu có)
+    $existingImages = [];
+    if (isset($_POST['existing_images']) && !empty($_POST['existing_images'])) {
+        $existingImagesJson = json_decode($_POST['existing_images'], true);
+        if (is_array($existingImagesJson)) {
+            $existingImages = $existingImagesJson;
+        }
+    }
+
+    // Xử lý upload ảnh mới (nếu có)
     $uploadedFiles = [];
     if (!empty($_FILES['image']['name'][0])) {
         $uploadDir = __DIR__ . '/../../upload/';
@@ -57,15 +66,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Merge ảnh cũ và ảnh mới
     if (!empty($uploadedFiles)) {
-        $data['image_url'] = $uploadedFiles[0];
-        $data['images'] = $uploadedFiles;
+        // Có ảnh mới: merge với ảnh cũ (nếu có)
+        $data['images'] = array_merge($existingImages, $uploadedFiles);
+        $data['image_url'] = $data['images'][0];
+    } else if (!empty($existingImages)) {
+        // Không có ảnh mới, chỉ giữ lại ảnh cũ
+        $data['images'] = $existingImages;
+        $data['image_url'] = $existingImages[0];
     }
 
     // Xử lý upload document files
     $documentLinks = [];
     
-    // Lấy document cũ từ POST (nếu có)
+    // Lấy document cũ từ POST (nếu có) - đây là danh sách document còn lại sau khi user có thể xóa một số
     if (isset($_POST['document_url']) && !empty($_POST['document_url'])) {
         $docJson = json_decode($_POST['document_url'], true);
         if (is_array($docJson)) {
@@ -100,10 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Lưu document_url dạng JSON (merge cả file cũ và mới)
-    if (!empty($documentLinks)) {
-        $data['document_url'] = json_encode($documentLinks, JSON_UNESCAPED_UNICODE);
-    }
+    // Luôn set document_url (kể cả khi rỗng để xóa tất cả document)
+    // Frontend sẽ gửi document_url với danh sách document còn lại (sau khi user có thể xóa)
+    // Backend sẽ merge với document mới upload (nếu có)
+    $data['document_url'] = !empty($documentLinks) 
+        ? json_encode($documentLinks, JSON_UNESCAPED_UNICODE) 
+        : null;
 
     $result = $controller->update((int)$id, $data);
     echo json_encode($result);
