@@ -9,16 +9,17 @@ const { Title, Paragraph, Text } = Typography;
 export default function DownloadProduct() {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
+    const [messageApi, contextHolder] = message.useMessage();
 
     const handleGenerate = async () => {
         try {
             setLoading(true);
             setStatus(null);
-            message.loading("Đang tải dữ liệu sản phẩm...", 1);
+            messageApi.loading("Đang tải dữ liệu sản phẩm...", 1);
 
             const res = await axios.get(`${url_api}/api/product/get_all_products.php`);
             if (res.data.error) {
-                message.error("Không thể tải sản phẩm từ server");
+                messageApi.error({ content: "Không thể tải sản phẩm từ server", duration: 3 });
                 return;
             }
 
@@ -29,15 +30,15 @@ export default function DownloadProduct() {
             });
 
             if (!upload.data.error) {
-                message.success("Đã tạo file be/search/product.json thành công!");
+                messageApi.success({ content: "Đã tạo file be/search/product.json thành công!", duration: 2 });
                 setStatus("success");
             } else {
-                message.error(upload.data.message);
+                messageApi.error({ content: upload.data.message || "Lỗi khi upload", duration: 3 });
                 setStatus("error");
             }
         } catch (err) {
             console.error("Lỗi tạo JSON:", err);
-            message.error("Không thể kết nối tới máy chủ");
+            messageApi.error({ content: "Không thể kết nối tới máy chủ", duration: 3 });
             setStatus("error");
         } finally {
             setLoading(false);
@@ -46,6 +47,7 @@ export default function DownloadProduct() {
 
     return (
         <div className="flex justify-center items-center py-20 bg-gradient-to-b from-white to-[#f8fafc] min-h-[80vh]">
+            {contextHolder}
             <Card
                 bordered={false}
                 className="shadow-lg w-full max-w-lg rounded-2xl text-center bg-white p-10"

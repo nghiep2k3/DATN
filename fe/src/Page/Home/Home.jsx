@@ -36,11 +36,7 @@ const Home = () => {
         <div style={{ padding: '20px 0' }}>
             <HeroBanner />
             <Category_List />
-
-            {/* Carousel Component */}
             <Product_List />
-            {/* <CarouselProduct title="Thiết bị đo tần số vô tuyến" products={products} linkMore="#" /> */}
-            {/* <CarouselProduct title="Thiết bị kiểm tra không phá hủy" products={products} linkMore="#" /> */}
             <div className="container-box ">
                 <div className="box-1200px row">
                     <div className="col-md-6">
@@ -58,11 +54,11 @@ const Home = () => {
                             />
                             <div className="position-relative p-5 d-flex flex-column justify-content-center h-100 align-items-start">
                                 <h2 className="fw-bold mb-3" style={{ color: '#ff9800' }}>
-                                    Sony 5G Headphone
+                                    Thiết bị đo điện
                                 </h2>
-                                <p className="fw-semibold mb-4">Only Music. Nothing Else.</p>
+                                <p className="fw-semibold mb-4">Chuyên cung cấp thiết bị đo điện chính hãng</p>
                                 <button className="btn btn-success px-4 py-2 fw-semibold">
-                                    View Details
+                                    Xem ngay
                                 </button>
                             </div>
                         </div>
@@ -70,24 +66,21 @@ const Home = () => {
 
                     <div className="col-md-6 d-flex flex-column gap-4">
 
-                        {/* Air Mavic 3 */}
                         <div
                             className="rounded-4 text-white p-5 position-relative overflow-hidden"
                             style={{ backgroundColor: '#00796B' }}
                         >
                             <div className="position-relative z-2">
-                                <h3 className="fw-bold display-6">Air Mavic 3</h3>
-                                <p className="fw-semibold">As powerful as it is portable</p>
+                                <h3 className="fw-bold display-6">Thiết bị dùng nước</h3>
+                                <p className="fw-semibold">Chuyên cung cấp thiết bị dùng nước chính hãng</p>
                                 <button className="btn btn-light text-success fw-semibold mt-3">
                                     Xem ngay
                                 </button>
                             </div>
                         </div>
 
-                        {/* Hai ô nhỏ dưới */}
                         <div className="row g-4">
 
-                            {/* Thiết bị đo rung */}
                             <div className="col-md-6">
                                 <div className="rounded-4 bg-light p-4 h-100 position-relative">
                                     <div className="position-relative">
@@ -102,7 +95,6 @@ const Home = () => {
                                 </div>
                             </div>
 
-                            {/* Thiết bị kiểm soát bụi */}
                             <div className="col-md-6">
                                 <div className="rounded-4 bg-light p-4 h-100 position-relative">
                                     <div className="position-relative">
@@ -123,10 +115,13 @@ const Home = () => {
             </div>
             <Carousel autoplay style={{ marginTop: '40px', marginBottom: '40px' }}>
                 <div>
-                    <h3 style={contentStyle}>1</h3>
+                    <div style={{ height: '450px', backgroundImage: 'url(https://tecotec.store/wp-content/uploads/2025/10/banner-ngang-01-scaled.webp)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} ></div>
                 </div>
                 <div>
-                    <h3 style={contentStyle}>2</h3>
+                    <div style={{ height: '450px', backgroundImage: 'url(https://tecotec.store/wp-content/uploads/2025/10/banner-ngang-04-scaled.webp)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} ></div>
+                </div>
+                <div>
+                    <div style={{ height: '450px', backgroundImage: 'url(https://tecotec.store/wp-content/uploads/2025/10/banner-ngang-MERITZ-SEIKI-scaled.webp)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} ></div>
                 </div>
             </Carousel>
 
@@ -144,7 +139,6 @@ const Home = () => {
                     </h2>
 
                     <div className="row g-4">
-                        {/* Dịch vụ 1 */}
                         <div className="col-md-6 col-lg-3">
                             <div
                                 className="border rounded-4 text-center p-4 bg-white shadow-sm h-100"
@@ -171,7 +165,6 @@ const Home = () => {
                             </div>
                         </div>
 
-                        {/* Dịch vụ 2 */}
                         <div className="col-md-6 col-lg-3">
                             <div
                                 className="border rounded-4 text-center p-4 bg-white shadow-sm h-100"
@@ -196,7 +189,6 @@ const Home = () => {
                             </div>
                         </div>
 
-                        {/* Dịch vụ 3 */}
                         <div className="col-md-6 col-lg-3">
                             <div
                                 className="border rounded-4 text-center p-4 bg-white shadow-sm h-100"
@@ -223,7 +215,6 @@ const Home = () => {
                             </div>
                         </div>
 
-                        {/* Dịch vụ 4 */}
                         <div className="col-md-6 col-lg-3">
                             <div
                                 className="border rounded-4 text-center p-4 bg-white shadow-sm h-100"

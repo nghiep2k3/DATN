@@ -1,5 +1,7 @@
 <?php
 require __DIR__ . '/../../vendor/autoload.php';
+file_put_contents(__DIR__ . '/log.txt', 'HIT ' . $_SERVER['REQUEST_METHOD'] . PHP_EOL, FILE_APPEND);
+
 
 use Config\Db;
 use App\Controllers\CartItemController;

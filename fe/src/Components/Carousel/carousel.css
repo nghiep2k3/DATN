@@ -1,7 +1,7 @@
 /* === Tùy chỉnh mũi tên === */
 .slick-prev:before,
 .slick-next:before {
-  color: #007bff; /* Màu xanh dương */
+  color: #007bff; 
   font-size: 28px;
   opacity: 0.9;
 }
@@ -14,7 +14,7 @@
   right: -35px;
 }
 
-/* === Dot tròn === */
+
 .slick-dots li button:before {
   font-size: 10px;
   color: #ccc;
@@ -25,15 +25,15 @@
   color: #007bff;
 }
 
-/* === Thẻ cùng chiều cao === */
+
 .card-equal {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 260px; /* bạn có thể tăng/giảm */
+  min-height: 235px;
 }
 
-/* Ẩn thanh scroll ngang khi responsive */
+
 .slick-track {
   display: flex !important;
   align-items: stretch !important;

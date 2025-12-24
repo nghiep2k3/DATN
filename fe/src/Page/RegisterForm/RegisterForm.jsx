@@ -20,8 +20,8 @@ export default function RegisterForm() {
     const [email, setEmail] = useState("");
     const [verifyCode, setVerifyCode] = useState("");
     const navigate = useNavigate();
+    const [messageApi, contextHolder] = message.useMessage();
 
-    // ✅ Gửi thông tin đăng ký
     const handleFinish = async (values) => {
         setLoading(true);
         try {
@@ -30,15 +30,15 @@ export default function RegisterForm() {
             });
 
             if (!res.data.error) {
-                message.success("Đăng ký thành công, vui lòng nhập mã xác minh!");
+                messageApi.success({ content: "Đăng ký thành công, vui lòng nhập mã xác minh!", duration: 2 });
                 setEmail(values.email);
                 setVerifyVisible(true); // mở popup nhập mã
             } else {
-                message.error(res.data.message || "Đăng ký thất bại");
+                messageApi.error({ content: res.data.message || "Đăng ký thất bại", duration: 3 });
             }
         } catch (error) {
             console.error("Lỗi đăng ký:", error);
-            message.error("Không thể kết nối đến máy chủ");
+            messageApi.error({ content: "Không thể kết nối đến máy chủ", duration: 3 });
         } finally {
             setLoading(false);
         }
@@ -47,7 +47,7 @@ export default function RegisterForm() {
     // ✅ Gửi mã xác minh
     const handleVerify = async () => {
         if (!verifyCode) {
-            message.warning("Vui lòng nhập mã xác minh!");
+            messageApi.warning({ content: "Vui lòng nhập mã xác minh!", duration: 3 });
             return;
         }
         try {
@@ -57,7 +57,7 @@ export default function RegisterForm() {
             });
 
             if (!res.data.error) {
-                message.success("Xác minh thành công! Tài khoản đã được kích hoạt.");
+                messageApi.success({ content: "Xác minh thành công! Tài khoản đã được kích hoạt.", duration: 2 });
 
                 // ✅ Lưu thông tin đăng nhập
                 Cookies.set("loggedIn", true, { expires: 7 });
@@ -66,16 +66,17 @@ export default function RegisterForm() {
                 setVerifyVisible(false);
                 navigate("/login"); // chuyển về trang đăng nhập
             } else {
-                message.error(res.data.message || "Mã xác minh không hợp lệ");
+                messageApi.error({ content: res.data.message || "Mã xác minh không hợp lệ", duration: 3 });
             }
         } catch (error) {
             console.error("Lỗi xác minh:", error);
-            message.error("Không thể kết nối đến máy chủ");
+            messageApi.error({ content: "Không thể kết nối đến máy chủ", duration: 3 });
         }
     };
 
     return (
         <div className="register-container bg-gray ">
+            {contextHolder}
             <div className="register-box">
                 {/* Phần trái */}
                 <div className="register-left">

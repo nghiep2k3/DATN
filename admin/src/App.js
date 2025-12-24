@@ -41,6 +41,11 @@ export default function App() {
             label: "Yêu cầu báo giá",
         },
         {
+            key: "/cart-user",
+            icon: <ShoppingCartOutlined />,
+            label: "Giỏ hàng người dùng",
+        },
+        {
             key: "/orders",
             icon: <ShoppingCartOutlined />,
             label: "Đơn hàng",

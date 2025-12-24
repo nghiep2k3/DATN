@@ -19,6 +19,7 @@ const { Panel } = Collapse;
 export default function ReqBaoGia() {
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
+    const [messageApi, contextHolder] = message.useMessage();
 
     const handleSubmit = async (values) => {
         setLoading(true);
@@ -50,13 +51,13 @@ export default function ReqBaoGia() {
             );
 
             if (!res.data.error) {
-                message.success("Gửi yêu cầu báo giá thành công!");
+                messageApi.success({ content: "Gửi yêu cầu báo giá thành công!", duration: 2 });
                 form.resetFields();
             } else {
-                message.error(res.data.message || "Đã xảy ra lỗi.");
+                messageApi.error({ content: res.data.message || "Đã xảy ra lỗi.", duration: 3 });
             }
         } catch (error) {
-            message.error("Không thể gửi yêu cầu. Vui lòng thử lại!");
+            messageApi.error({ content: "Không thể gửi yêu cầu. Vui lòng thử lại!", duration: 3 });
         }
 
         setLoading(false);
@@ -64,6 +65,7 @@ export default function ReqBaoGia() {
 
     return (
         <div className="container-box" style={{ padding: "40px 0" }}>
+            {contextHolder}
             <div className="box-1200px">
                 <h2
                     style={{

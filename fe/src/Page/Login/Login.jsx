@@ -5,13 +5,14 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
 import "./Login.css";
-import { url, url_api } from "../../config";
+import { url_api } from "../../config";
 
 export default function Login() {
     const [forgotMode, setForgotMode] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resetStage, setResetStage] = useState(false);
     const [email, setEmail] = useState("");
+    const [messageApi, contextHolder] = message.useMessage();
     const navigate = useNavigate();
 
     const handleLogin = async (values) => {
@@ -22,20 +23,23 @@ export default function Login() {
             });
 
             if (!res.data.error) {
-                message.success(res.data.message || "Đăng nhập thành công");
+                messageApi.success({
+                    content: res.data.message || "Đăng nhập thành công",
+                    duration: 2,
+                });
 
                 Cookies.set("loggedIn", true, { expires: 7 }); // lưu 7 ngày
                 Cookies.set("user", JSON.stringify(res.data.user), { expires: 7 });
                 Cookies.set("name", res.data.user.name, { expires: 7 });
                 Cookies.set("user_id", res.data.user.id, { expires: 7 });
 
-                navigate("/");
+                window.location.href = "/";
             } else {
-                message.error(res.data.message || "Sai email hoặc mật khẩu");
+                messageApi.error({ content: res.data.message || "Sai email hoặc mật khẩu", duration: 3 });
             }
         } catch (error) {
             console.error("Lỗi đăng nhập:", error);
-            message.error("Không thể kết nối đến máy chủ");
+            messageApi.error({ content: "Sai mật tài khoản hoặc mật khẩu", duration: 3 });
         } finally {
             setLoading(false);
         }
@@ -49,15 +53,15 @@ export default function Login() {
             });
 
             if (!res.data.error) {
-                message.success(res.data.message || "Đã gửi mã khôi phục tới email của bạn");
-                setEmail(values.email);   // lưu email để dùng bước tiếp theo
-                setResetStage(true);      // hiển thị form nhập mã + mật khẩu mới
+                messageApi.success({ content: res.data.message || "Đã gửi mã khôi phục tới email của bạn", duration: 2 });
+                setEmail(values.email);   
+                setResetStage(true);      
             } else {
-                message.error(res.data.message || "Không thể gửi mã khôi phục");
+                messageApi.error({ content: res.data.message || "Không thể gửi mã khôi phục", duration: 3 });
             }
         } catch (error) {
             console.error("Lỗi gửi yêu cầu khôi phục:", error);
-            message.error("Không thể kết nối tới máy chủ");
+            messageApi.error({ content: "Không thể kết nối tới máy chủ", duration: 3 });
         } finally {
             setLoading(false);
         }
@@ -66,7 +70,7 @@ export default function Login() {
         try {
             setLoading(true);
             const payload = {
-                email: email, // dùng email đã nhập ở bước trước
+                email: email, 
                 code: values.code,
                 new_password: values.new_password,
             };
@@ -76,15 +80,15 @@ export default function Login() {
             });
 
             if (!res.data.error) {
-                message.success(res.data.message || "Đặt lại mật khẩu thành công");
+                messageApi.success({ content: res.data.message || "Đặt lại mật khẩu thành công", duration: 2 });
                 setResetStage(false);
                 setForgotMode(false);
             } else {
-                message.error(res.data.message || "Không thể đặt lại mật khẩu");
+                messageApi.error({ content: res.data.message || "Không thể đặt lại mật khẩu", duration: 3 });
             }
         } catch (error) {
             console.error("Lỗi đặt lại mật khẩu:", error);
-            message.error("Không thể kết nối đến máy chủ");
+            messageApi.error({ content: "Không thể kết nối đến máy chủ", duration: 3 });
         } finally {
             setLoading(false);
         }
@@ -93,8 +97,9 @@ export default function Login() {
 
     return (
         <div className="auth-container" style={{background: "url('/bg.jpg') no-repeat center center/cover"}}>
+            {contextHolder}
             <div className="auth-box">
-                {/* Bên trái */}
+               
                 <div className="auth-left">
                     <img src={`${url_api}/upload/logo.png`} alt="Logo" className="auth-logo" />
                     <h2 className="auth-slogan">
@@ -116,7 +121,7 @@ export default function Login() {
                 {/* Bên phải */}
                 <div className="auth-right">
                     {!forgotMode ? (
-                        // ==== ĐĂNG NHẬP ====
+                       
                         <>
                             <h2 className="auth-title">Đăng nhập</h2>
                             <Form layout="vertical" onFinish={handleLogin}>
@@ -162,7 +167,6 @@ export default function Login() {
                             </div>
                         </>
                     ) : !resetStage ? (
-                        // ==== BƯỚC 1: GỬI EMAIL ====
                         <>
                             <h2 className="auth-title">Quên mật khẩu</h2>
                             <Form layout="vertical" onFinish={handleForgot}>
@@ -189,7 +193,6 @@ export default function Login() {
                             </Form>
                         </>
                     ) : (
-                        // ==== BƯỚC 2: NHẬP MÃ + MẬT KHẨU MỚI ====
                         <>
                             <h2 className="auth-title">Đặt lại mật khẩu</h2>
                             <Form layout="vertical" onFinish={handleResetPassword}>

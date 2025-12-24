@@ -13,6 +13,7 @@ export default function SearchPage() {
     const location = useLocation();
     const query = new URLSearchParams(location.search).get("q");
     const { addToCart } = useCart();
+    const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
         const stored = localStorage.getItem("searchResults");
@@ -54,7 +55,7 @@ export default function SearchPage() {
     const handleAddToCart = async (item) => {
         try {
             await addToCart(item, 1);
-            message.success(`Đã thêm "${item.name}" vào giỏ hàng!`);
+            messageApi.success({ content: `Đã thêm "${item.name}" vào giỏ hàng!`, duration: 2 });
         } catch (error) {
             console.error("Lỗi khi thêm vào giỏ hàng:", error);
         }
@@ -62,6 +63,7 @@ export default function SearchPage() {
 
     return (
         <div className="search-page-container">
+            {contextHolder}
             <div className="search-page-content">
                 {/* Header Section */}
                 <div className="search-header">

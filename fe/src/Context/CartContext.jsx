@@ -6,7 +6,6 @@ import { url_api } from "../config";
 // Tạo context
 const CartContext = createContext();
 
-// Hook sử dụng dễ hơn
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
@@ -17,12 +16,10 @@ export const CartProvider = ({ children }) => {
         return stored ? JSON.parse(stored) : [];
     });
 
-    // Cập nhật localStorage khi cart thay đổi
     useEffect(() => {
         localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }, [cartItems]);
 
-    // ================== FETCH CART ==================
     const fetchCart = async () => {
         const loggedIn = Cookies.get("loggedIn");
         const userId = Cookies.get("user_id");
@@ -32,16 +29,10 @@ export const CartProvider = ({ children }) => {
             let url = `${url_api}/api/cartItem/getcart.php`;
 
             if (loggedIn && userId) {
-                // Nếu đã login → lấy theo user_id
                 url += `?user_id=${userId}`;
-                console.log("📥 Fetching cart for user:", userId);
             } else if (phone) {
-                // Nếu chưa login nhưng có phone → lấy theo phone
                 url += `?phone=${phone}`;
-                console.log("📥 Fetching cart for phone:", phone);
             } else {
-                // Nếu chưa có điều kiện nào → return
-                console.log("⚠️ No user_id or phone available");
                 return;
             }
 
@@ -53,48 +44,38 @@ export const CartProvider = ({ children }) => {
                     : [response.data.data];
 
                 setCartItems(cartData);
-                console.log("✅ Cart fetched:", cartData);
             } else {
-                console.log("⚠️ No cart data found");
                 setCartItems([]);
             }
         } catch (error) {
-            console.error("❌ Error fetching cart:", error);
+            console.error("Lỗi", error);
         }
     };
 
-    // Fetch cart khi component mount hoặc khi login status thay đổi
     useEffect(() => {
         fetchCart();
     }, []);
 
 
 
-    // Thêm vào giỏ hàng
-    // ================== ADD TO CART ==================
     const addToCart = async (product, quantity = 1) => {
         const loggedIn = Cookies.get("loggedIn");
         const userId = Cookies.get("user_id");
         const phone = Cookies.get("temp_phone");
+        // If user is logged in, allow adding using user_id even without phone
+        // Default phone for logged-in users should be "0"
+        if (loggedIn) {
+            return await sendAddToCartRequest(product, quantity, userId, phone || "0", loggedIn);
+        }
 
-        // 1. Có phone → gọi API luôn
+        // If not logged in but phone exists, add using phone
         if (phone) {
-            return await sendAddToCartRequest(product, quantity, userId, phone, loggedIn);
+            return await sendAddToCartRequest(product, quantity, "", phone, false);
         }
 
-        // 2. Chưa login & chưa phone → mở popup
-        if (!loggedIn && !phone) {
-            setPendingProduct({ ...product, quantity });
-            setNeedPhoneModal(true);
-            return;
-        }
-
-        // 3. Login nhưng chưa phone
-        if (loggedIn && !phone) {
-            setPendingProduct({ ...product, quantity });
-            setNeedPhoneModal(true);
-            return;
-        }
+        // Not logged in and no phone -> prompt for phone
+        setPendingProduct({ ...product, quantity });
+        setNeedPhoneModal(true);
     };
 
 
@@ -118,7 +99,7 @@ export const CartProvider = ({ children }) => {
                 await fetchCart();
             }
         } catch (error) {
-            console.error("❌ Lỗi axios:", error);
+            console.error("Lỗi axios:", error);
         }
     };
 
@@ -157,7 +138,7 @@ export const CartProvider = ({ children }) => {
                 price: String(currentItem?.price || 0)
             };
 
-            console.log("📝 Payload cập nhật số lượng:", payload);
+            console.log("Payload cập nhật số lượng:", payload);
 
             const response = await axios.put(
                 `${url_api}/api/cartItem/updatecart.php?id=${id}`,
@@ -166,14 +147,13 @@ export const CartProvider = ({ children }) => {
             );
 
             if (!response.data.error) {
-                console.log("✅ Cập nhật số lượng thành công:", response.data);
-                // Fetch lại giỏ hàng để sync realtime
+                console.log("Cập nhật số lượng thành công:", response.data);
                 await fetchCart();
             } else {
-                console.error("❌ Lỗi API:", response.data.message);
+                console.error("Lỗi API:", response.data.message);
             }
         } catch (error) {
-            console.error("❌ Lỗi khi cập nhật số lượng:", error);
+            console.error("Lỗi khi cập nhật số lượng:", error);
         }
     };
 
@@ -185,15 +165,12 @@ export const CartProvider = ({ children }) => {
                 `${url_api}/api/cartItem/deletecart.php?id=${id}`
             );
 
-            // Xóa thành công → cập nhật state ngay (xóa khỏi local)
-            // Sau đó gọi fetchCart để lấy dữ liệu mới từ server
             setCartItems((prev) => prev.filter((item) => item.cart_id !== id && item.id !== id));
-            console.log("✅ Xóa sản phẩm thành công:", response.data);
+            console.log("Xóa sản phẩm thành công:", response.data);
 
-            // Fetch lại giỏ hàng từ server (có thể trống hoặc còn sản phẩm khác)
             await fetchCart();
         } catch (error) {
-            console.error("❌ Lỗi khi xóa sản phẩm:", error);
+            console.error("Lỗi khi xóa sản phẩm:", error);
         }
     };
 

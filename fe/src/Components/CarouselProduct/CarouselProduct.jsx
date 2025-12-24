@@ -31,7 +31,6 @@ export default function CarouselProduct({ title, linkMore, products }) {
 
     return (
         <div className="box-1200px py-5">
-            {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="fw-bold text-dark">{title}</h3>
                 {linkMore && (
@@ -46,14 +45,12 @@ export default function CarouselProduct({ title, linkMore, products }) {
                     <div key={item.id} className="px-2 my-1 position-relative">
                         <Link to={`/chi-tiet-san-pham/${item.id}`} style={{ textDecoration: 'none' }}>
                             <div className="card-product border rounded-4 bg-white shadow-sm p-3 position-relative d-flex flex-column">
-                                {/* Label giảm giá */}
                                 {item.discount && (
                                     <span className="badge bg-danger position-absolute top-0 end-0 m-2 px-3 py-2">
                                         -{item.discount}%
                                     </span>
                                 )}
 
-                                {/* Khối thông tin (title + model) */}
                                 <div className="info-block mb-2 flex-grow-1">
                                     <div className="text-center mb-2">
                                         <img

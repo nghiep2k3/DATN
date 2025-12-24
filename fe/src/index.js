@@ -41,14 +41,14 @@ root.render(
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<Home />} />
-          <Route path="about" element={<About />} />
+          <Route path="/about" element={<About />} />
           <Route path="/category/:id" element={<CategoryPage />} />
           <Route path="/category-child/:id" element={<ListProductWithCategory />} />
           <Route path="/chi-tiet-san-pham/:id" element={<ProductDetail />} />
-          <Route path="brand" element={<Brand />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="faq" element={<FAQ />} />
-          <Route path="contact" element={<Contact />} />
+          <Route path="/brand" element={<Brand />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/dev" element={<DownloadProduct />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -57,11 +57,10 @@ root.render(
           <Route path="/yeu-cau-bao-gia" element={<ReqBaoGia />} />
           <Route path="/yeu-cau-bao-gia-cua-toi" element={<MyReqBaoGia />} />
           <Route path="/cau-hoi-thuong-gap" element={<FrequentlyQuestion />} />
+          <Route path="/register" element={<RegisterForm />} />
+          <Route path="/login" element={<Login />} />
         </Route>
 
-        <Route path="post" element={<Post />} />
-        <Route path="register" element={<RegisterForm />} />
-        <Route path="login" element={<Login />} />
       </Routes>
     </BrowserRouter>
 

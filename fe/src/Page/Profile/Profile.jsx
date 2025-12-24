@@ -11,6 +11,7 @@ export default function Profile() {
   const [fetching, setFetching] = useState(true)
   const [editing, setEditing] = useState(false)
   const [userData, setUserData] = useState(null)
+  const [messageApi, contextHolder] = message.useMessage()
 
   // Lấy thông tin user khi component mount
   useEffect(() => {
@@ -23,7 +24,7 @@ export default function Profile() {
       const userId = Cookies.get('user_id')
       
       if (!userId) {
-        message.error('Vui lòng đăng nhập để xem thông tin')
+        messageApi.error({ content: 'Vui lòng đăng nhập để xem thông tin', duration: 3 })
         return
       }
 
@@ -38,11 +39,11 @@ export default function Profile() {
           phone: user.phone || '',
         })
       } else {
-        message.error(response.data.message || 'Không thể tải thông tin người dùng')
+        messageApi.error({ content: response.data.message || 'Không thể tải thông tin người dùng', duration: 3 })
       }
     } catch (error) {
       console.error('Lỗi khi lấy thông tin user:', error)
-      message.error('Không thể kết nối đến máy chủ')
+      messageApi.error({ content: 'Không thể kết nối đến máy chủ', duration: 3 })
     } finally {
       setFetching(false)
     }
@@ -54,7 +55,7 @@ export default function Profile() {
       const userId = Cookies.get('user_id')
       
       if (!userId) {
-        message.error('Vui lòng đăng nhập')
+        messageApi.error({ content: 'Vui lòng đăng nhập', duration: 3 })
         return
       }
 
@@ -72,7 +73,7 @@ export default function Profile() {
       })
 
       if (!response.data.error) {
-        message.success('Cập nhật thông tin thành công')
+        messageApi.success({ content: 'Cập nhật thông tin thành công', duration: 2 })
         setEditing(false)
         // Cập nhật lại thông tin user trong cookie nếu có
         if (response.data.data) {
@@ -81,11 +82,11 @@ export default function Profile() {
         }
         fetchUserData() // Lấy lại thông tin mới nhất
       } else {
-        message.error(response.data.message || 'Cập nhật thất bại')
+        messageApi.error({ content: response.data.message || 'Cập nhật thất bại', duration: 3 })
       }
     } catch (error) {
       console.error('Lỗi khi cập nhật:', error)
-      message.error('Không thể kết nối đến máy chủ')
+      messageApi.error({ content: 'Không thể kết nối đến máy chủ', duration: 3 })
     } finally {
       setLoading(false)
     }
@@ -121,6 +122,7 @@ export default function Profile() {
 
   return (
     <div className="profile-container">
+      {contextHolder}
       <Card 
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -9,6 +9,8 @@ export default function Payment() {
     const { state } = useLocation();
     const navigate = useNavigate();
 
+    const [messageApi, contextHolder] = message.useMessage();
+
     const TOTAL_SECONDS = 900; // 5 phút = 300 giây
 
     const [valid, setValid] = useState(true);
@@ -39,7 +41,7 @@ export default function Payment() {
 
             if (left <= 0) {
                 setRemaining(0);
-                message.warning("Hết thời gian thanh toán!");
+                messageApi.warning({ content: "Hết thời gian thanh toán!", duration: 3 });
                 return;
             }
 
@@ -74,7 +76,7 @@ export default function Payment() {
             console.log("Check transaction:", apiUrl);
 
             // if (data.match === true) {
-            if (true) {
+            if (data.match === true) {
                 // Clear timer + cart
                 localStorage.removeItem("orderStartTime");
                 localStorage.removeItem("cartItems");
@@ -165,6 +167,7 @@ export default function Payment() {
 
     return (
         <div style={{ padding: "40px 0" }}>
+            {contextHolder}
             <div style={{ maxWidth: "900px", margin: "auto" }}>
                 <Card style={{ borderRadius: 12, padding: "25px" }}>
                     <h2 style={{ textAlign: "center", fontWeight: 700, marginBottom: 25 }}>

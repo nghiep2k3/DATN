@@ -9,7 +9,6 @@ export default function App() {
 
     return (
         <>
-            {/* MODAL NHẬP SỐ ĐIỆN THOẠI */}
             <PhoneModal
                 open={needPhoneModal}
                 onSubmit={confirmPhone}

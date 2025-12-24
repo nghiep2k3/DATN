@@ -40,8 +40,8 @@ const Carousel = ({ title, data }) => {
                                 }}
                             >
                                 <img
-                                    src={`${url_api}/${item.url_image}`} // ✅ đúng trường
-                                    alt={item.category} // ✅ đúng trường
+                                    src={`${url_api}/${item.url_image}`}
+                                    alt={item.category} 
                                     className="rounded-3 mb-3"
                                     style={{
                                         width: "100%",
@@ -51,10 +51,7 @@ const Carousel = ({ title, data }) => {
                                 />
                                 <h6 className="fw-bold">{item.category}</h6>
 
-                                {/* ✅ Số lượng danh mục con (nếu có) */}
-                                <p className="text-primary mb-0">
-                                    ({item.sub_category?.length || 0} Sản phẩm)
-                                </p>
+                                
                             </div>
                         </Link>
                     </div>

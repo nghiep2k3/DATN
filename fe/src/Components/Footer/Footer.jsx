@@ -37,13 +37,12 @@ export default function Footer() {
                 <div className={styles.col}>
                     <h5>LIÊN KẾT NHANH</h5>
                     <ul>
-                        <li><a href="#">Trang chủ</a></li>
-                        <li><a href="#">Giới thiệu</a></li>
-                        <li><a href="#">Cửa hàng</a></li>
-                        <li><a href="#">Hãng sản xuất</a></li>
-                        <li><a href="#">Yêu cầu báo giá</a></li>
-                        <li><a href="#">Câu hỏi thường gặp</a></li>
-                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="/">Trang chủ</a></li>
+                        <li><a href="/about">Giới thiệu</a></li>
+                        <li><a href="/brand">Hãng sản xuất</a></li>
+                        <li><a href="/yeu-cau-bao-gia">Yêu cầu báo giá</a></li>
+                        <li><a href="/cau-hoi-thuong-gap">Câu hỏi thường gặp</a></li>
+                        <li><a href="/contact">Liên hệ</a></li>
                     </ul>
                 </div>
 

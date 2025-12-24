@@ -17,16 +17,15 @@ import Warehouse from './Warehouse/Warehouse.jsx';
 import Account from './Page/Account/Account.jsx';
 import QuoteRequests from './Page/QuoteRequests/QuoteRequests.jsx';
 import NotFound from './Page/NotFound/NotFound.jsx';
+import CartItems from './Page/CartItems/CartItems.jsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <CartProvider>
     <BrowserRouter>
       <Routes>
-        {/* Route đăng nhập - không cần bảo vệ */}
         <Route path="/login" element={<Login />} />
 
-        {/* Các route được bảo vệ - cần đăng nhập */}
         <Route path="/" element={
           <ProtectedRoute>
             <App />
@@ -34,18 +33,15 @@ root.render(
         }>
           <Route index element={<Home />} />
 
-          {/* Các trang trong sidebar */}
           <Route path="/product-dashboard" element={<ProductDashboard />} />
           <Route path="/quote-requests" element={<QuoteRequests />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/account" element={<Account />} />
           <Route path="/warehouse" element={<Warehouse />} />
-
-          {/* Trang có sẵn */}
+          <Route path="/cart-user" element={<CartItems />} />
           <Route path="/dev" element={<DownloadProduct />} />
         </Route>
 
-        {/* Redirect mặc định về login nếu không match route nào */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

@@ -45,7 +45,7 @@ export default function Product_List() {
     };
 
     // Chia sản phẩm thành từng nhóm 5
-    const group1 = products.slice(0, 5);
+    const group1 = products.slice(0, 6);
     const group2 = products.slice(5, 10);
     const group3 = products.slice(10, 15);
 

@@ -28,6 +28,7 @@ export default function Header() {
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [allProducts, setAllProducts] = useState([]);
+    const [messageApi, contextHolder] = message.useMessage();
     const { cartItems, totalQuantity, removeFromCart, updateQuantity } = useCart();
     const showDrawer = () => setOpen(true);
     const onClose = () => setOpen(false);
@@ -127,6 +128,12 @@ export default function Header() {
             url_image: "upload/20251104_174425_ec109c27ee08.jpg",
             sub_category: [],
         },
+        {
+            id: 37,
+            category: "Thiết bị nâng hạ",
+            url_image: "upload/20251104_174425_ec109c27ee08.jpg",
+            sub_category: [],
+        },
     ];
 
     useEffect(() => {
@@ -178,7 +185,7 @@ export default function Header() {
     const onSearch = (value) => {
         const keyword = value.trim().toLowerCase();
         if (!keyword) {
-            message.warning("Vui lòng nhập từ khóa tìm kiếm!");
+            messageApi.warning({ content: "Vui lòng nhập từ khóa tìm kiếm!", duration: 3 });
             return;
         }
 
@@ -191,7 +198,7 @@ export default function Header() {
             navigate(`/search?q=${encodeURIComponent(value)}`);
             setShowSearchResults(false);
         } else {
-            message.info("Không tìm thấy sản phẩm nào phù hợp.");
+            messageApi.info({ content: "Không tìm thấy sản phẩm nào phù hợp.", duration: 3 });
         }
     };
 
@@ -225,7 +232,10 @@ export default function Header() {
         Cookies.remove("loggedIn");
         Cookies.remove("user");
         Cookies.remove("name");
+        Cookies.remove("temp_phone");
+        Cookies.remove("user_id");
         setUserName(null);
+        localStorage.removeItem("cartItems");
         window.location.href = "/"; 
     };
 
@@ -245,6 +255,7 @@ export default function Header() {
 
     return (
         <header>
+            {contextHolder}
             <Flex className={styles.topBar} justify="center" align={"center"}>
                 <Flex className={styles.topBar_content} justify="space-between" align={"center"}>
                     <Flex align={"center"} gap={20}>
