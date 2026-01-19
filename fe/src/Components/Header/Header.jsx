@@ -74,34 +74,7 @@ export default function Header() {
             category: "Thiết bị đo điện",
             url_image: "upload/20251104_174031_992faf418067.webp",
             sub_category: [
-                {
-                    id: 29,
-                    name: "Thước kẹp",
-                    description: "Thước kẹp",
-                    url_image: "upload/20251013_095137_e588d591906d.webp",
-                    created_at: "2025-10-13 14:51:37",
-                },
-                {
-                    id: 30,
-                    name: "Thước panme",
-                    description: "Thước panme",
-                    url_image: "upload/20251013_095225_ad4dec6fb1a8.webp",
-                    created_at: "2025-10-13 14:52:25",
-                },
-                {
-                    id: 31,
-                    name: "Thước đo lỗ",
-                    description: "Thước đo lỗ",
-                    url_image: "upload/20251013_095333_80328e57b383.webp",
-                    created_at: "2025-10-13 14:53:33",
-                },
-                {
-                    id: 32,
-                    name: "Đồng hồ so",
-                    description: "Đồng hồ so",
-                    url_image: "upload/20251013_095345_7b87e86654ac.webp",
-                    created_at: "2025-10-13 14:53:45",
-                }
+                
             ],
         },
         {
@@ -140,11 +113,9 @@ export default function Header() {
         const name = Cookies.get("name");
         if (name) setUserName(name);
         
-        // Load tất cả sản phẩm để tìm kiếm nhanh
         loadAllProducts();
     }, []);
 
-    // Load tất cả sản phẩm
     const loadAllProducts = async () => {
         try {
             const res = await axios.get(`${url_api}/api/product/get_all_products.php`);
@@ -162,7 +133,6 @@ export default function Header() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // Xử lý tìm kiếm khi người dùng gõ
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearchValue(value);
@@ -171,7 +141,7 @@ export default function Header() {
             const keyword = value.trim().toLowerCase();
             const results = allProducts.filter((p) =>
                 p.name.toLowerCase().includes(keyword)
-            ).slice(0, 5); // Chỉ hiển thị tối đa 5 kết quả
+            ).slice(0, 5); 
             
             setSearchResults(results);
             setShowSearchResults(results.length > 0);
@@ -181,7 +151,6 @@ export default function Header() {
         }
     };
 
-    // Xử lý khi nhấn Enter hoặc click Search
     const onSearch = (value) => {
         const keyword = value.trim().toLowerCase();
         if (!keyword) {
@@ -202,7 +171,6 @@ export default function Header() {
         }
     };
 
-    // Helper function để lấy URL ảnh
     const getImageUrl = (item) => {
         let imgPath = null;
         if (item.images && item.images.length > 0) {
@@ -218,7 +186,6 @@ export default function Header() {
         return `${url}/upload/no-image.png`;
     };
 
-    // Helper function để format giá
     const formatPrice = (price) => {
         const priceNum = Number(price);
         if (priceNum === 0 || isNaN(priceNum)) {
@@ -280,7 +247,6 @@ export default function Header() {
                                         }
                                     }}
                                     onBlur={() => {
-                                        // Delay để cho phép click vào kết quả
                                         setTimeout(() => setShowSearchResults(false), 200);
                                     }}
                                     size="large"
@@ -294,7 +260,6 @@ export default function Header() {
                                     }
                                 />
                                 
-                                {/* Dropdown kết quả tìm kiếm */}
                                 {showSearchResults && searchResults.length > 0 && (
                                     <div
                                         style={{
@@ -500,7 +465,7 @@ export default function Header() {
                                     {categories.map((cat) => (
                                         <div key={cat.id} className={styles.dropdownItem}>
                                             <span>
-                                                {cat.category}
+                                                <a href={`/category-child/${cat.id}`} style={{display: 'block', color: 'black'}}>{cat.category}</a>
                                                 {cat.sub_category.length > 0 && (
                                                     <RightOutlined className={styles.arrowIcon} />
                                                 )}

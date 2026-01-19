@@ -35,8 +35,6 @@ const Home = () => {
     return (
         <div style={{ padding: '20px 0' }}>
             <HeroBanner />
-            <Category_List />
-            <Product_List />
             <div className="container-box ">
                 <div className="box-1200px row">
                     <div className="col-md-6">
@@ -48,9 +46,9 @@ const Home = () => {
                             }}
                         >
                             <img
-                                src="https://tecotec.store/wp-content/uploads/2025/05/slide01.webp"
+                                src="https://shop.nghiep1320.top/be/upload/20251104_174031_992faf418067.webp"
                                 alt="Sony Headphone"
-                                className="position-absolute top-0 start-0 w-100 h-100 object-fit-cover opacity-75"
+                                className="position-absolute top-0 start-0 w-100 h-100 object-fit-cover opacity-50"
                             />
                             <div className="position-relative p-5 d-flex flex-column justify-content-center h-100 align-items-start">
                                 <h2 className="fw-bold mb-3" style={{ color: '#ff9800' }}>

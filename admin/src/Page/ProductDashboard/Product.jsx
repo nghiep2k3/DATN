@@ -30,9 +30,7 @@ export default function Product() {
 
     const [form] = Form.useForm();
 
-    // ================================
-    // FETCH PRODUCTS
-    // ================================
+    
     const loadProducts = () => {
         axios
             .get(`${url_api}/api/product/get_all_products.php`)
@@ -42,7 +40,6 @@ export default function Product() {
             .catch((err) => console.error("Lỗi API:", err));
     };
 
-    // FETCH BRANDS
     const loadBrands = () => {
         axios.get(`${url_api}/api/brands/getbrands.php`)
             .then((res) => {
@@ -50,7 +47,6 @@ export default function Product() {
             });
     };
 
-    // FETCH CATEGORIES
     const loadCategories = () => {
         axios.get(`${url_api}/api/categories/getcategories.php?with_children=all`)
             .then((res) => setCategories(res.data.data || []));
@@ -62,14 +58,11 @@ export default function Product() {
         loadCategories();
     }, []);
 
-    // Lọc
     const filteredProducts = products.filter((p) =>
         p.name.toLowerCase().includes(search.toLowerCase())
     );
 
-    // ================================
-    // OPEN ADD PRODUCT
-    // ================================
+    
     const handleOpenAdd = () => {
         setEditMode(false);
         setEditingProduct(null);
@@ -77,14 +70,11 @@ export default function Product() {
         setOpenModal(true);
     };
 
-    // ================================
-    // OPEN EDIT PRODUCT
-    // ================================
+    
     const handleOpenEdit = (p) => {
         setEditMode(true);
         setEditingProduct(p);
 
-        // Parse document_url từ JSON string thành array
         let documentList = [];
         if (p.document_url) {
             try {
@@ -92,16 +82,13 @@ export default function Product() {
                     ? JSON.parse(p.document_url) 
                     : p.document_url;
                 if (Array.isArray(parsed) && parsed.length > 0) {
-                    // Với Form.List, mỗi document là một field riêng
-                    // Mỗi field có fileList (mảng), nên cần wrap mỗi document trong một mảng
                     documentList = parsed.map((doc) => {
-                        // Mỗi field trong Form.List sẽ có fileList là mảng chứa 1 file object
                         return [{
                             uid: `doc-${doc.link}`,
                             name: doc.link.split('/').pop() || `document.pdf`,
                             status: 'done',
                             url: `${url}/${doc.link}`,
-                            link: doc.link, // Giữ lại link gốc
+                            link: doc.link,
                         }];
                     });
                 }
@@ -110,7 +97,6 @@ export default function Product() {
             }
         }
 
-        // Convert ảnh hiện tại thành fileList format cho Upload component
         let imageList = [];
         if (p.images && Array.isArray(p.images) && p.images.length > 0) {
             imageList = p.images.map((img, idx) => ({
@@ -118,7 +104,7 @@ export default function Product() {
                 name: img.split('/').pop() || `image${idx + 1}.jpg`,
                 status: 'done',
                 url: `${url}/${img}`,
-                link: img, // Giữ lại link gốc để gửi lên backend
+                link: img, 
             }));
         }
 
@@ -138,9 +124,7 @@ export default function Product() {
         setOpenModal(true);
     };
 
-    // ================================
-    // SUBMIT CREATE / UPDATE
-    // ================================
+    
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
@@ -158,17 +142,14 @@ export default function Product() {
                 formData.append(key, value);
             });
 
-            // Xử lý upload ảnh
             const imageLinks = [];
             const newImages = [];
             
             if (values.images && values.images.length > 0) {
                 values.images.forEach((fileObj) => {
                     if (fileObj.originFileObj) {
-                        // Ảnh mới được upload
                         newImages.push(fileObj.originFileObj);
                     } else if (fileObj.link) {
-                        // Ảnh đã có sẵn (khi edit)
                         imageLinks.push(fileObj.link);
                     }
                 });
@@ -181,30 +162,23 @@ export default function Product() {
                 });
             }
 
-            // Nếu có ảnh cũ (khi edit và không upload ảnh mới), gửi JSON string
-            // Nếu có cả ảnh mới và ảnh cũ, backend sẽ merge lại
+            
             if (imageLinks.length > 0) {
                 formData.append("existing_images", JSON.stringify(imageLinks));
             }
 
-            // Xử lý upload document files
             const documentLinks = [];
             const newDocuments = [];
             
-            // Xử lý document_url từ form (Form.List trả về mảng các field, mỗi field có fileList)
             if (values.document_url && Array.isArray(values.document_url)) {
                 values.document_url.forEach((fieldValue) => {
-                    // fieldValue là fileList từ Upload component (mảng các file object)
-                    // Đảm bảo fieldValue là mảng
                     const fileList = Array.isArray(fieldValue) ? fieldValue : (fieldValue ? [fieldValue] : []);
                     
                     if (fileList && fileList.length > 0) {
                         fileList.forEach((fileObj) => {
                             if (fileObj && fileObj.originFileObj) {
-                                // File mới được upload
                                 newDocuments.push(fileObj.originFileObj);
                             } else if (fileObj && fileObj.link) {
-                                // File đã có sẵn (khi edit)
                                 documentLinks.push({ link: fileObj.link });
                             }
                         });
@@ -212,21 +186,15 @@ export default function Product() {
                 });
             }
 
-            // Upload file mới - sử dụng tên field đúng với backend
             if (newDocuments.length > 0) {
                 newDocuments.forEach((file) => {
                     formData.append("document[]", file);
                 });
             }
 
-            // Luôn gửi document_url (kể cả khi rỗng để xóa tất cả document)
-            // Nếu có document cũ (khi edit và không upload file mới), gửi JSON string
-            // Nếu có cả file mới và file cũ, backend sẽ merge lại
-            // Nếu không có document nào, gửi mảng rỗng để xóa tất cả
             formData.append("document_url", JSON.stringify(documentLinks));
 
-            // 🔥 Log toàn bộ FormData (bao gồm file)
-            console.log("📦 FORM DATA GỬI LÊN API:");
+            console.log("FORM DATA GỬI LÊN API:");
             for (let pair of formData.entries()) {
                 console.log(pair[0] + ": ", pair[1]);
             }
@@ -253,9 +221,6 @@ export default function Product() {
         }
     };
 
-    // ================================
-    // DELETE PRODUCT
-    // ================================
     const handleDelete = async (id) => {
         if (!window.confirm("Bạn chắc chắn muốn xóa sản phẩm ID: " + id)) return;
 
@@ -273,9 +238,7 @@ export default function Product() {
         }
     };
 
-    // ================================
-    // UI RENDER
-    // ================================
+   
     return (
         <div className="category-container">
             <div className="category-header">

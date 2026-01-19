@@ -62,18 +62,15 @@ export const CartProvider = ({ children }) => {
         const loggedIn = Cookies.get("loggedIn");
         const userId = Cookies.get("user_id");
         const phone = Cookies.get("temp_phone");
-        // If user is logged in, allow adding using user_id even without phone
-        // Default phone for logged-in users should be "0"
+
         if (loggedIn) {
             return await sendAddToCartRequest(product, quantity, userId, phone || "0", loggedIn);
         }
 
-        // If not logged in but phone exists, add using phone
         if (phone) {
             return await sendAddToCartRequest(product, quantity, "", phone, false);
         }
 
-        // Not logged in and no phone -> prompt for phone
         setPendingProduct({ ...product, quantity });
         setNeedPhoneModal(true);
     };

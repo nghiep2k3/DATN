@@ -39,7 +39,6 @@ class AuthController
         return $row ? User::fromArray($row) : null;
     }
 
-    /** Tìm user theo email (SQL ở Model) */
     private function findByEmail(string $email): ?User
     {
         $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
@@ -77,11 +76,9 @@ class AuthController
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $hash = password_hash($code, PASSWORD_BCRYPT);
 
-        // TTL phút
         $ttlMinutes = (int) ($_ENV['VERIFY_CODE_TTL'] ?? 10);
         $expiresAt = date('Y-m-d H:i:s', time() + $ttlMinutes * 60);
 
-        // cập nhật DB
         $upd = $this->pdo->prepare("
         UPDATE users 
         SET verification_code = :code, verification_expires_at = :exp 
@@ -94,7 +91,7 @@ class AuthController
         ]);
 
         // gửi mail
-        $subject = 'Mã xác minh tài khoản';
+        $subject = 'Verify Your Account - ThienNghiepGroup';
         $html = "
         <p>Xin chào {$user->name}!</p>
         <p>Mã xác minh của bạn là: <b style='font-size:18px'>{$code}</b></p>

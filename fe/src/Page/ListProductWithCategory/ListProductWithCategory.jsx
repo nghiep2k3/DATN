@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Row, Col, Slider, Checkbox, Select, Input, Spin } from "antd";
 import { url_api } from "../../config"; // biến môi trường url_api
 import "./ListProductWithCategory.css";
@@ -126,19 +126,20 @@ export default function ListProductWithCategory() {
                         {filteredProducts.length > 0 ? (
                             filteredProducts.map((p) => (
                                 <Col xs={12} md={8} key={p.id}>
-                                    <div className="product-card">
-                                        <img
-                                            src={`${url_api}${p.image_url}`}
-                                            alt={p.name}
-                                            className="product-image"
-                                        />
-                                        <h4 className="product-name">{p.name}</h4>
-                                        <p className="text-gray">Model: {p.sku}</p>
-                                        <p className="text-gray">Hãng: {p.brand_name}</p>
-                                        <p className="price">
-                                            {parseFloat(p.price).toLocaleString("vi-VN")} đ
-                                        </p>
-                                    </div>
+                                    <Link to={`/chi-tiet-san-pham/${p.id}`} style={{color: 'black'}}>
+                                        <div className="product-card">
+                                            <img
+                                                src={`${url_api}${p.image_url}`}
+                                                alt={p.name}
+                                                className="product-image"
+                                            />
+                                            <h4 className="product-name">{p.name}</h4>
+                                            <p className="text-gray">Model: {p.sku}</p>
+                                            <p className="text-gray">Hãng: {p.brand_name}</p>
+                                            <p className="price">
+                                                {parseFloat(p.price) === 0 ? 'Liên hệ' : `${parseFloat(p.price).toLocaleString("vi-VN")} đ`}
+                                            </p>
+                                        </div></Link>
                                 </Col>
                             ))
                         ) : (

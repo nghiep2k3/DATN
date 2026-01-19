@@ -14,7 +14,6 @@ export default function Footer() {
     return (
         <footer className={styles.footer}>
             <div className={styles.container}>
-                {/* Cột 1 */}
                 <div className={styles.col}>
                     <img
                         src={`${url_api}/upload/logo.png`}
@@ -33,7 +32,6 @@ export default function Footer() {
                     </div>
                 </div>
 
-                {/* Cột 2 */}
                 <div className={styles.col}>
                     <h5>LIÊN KẾT NHANH</h5>
                     <ul>
@@ -46,7 +44,6 @@ export default function Footer() {
                     </ul>
                 </div>
 
-                {/* Cột 3 */}
                 <div className={styles.col}>
                     <h5>DANH MỤC SẢN PHẨM</h5>
                     <ul>
@@ -61,7 +58,6 @@ export default function Footer() {
                     </ul>
                 </div>
 
-                {/* Cột 4 */}
                 <div className={styles.col}>
                     <h5>LIÊN HỆ VỚI CHÚNG TÔI</h5>
                     <ul className={styles.contactList}>

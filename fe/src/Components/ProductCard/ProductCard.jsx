@@ -43,14 +43,12 @@ export default function ProductCard() {
                     key={item.id}
                     className="relative flex flex-col justify-between bg-white border rounded-2xl shadow-sm p-3 hover:shadow-lg transition-all duration-300"
                 >
-                    {/* Badge giảm giá */}
                     {item.discount && (
                         <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-md">
                             -{item.discount}%
                         </span>
                     )}
 
-                    {/* Ảnh sản phẩm */}
                     <div className="flex justify-center items-center h-40 mb-2">
                         <img
                             src={item.image}
@@ -59,7 +57,6 @@ export default function ProductCard() {
                         />
                     </div>
 
-                    {/* Thông tin sản phẩm */}
                     <div className="flex flex-col flex-grow">
                         <h6 className="font-semibold text-gray-800 text-sm line-clamp-2 mb-1">
                             {item.name}
@@ -68,7 +65,6 @@ export default function ProductCard() {
                             <strong>Model:</strong> {item.model}
                         </p>
 
-                        {/* Giá */}
                         {item.price ? (
                             <div>
                                 {item.oldPrice && (
@@ -85,7 +81,6 @@ export default function ProductCard() {
                         )}
                     </div>
 
-                    {/* Nút thêm vào giỏ */}
                     <Button
                         type="primary"
                         icon={<ShoppingCartOutlined />}

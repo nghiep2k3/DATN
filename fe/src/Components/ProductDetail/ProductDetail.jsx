@@ -16,16 +16,12 @@ export default function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
 
-    // Ảnh đang được hiển thị lớn
     const [activeImage, setActiveImage] = useState(null);
 
-    // Helper function để tạo đường dẫn ảnh đúng format (có 3 dấu ///)
     const getImageUrl = (imgPath) => {
         if (!imgPath) return '';
-        // Loại bỏ dấu / ở đầu nếu có để tránh trùng
         const cleanPath = imgPath.startsWith('/') ? imgPath.substring(1) : imgPath;
         // url đã có dấu / ở cuối, thêm 1 dấu / nữa để có 3 dấu ///
-        // Kết quả: http://localhost:8081/datn/be/ + / + upload/... = http://localhost:8081/datn/be///upload/...
         return `${url}/${cleanPath}`;
     };
 
@@ -38,7 +34,6 @@ export default function ProductDetail() {
                     const data = res.data.product;
                     setProduct(data);
 
-                    // Tạo danh sách ảnh không trùng lặp
                     const allImages = [];
                     if (data.image_url) {
                         allImages.push(data.image_url);
@@ -51,7 +46,6 @@ export default function ProductDetail() {
                         });
                     }
 
-                    // Gán ảnh mặc định (ảnh đầu tiên)
                     if (allImages.length > 0) {
                         setActiveImage(getImageUrl(allImages[0]));
                     }
@@ -105,14 +99,12 @@ export default function ProductDetail() {
         ));
     };
 
-    // Kiểm tra tình trạng hàng
     const stockStatus = product.stock_quantity > 0 ? "Còn hàng" : "Hết hàng";
     const stockColor = product.stock_quantity > 0 ? "green" : "red";
 
     return (
         <div className="product-detail-page" style={{ padding: "30px 0" }}>
 
-            {/* ==== Breadcrumb ==== */}
             <div style={{ width: "1200px", margin: "0 auto", padding: "0 20px" }}>
                 <Text>
                     <Link to="/" style={{ color: "#007fc0" }}>Trang chủ</Link>
@@ -129,14 +121,11 @@ export default function ProductDetail() {
                 </Text>
             </div>
 
-            {/* ==== HERO SECTION ==== */}
             <section className="container-box">
                 <div className="box-1200px" style={{ marginTop: 20 }}>
                     <Row gutter={[40, 40]}>
-                        {/* LEFT IMAGES */}
                         <Col xs={24} md={10}>
 
-                            {/* Ảnh lớn */}
                             {activeImage && (
                                 <div style={{ border: "1px solid #eee", padding: 10, borderRadius: 4 }}>
                                     <Image
@@ -149,7 +138,6 @@ export default function ProductDetail() {
                                 </div>
                             )}
 
-                            {/* Thumbnails */}
                             {allImages.length > 0 && (
                                 <Row
                                     gutter={10}
@@ -206,7 +194,6 @@ export default function ProductDetail() {
                             )}
                         </Col>
 
-                        {/* RIGHT INFO */}
                         <Col xs={24} md={14}>
                             <Title level={3}>{product.name}</Title>
 
@@ -251,7 +238,6 @@ export default function ProductDetail() {
                                 </div>
                             </div>
 
-                            {/* Buttons */}
                             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                                 <Button
                                     size="large"
@@ -297,7 +283,6 @@ export default function ProductDetail() {
                 </div>
             </section>
 
-            {/* ==== DESCRIPTION & DOCUMENTS ==== */}
             <section className="container-box" style={{ marginTop: 40 }}>
                 <div className="box-1200px">
                     <Card>
@@ -308,7 +293,6 @@ export default function ProductDetail() {
                                 </div>
                             </Tabs.TabPane>
 
-                            {/* ===== TAB TÀI LIỆU ===== */}
                             <Tabs.TabPane tab="Tài liệu kỹ thuật" key="documents">
                                 {Array.isArray(product.document_url) &&
                                     product.document_url.length > 0 ? (

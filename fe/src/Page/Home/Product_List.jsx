@@ -30,9 +30,9 @@ export default function Product_List() {
                         id: item.id,
                         name: item.name,
                         model: item.sku,
-                        oldPrice: null,          // API chưa có
+                        oldPrice: null,          
                         price: Number(item.price) > 0 ? Number(item.price) : null,
-                        discount: null,          // API chưa có discount
+                        discount: null,          
                         image: mainImage,
                     };
                 });
